@@ -1,6 +1,6 @@
 # In2000-Prosjekt
 Lag og push alltid til en egen branch. Aldri til main. På den måten holder vi main-branchen fri for bugs.
-Det anbefales å bruke ssh-nøkkel: [Guide](https://www.uio.no/tjenester/it/maskin/filer/versjonskontroll/github.html#ssh-nokler)
+Det anbefales å bruke ssh-nøkkel: [Guide til ssh-nøkkel og github her](https://www.uio.no/tjenester/it/maskin/filer/versjonskontroll/github.html#ssh-nokler)
 
 
 Steg:
@@ -11,7 +11,7 @@ Steg:
 5. git add .
 6. git commit -m "[kort beskrivelse av endringene]"
 7. git push --set-upstream origin [branch_navn]
-8. Åpne [Prosjektet](https://github.uio.no/dafolvel/In2000-Prosjekt)
+8. [Åpne Prosjektet](https://github.uio.no/dafolvel/In2000-Prosjekt)
 9. trykk på "Pull requests"
 10. "New Pull request"
 11. Base: main <- Compare :[branch_navn]
