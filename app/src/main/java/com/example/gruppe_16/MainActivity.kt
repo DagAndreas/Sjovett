@@ -23,6 +23,7 @@ class MainActivity : ComponentActivity() {
                     color = MaterialTheme.colorScheme.background
                 ) {
                     Hilsen("ankeret under bordet gjør sabla vondt")
+                    //kommentar
                 }
             }
         }
