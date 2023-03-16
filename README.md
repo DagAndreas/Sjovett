@@ -14,7 +14,7 @@ Steg:
 8. [Åpne Prosjektet](https://github.uio.no/dafolvel/In2000-Prosjekt)
 9. trykk på "Pull requests"
 10. "New Pull request"
-11. Base: main <- Compare :[branch_navn]
+11. Base: main <- Compare: [branch_navn]
 12. Create pull request
 
 13. Skriv kommentar av endringene du gjorde
