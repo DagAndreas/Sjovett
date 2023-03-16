@@ -4,7 +4,7 @@ Det anbefales å bruke ssh-nøkkel: [Guide til ssh-nøkkel og github her](https:
 
 
 Steg:
-1. git clone [repo]
+1. git clone [repo](https://github.uio.no/dafolvel/In2000-Prosjekt.git)
 2. git branch [branch_navn] //uten anførselstegn
 3. git checkout [branch_navn]
 4. // TO DO: gjør koden
