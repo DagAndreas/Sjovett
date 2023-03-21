@@ -3,7 +3,6 @@
 *.ap_
 
 *.iml
-.gradle
 .idea/
 
 #local config files
