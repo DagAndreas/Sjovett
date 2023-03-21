@@ -33,11 +33,3 @@ class MainActivity : ComponentActivity() {
 fun Hilsen(name: String) {
     Text(text = "Hello $name!")
 }
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    Gruppe16Theme {
-        Greeting("Android")
-    }
-}
