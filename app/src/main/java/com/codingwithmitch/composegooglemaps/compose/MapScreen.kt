@@ -44,16 +44,16 @@ fun MapScreen(
                     map.setOnCameraIdleListener(clusterManager)
                     map.setOnMarkerClickListener(clusterManager)
                     state.clusterItems.forEach { clusterItem -> //Her legges sonene inn
-                        //map.addPolygon(clusterItem.polygonOptions)
+                        map.addCircle(clusterItem.circleOptions)
                     }
                     map.setOnMapLoadedCallback {
                         if (state.clusterItems.isNotEmpty()) {
                             scope.launch {
                                 cameraPositionState.animate(
                                     update = CameraUpdateFactory.newLatLngBounds(
-                                        LatLngBounds(LatLng(50.0, 50.0), LatLng(50.0, 50.0)),
-                                        1
-                                    ),
+                                        LatLngBounds(LatLng(59.901813, 10.737704), LatLng(59.9229721390102, 10.776485210255048)),
+                                        100
+                                    )
                                 )
                             }
                         }

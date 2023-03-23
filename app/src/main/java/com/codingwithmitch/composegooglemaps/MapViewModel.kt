@@ -13,6 +13,7 @@ import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.ktx.model.circleOptions
+import com.google.maps.android.ktx.model.markerOptions
 import com.google.maps.android.ktx.model.polygonOptions
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -29,11 +30,11 @@ class MapViewModel @Inject constructor(): ViewModel() {
                     title = "Zone 3",
                     snippet = "This is Zone 3.",
                     circleOptions = circleOptions {
-                        center(LatLng(50.0, 50.0))
-                        radius(1500.0)
-                        strokeColor(Color.RED)
-                        fillColor(Color.RED)
-                        strokeWidth(5F)
+                        center(LatLng(59.911491, 10.757933))
+                        radius(250.0)
+                        fillColor(CIRCLE_FILL_COLOR)
+                        strokeWidth(2F)
+                        markerOptions { visible(false) } //funker ikke
                     } // circleOptions
                 )
                 /*
@@ -111,10 +112,9 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 
 
-
-    companion object {
-        private val POLYGON_FILL_COLOR = Color.parseColor("#ABF44336")
-    }
 */
+    companion object {
+        private val CIRCLE_FILL_COLOR = Color.parseColor("#ABF44336")
+    }
 
 }
