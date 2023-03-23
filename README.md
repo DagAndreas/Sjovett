@@ -1,3 +1,6 @@
+legg inn i local.properties:
+GOOGLE_MAPS_API_KEY=AIzaSyCtUtAv6RFDzClFOc8LbxK5B5cRybtb1KI
+
 # In2000-Prosjekt
 Lag og push alltid til en egen branch. Aldri til main. På den måten holder vi main-branchen fri for bugs.
 Det anbefales å bruke ssh-nøkkel: [Guide til ssh-nøkkel og github her](https://www.uio.no/tjenester/it/maskin/filer/versjonskontroll/github.html#ssh-nokler)
