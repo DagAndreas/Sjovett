@@ -2,6 +2,7 @@ package com.codingwithmitch.composegooglemaps.compose
 
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.*
@@ -27,6 +28,7 @@ fun MapScreen(
         // Only enable if user has accepted location permissions.
         isMyLocationEnabled = state.lastKnownLocation != null,
     )
+    Log.d("tester", state.lastKnownLocation.toString())
     val cameraPositionState = rememberCameraPositionState()
     Box(
         modifier = Modifier.fillMaxSize()
