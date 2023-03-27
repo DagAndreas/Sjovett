@@ -1,11 +1,6 @@
 package com.codingwithmitch.composegooglemaps
 
 import android.annotation.SuppressLint
-import android.content.Context
-import android.graphics.Color
-import android.graphics.Insets.add
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import com.codingwithmitch.composegooglemaps.clusters.*
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -59,6 +54,11 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     fun changeCircleRadius(newRadius: Double) {
         _state.value = state.value.copy(circle = state.value.circle.copy(radius = newRadius))
+    }
+
+    @JvmName("getState1")
+    fun getState(): MapState {
+        return _state.value
     }
 
 }
