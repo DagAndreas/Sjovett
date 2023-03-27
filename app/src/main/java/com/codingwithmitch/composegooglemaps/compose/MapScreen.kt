@@ -3,8 +3,10 @@ package com.codingwithmitch.composegooglemaps.compose
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonColors
 import androidx.compose.material.ButtonDefaults
@@ -12,6 +14,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -44,14 +47,16 @@ fun MapScreen(
     var circleVisibility by remember { mutableStateOf(false) }
 
     Box(
-        modifier = Modifier.fillMaxSize()
+        modifier = Modifier
+            //.clip(RoundedCornerShape(20.dp))
+            .fillMaxSize()
+            .padding(bottom = 70.dp, start = 20.dp, end = 20.dp, top = 20.dp)
     ) {
         GoogleMap(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp)),
             properties = mapProperties,
             cameraPositionState = cameraPositionState
         ) {
-
             Circle(
                 center = selectedCoordinate,
                 radius = state.circle.radius,
@@ -59,8 +64,6 @@ fun MapScreen(
                 strokeWidth = 2F,
                 visible = circleVisibility
             )
-
-            
         }
     }
     Button(
@@ -72,7 +75,7 @@ fun MapScreen(
         },
         modifier = Modifier
             .wrapContentWidth(CenterHorizontally)
-            .padding(start = 160.dp, top = 530.dp)
+            .padding(start = 160.dp, top = 450.dp)
             .size(90.dp),
         shape = CircleShape,
         colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
