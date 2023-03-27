@@ -48,11 +48,7 @@ class MapActivity : ComponentActivity() {
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         askPermissions()
         setContent {
-            MapScreen(
-                state = viewModel.state.value,
-                setupClusterManager = viewModel::setupClusterManager,
-                //calculateZoneViewCenter = viewModel::calculateZoneLatLngBounds
-            )
+            MapScreen(viewModel = viewModel)
         }
     }
 }
