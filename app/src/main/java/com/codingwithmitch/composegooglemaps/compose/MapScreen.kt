@@ -88,7 +88,6 @@ fun MapScreen(
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
             border= BorderStroke(1.dp, Color.Red),
-            enabled = enabled
 
         ) {
             Text(
@@ -103,17 +102,16 @@ fun MapScreen(
                 selectedCoordinate = calculateNewPosition(selectedCoordinate)
             },
             modifier = Modifier
-                .padding(start = 170.dp)
+                .padding(start = 168.dp)
                 .size(70.dp)
                 .border(BorderStroke(0.dp, Color.Transparent), shape = CircleShape),
-            colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent)
+            colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent),
+            elevation = null
 
         ) {
             Icon(
                 imageVector = Icons.Default.Refresh,
-                contentDescription = "refreshButton",
-                modifier = Modifier.padding(all = 0.dp)
-
+                contentDescription = "refreshButton"
             )
         }
     }
