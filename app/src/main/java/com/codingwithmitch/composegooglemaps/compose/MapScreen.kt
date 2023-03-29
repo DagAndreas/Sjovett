@@ -3,12 +3,19 @@ package com.codingwithmitch.composegooglemaps.compose
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
+import androidx.compose.material.Icon
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Refresh
+import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.materialIcon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -39,18 +46,21 @@ fun MapScreen(
     Log.d("tester", state.lastKnownLocation.toString())
 
     val cameraPositionState = rememberCameraPositionState()
-    val selectedCoordinate by remember { mutableStateOf(state.circle.coordinates) }
+    var selectedCoordinate by remember { mutableStateOf(state.circle.coordinates) }
     var circleVisibility by remember { mutableStateOf(false) }
+    var enabled by remember { mutableStateOf(true) }
 
     Box(
         modifier = Modifier
             //.clip(RoundedCornerShape(20.dp))
             .fillMaxSize()
-            .padding(bottom = 70.dp, start = 20.dp, end = 20.dp, top = 20.dp)
+            .padding(bottom = 60.dp /*, start = 20.dp, end = 20.dp, top = 20.dp */)
     ) {
         GoogleMap(
-            modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(20.dp)),
-            properties = mapProperties,
+            modifier = Modifier
+                .fillMaxSize()
+                //.clip(RoundedCornerShape(20.dp)),
+            ,properties = mapProperties,
             cameraPositionState = cameraPositionState
         ) {
             Circle(
@@ -62,28 +72,52 @@ fun MapScreen(
             )
         }
     }
-    Button(
-        onClick = {
-            //selectedCoordinate = locationToLatLng(state.lastKnownLocation)
-            viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation))
-            circleVisibility = true
-            calculateNewPosition(viewModel, state.circle.coordinates)
-        },
-        modifier = Modifier
-            .wrapContentWidth(CenterHorizontally)
-            .padding(start = 160.dp, top = 450.dp)
-            .size(90.dp),
-        shape = CircleShape,
-        colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
-        border= BorderStroke(1.dp, Color.Red)
+    Column() {
+        Button(
+            onClick = {
+                selectedCoordinate = locationToLatLng(state.lastKnownLocation)
+                viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation))
+                circleVisibility = true
+                enabled = false
+                //calculateNewPosition(viewModel, state.circle.coordinates)
+            },
+            modifier = Modifier
+                .wrapContentWidth(CenterHorizontally)
+                .padding(start = 160.dp, top = 450.dp)
+                .size(90.dp),
+            shape = CircleShape,
+            colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
+            border= BorderStroke(1.dp, Color.Red),
+            enabled = enabled
 
-    ) {
-        Text(
-            text = "SOS",
-            fontWeight = FontWeight.Bold,
-            fontSize = 20.sp
-        )
+        ) {
+            Text(
+                text = "SOS",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+        }
+
+        Button(
+            onClick = {
+                selectedCoordinate = calculateNewPosition(selectedCoordinate)
+            },
+            modifier = Modifier
+                .padding(start = 170.dp)
+                .size(70.dp)
+                .border(BorderStroke(0.dp, Color.Transparent), shape = CircleShape),
+            colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent)
+
+        ) {
+            Icon(
+                imageVector = Icons.Default.Refresh,
+                contentDescription = "refreshButton",
+                modifier = Modifier.padding(all = 0.dp)
+
+            )
+        }
     }
+
 }
 
 /**
@@ -98,6 +132,23 @@ private suspend fun CameraPositionState.centerOnLocation(
         15f
     ),
 )
+
+const val degrees = 180.0
+const val seaSpeed = 1.0
+const val searchTime = 5.0
+fun calculateNewPosition(coordinate: LatLng): LatLng {
+
+    val newCoordinate = test(coordinate)
+
+    //viewModel.changeCircleCoordinate(newCoordinate)
+
+    //Thread.sleep(5000)
+
+    //calculateNewPosition(viewModel, newCoordinate)
+
+    return newCoordinate
+
+}
 
 private fun locationToLatLng(loc: Location?): LatLng {
     return LatLng(loc!!.latitude, loc.longitude)
@@ -136,23 +187,11 @@ fun calculatePosition(coordinatesStart:List<Double>,
     return LatLng(newLat, newLng)
 }
 
-const val degrees = 180.0
-const val seaSpeed = 10.0
-const val searchTime = 20.0
+
 private fun test(coordinate: LatLng): LatLng {
     return calculatePosition(listOf(coordinate.latitude, coordinate.longitude), degrees, seaSpeed, searchTime)
 }
 
-fun calculateNewPosition(viewModel: MapViewModel, coordinate: LatLng) {
-    Thread.sleep(5000)
-
-    val newCoordinate = test(coordinate)
-
-    viewModel.changeCircleCoordinate(newCoordinate)
-
-    test(viewModel.getState().circle.coordinates)
-
-}
 
 
 
