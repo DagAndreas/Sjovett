@@ -3,23 +3,14 @@ package com.codingwithmitch.composegooglemaps.compose
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Icon
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Refresh
-import androidx.compose.material.icons.filled.Settings
-import androidx.compose.material.icons.materialIcon
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -29,7 +20,11 @@ import com.codingwithmitch.composegooglemaps.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import kotlin.math.*
+import kotlinx.coroutines.delay
+import kotlin.math.asin
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 fun MapScreen(
@@ -45,16 +40,20 @@ fun MapScreen(
 
     Log.d("tester", state.lastKnownLocation.toString())
 
-    val cameraPositionState = rememberCameraPositionState()
+    val cameraPositionState = rememberCameraPositionState{
+        //position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
+    }
     var selectedCoordinate by remember { mutableStateOf(state.circle.coordinates) }
     var circleVisibility by remember { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(true) }
 
     Box(
+        /*
         modifier = Modifier
             //.clip(RoundedCornerShape(20.dp))
             .fillMaxSize()
             .padding(bottom = 60.dp /*, start = 20.dp, end = 20.dp, top = 20.dp */)
+         */
     ) {
         GoogleMap(
             modifier = Modifier
@@ -95,8 +94,15 @@ fun MapScreen(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
+            LaunchedEffect(selectedCoordinate) { //oppdaterer posisjon hvert 3. sek
+                while(true) {
+                    delay(3000)
+                    selectedCoordinate = calculateNewPosition(selectedCoordinate)
+                }
+            }
         }
 
+        /*
         Button(
             onClick = {
                 selectedCoordinate = calculateNewPosition(selectedCoordinate)
@@ -114,6 +120,7 @@ fun MapScreen(
                 contentDescription = "refreshButton"
             )
         }
+         */
     }
 
 }

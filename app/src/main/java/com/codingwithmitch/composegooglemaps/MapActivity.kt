@@ -8,10 +8,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
@@ -78,42 +75,46 @@ class MapActivity : ComponentActivity() {
 
             BottomNavWithBadgesTheme {
                 val navController = rememberNavController()
-                Scaffold(
-                    bottomBar = {
-                        BottomNavigationBar(
-                            items = listOf(
-                                BottomNavItem(
-                                    name = "Kart",
-                                    route = "kart",
-                                    icon = Icons.Default.Map,
-                                ),
-                                BottomNavItem(
-                                    name = "Været",
-                                    route = "været",
-                                    icon = Icons.Default.WbSunny,
 
-                                    ),
-                                BottomNavItem(
-                                    name = "Tidsbruk",
-                                    route = "tidsbruk",
-                                    icon = Icons.Default.Timer,
-
-                                    ),
-                                BottomNavItem(
-                                    name = "Verktøy",
-                                    route = "verktoy",
-                                    icon = Icons.Default.Settings,
-
-                                    ),
-                            ),
-                            navController = navController,
-                            onItemClick = {
-                                navController.navigate(it.route)
-                            }
-                        )
+                Column() {
+                    Box(
+                        modifier = Modifier
+                            .fillMaxHeight(0.912F)
+                    ) {
+                        Navigation(navController = navController, viewModel = viewModel)
                     }
-                ) {
-                    Navigation(navController = navController, viewModel = viewModel)
+
+                    BottomNavigationBar(
+                        items = listOf(
+                            BottomNavItem(
+                                name = "Kart",
+                                route = "kart",
+                                icon = Icons.Default.Map,
+                            ),
+                            BottomNavItem(
+                                name = "Været",
+                                route = "været",
+                                icon = Icons.Default.WbSunny,
+
+                                ),
+                            BottomNavItem(
+                                name = "Tidsbruk",
+                                route = "tidsbruk",
+                                icon = Icons.Default.Timer,
+
+                                ),
+                            BottomNavItem(
+                                name = "Verktøy",
+                                route = "verktoy",
+                                icon = Icons.Default.Settings,
+
+                                ),
+                        ),
+                        navController = navController,
+                        onItemClick = {
+                            navController.navigate(it.route)
+                        }
+                    )
                 }
             }
         }
