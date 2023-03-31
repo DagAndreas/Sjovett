@@ -8,6 +8,7 @@
 
 #Gradle
 .gradle/
+*.lock
 
 # Local configuration files
 /local.properties
