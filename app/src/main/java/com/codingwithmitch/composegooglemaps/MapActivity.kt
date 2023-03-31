@@ -31,6 +31,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.codingwithmitch.composegooglemaps.compose.MapScreen
+import com.codingwithmitch.composegooglemaps.compose.TidsbrukScreen
+import com.codingwithmitch.composegooglemaps.screens.StormWarning
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.plcoding.bottomnavwithbadges.ui.theme.BottomNavWithBadgesTheme
@@ -128,10 +130,12 @@ fun Navigation(navController: NavHostController, viewModel: MapViewModel) {
             MapScreen(viewModel = viewModel)
         }
         composable("været") {
-            VaeretScreen()
+            val stormWarningViewModels = MetAlertsViewModel()
+            val temperatureViewModel = LocationForecastViewModel()
+            StormWarning(stormWarningViewModels,temperatureViewModel, modifier = Modifier)
         }
         composable("tidsbruk") {
-            TidsbrukScreen()
+            TidsbrukScreen(viewModel = viewModel)
         }
         composable("verktoy") {
             VerktoyScreen()
@@ -213,14 +217,4 @@ fun VerktoyScreen() {
     }
 }
 
-@Composable
-fun TidsbrukScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Tidsbruk")
-    }
-
-}
 
