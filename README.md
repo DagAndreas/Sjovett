@@ -1,6 +1,9 @@
 legg inn i local.properties:
-GOOGLE_MAPS_API_KEY=AIzaSyCtUtAv6RFDzClFOc8LbxK5B5cRybtb1KI
+{
 
+    GOOGLE_MAPS_API_KEY=AIzaSyCtUtAv6RFDzClFOc8LbxK5B5cRybtb1KI
+
+}
 gradle.build:
 {
 
