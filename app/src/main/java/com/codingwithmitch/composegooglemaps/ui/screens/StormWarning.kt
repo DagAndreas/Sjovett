@@ -24,9 +24,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.codingwithmitch.composegooglemaps.LocationForecastViewModel
 import com.codingwithmitch.composegooglemaps.viewmodel.MetAlertsViewModel
 import com.codingwithmitch.composegooglemaps.R
+import com.codingwithmitch.composegooglemaps.viewmodel.LocationForecastViewModel
 import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Geometry
 

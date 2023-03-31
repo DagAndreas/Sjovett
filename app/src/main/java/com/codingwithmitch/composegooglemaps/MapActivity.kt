@@ -33,6 +33,7 @@ import com.codingwithmitch.composegooglemaps.compose.MapScreen
 import com.codingwithmitch.composegooglemaps.compose.TidsbrukScreen
 import com.codingwithmitch.composegooglemaps.ui.BottomNavItem
 import com.codingwithmitch.composegooglemaps.ui.screens.StormWarning
+import com.codingwithmitch.composegooglemaps.viewmodel.LocationForecastViewModel
 import com.codingwithmitch.composegooglemaps.viewmodel.MapViewModel
 import com.codingwithmitch.composegooglemaps.viewmodel.MetAlertsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
