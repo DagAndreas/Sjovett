@@ -10,7 +10,8 @@ android {
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.codingwithmitch.composegooglemaps"
+        //applicationId "com.codingwithmitch.composegooglemaps"
+        applicationId "com.in2000_project.BoatApp"
         minSdk 21
         targetSdk 33
         versionCode 1
