@@ -1,31 +1,36 @@
-#Built application files
+# Built application files
 *.apk
 *.ap_
 
+# IntelliJ IDEA files
 *.iml
 .idea/
 
-#local config files
+#Gradle
+.gradle/
+
+# Local configuration files
 /local.properties
 /.idea/caches
 /.idea/libraries
 .idea/dictionaries
-/.idea/modules.xml
-/.idea/workspace.xml
-/.idea/navEditor.xml
-/.idea/assetWizardSettings.xml
+.idea/modules.xml
+.idea/workspace.xml
+.idea/navEditor.xml
+.idea/assetWizardSettings.xml
 .DS_Store
+
+# Build directories
 /build
 /captures
 .externalNativeBuild
 .cxx
-local.properties
 
-#Generated files (e.g. from annotations processors)
+# Generated files (e.g. from annotations processors)
 generated/
 
-#Crashlytics config files
-faberic.properties
+# Crashlytics config files
+fabric.properties
 
-#keystore files
+# Keystore files
 *.jks
