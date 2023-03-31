@@ -1,8 +1,9 @@
-package com.codingwithmitch.composegooglemaps
+package com.codingwithmitch.composegooglemaps.viewmodel
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
 import com.codingwithmitch.composegooglemaps.clusters.*
+import com.codingwithmitch.composegooglemaps.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import dagger.hilt.android.lifecycle.HiltViewModel

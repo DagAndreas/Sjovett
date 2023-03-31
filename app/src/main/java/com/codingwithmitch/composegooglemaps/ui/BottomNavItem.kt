@@ -1,4 +1,4 @@
-package com.codingwithmitch.composegooglemaps
+package com.codingwithmitch.composegooglemaps.ui
 
 import androidx.compose.ui.graphics.vector.ImageVector
 

@@ -1,4 +1,4 @@
-package com.codingwithmitch.composegooglemaps
+package com.codingwithmitch.composegooglemaps.data
 
 import android.location.Location
 import com.codingwithmitch.composegooglemaps.clusters.CircleInfo

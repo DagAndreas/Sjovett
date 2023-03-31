@@ -23,7 +23,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
-import androidx.lifecycle.ViewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -32,7 +31,10 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.codingwithmitch.composegooglemaps.compose.MapScreen
 import com.codingwithmitch.composegooglemaps.compose.TidsbrukScreen
-import com.codingwithmitch.composegooglemaps.screens.StormWarning
+import com.codingwithmitch.composegooglemaps.ui.BottomNavItem
+import com.codingwithmitch.composegooglemaps.ui.screens.StormWarning
+import com.codingwithmitch.composegooglemaps.viewmodel.MapViewModel
+import com.codingwithmitch.composegooglemaps.viewmodel.MetAlertsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.plcoding.bottomnavwithbadges.ui.theme.BottomNavWithBadgesTheme

@@ -1,4 +1,4 @@
-package com.codingwithmitch.composegooglemaps
+package com.codingwithmitch.composegooglemaps.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

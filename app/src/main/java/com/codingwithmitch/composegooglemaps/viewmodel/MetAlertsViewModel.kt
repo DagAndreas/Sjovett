@@ -1,4 +1,4 @@
-package com.codingwithmitch.composegooglemaps
+package com.codingwithmitch.composegooglemaps.viewmodel
 
 import com.codingwithmitch.composegooglemaps.data.ApiDataSource
 import com.codingwithmitch.composegooglemaps.data.StormWarningUiState

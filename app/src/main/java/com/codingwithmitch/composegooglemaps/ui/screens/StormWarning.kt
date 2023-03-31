@@ -1,12 +1,8 @@
-package com.codingwithmitch.composegooglemaps.screens
+package com.codingwithmitch.composegooglemaps.ui.screens
 
 //package com.example.StormWarning
 
-import android.annotation.SuppressLint
-import android.icu.text.SimpleDateFormat
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
@@ -29,7 +25,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.codingwithmitch.composegooglemaps.LocationForecastViewModel
-import com.codingwithmitch.composegooglemaps.MetAlertsViewModel
+import com.codingwithmitch.composegooglemaps.viewmodel.MetAlertsViewModel
 import com.codingwithmitch.composegooglemaps.R
 import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Geometry
