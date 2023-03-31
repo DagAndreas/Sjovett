@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.codingwithmitch.composegooglemaps">
+    package="com.in2000_project.BoatApp">
 
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
@@ -10,7 +10,7 @@
 
 
     <application
-        android:name=".MapApplication"
+        android:name="com.in2000_project.BoatApp.MapApplication"
         android:allowBackup="false"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -18,16 +18,16 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.ComposeGoogleMaps"
+        android:theme="@style/Theme.BoatApp"
         tools:targetApi="31">
         <meta-data
             android:name="com.google.android.geo.API_KEY"
             android:value="${GOOGLE_MAPS_API_KEY}"/>
         <activity
-            android:name=".MapActivity"
+            android:name="com.in2000_project.BoatApp.MapActivity"
             android:exported="true"
             android:label="@string/app_name"
-            android:theme="@style/Theme.ComposeGoogleMaps"
+            android:theme="@style/Theme.BoatApp"
             >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
