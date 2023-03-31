@@ -4,6 +4,7 @@ GOOGLE_MAPS_API_KEY=AIzaSyCtUtAv6RFDzClFOc8LbxK5B5cRybtb1KI
 gradle.build:
 
 dependencies {
+    
     implementation "androidx.core:core-ktx:1.9.0"
     implementation "androidx.core:core:1.9.0"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
