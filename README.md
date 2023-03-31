@@ -1,12 +1,10 @@
 legg inn i local.properties:
-{
+
 
     GOOGLE_MAPS_API_KEY=AIzaSyCtUtAv6RFDzClFOc8LbxK5B5cRybtb1KI
 
-}
 
 gradle.build:
-{
 
     dependencies {
 
@@ -80,7 +78,6 @@ gradle.build:
         implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
     }
 
-}
 
 # In2000-Prosjekt
 Lag og push alltid til en egen branch. Aldri til main. På den måten holder vi main-branchen fri for bugs.
