@@ -1,29 +1,31 @@
 package com.in2000_project.BoatApp.compose
 
+
 import android.location.Location
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Slider
 import androidx.compose.material.Text
+import androidx.compose.material.TextButton
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.graphics.toColorInt
-import com.in2000_project.BoatApp.viewmodel.MapViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.compose.*
+import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import kotlin.math.roundToInt
 import kotlin.math.*
 
-
 @Composable
 fun TidsbrukScreen(
-    viewModel: MapViewModel
+    viewModel: MapViewModel = viewModel()
 ) {
-
     // Define the state variables
     var knot by remember { mutableStateOf(0f) }
     val state by viewModel.state.collectAsState()
@@ -31,36 +33,100 @@ fun TidsbrukScreen(
         // Only enable if user has accepted location permissions.
         isMyLocationEnabled = state.lastKnownLocation != null,
     )
+
     val cameraPositionState = rememberCameraPositionState()
-    var myPosition by remember { mutableStateOf(locationToLatLng(state.lastKnownLocation) )}
-    var onClickPosition by remember { mutableStateOf(LatLng(0.0, 0.0)) }
-    var markerPosition by remember { mutableStateOf<LatLng?>(null) }
+    // stores position of the user
+    var myPosition by remember { mutableStateOf(locationToLatLng(state.lastKnownLocation)!!) }
+    // a list containing the markers the user creates
+    val markerPositions = remember { mutableStateListOf<LatLng>().apply {add(myPosition)}}
+    // a list of lines between the markers
+    val polyLines = remember { mutableStateListOf<PolylineOptions>() }
+    // text that should be displayed to the user
+    var displayedText by remember { mutableStateOf("")}
+    // distance between all of the markers
+    var coordinatesToFindDistanceBetween = remember { mutableStateListOf<LatLng>().apply { add(myPosition) } }
+    var distanceInMeters by remember { mutableStateOf(0.0) }
+    var lengthInMinutes by remember { mutableStateOf(0.0) }
 
-    var displayedText by remember {mutableStateOf("Valgt hastighet: ${knot.roundToInt()} knop")}
 
-    // Define the function to update the slider value
+    // Define the function to update displayed text
+    fun updateDisplayedText() {
+        if (knot == 0f) {
+            displayedText = "Du vil ikke komme fram hvis du kjører 0 knop"
+        }
+        else{
+            if(markerPositions.size < 2) {
+                displayedText = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
+            }
+            else {
+                displayedText = "${formatTime(lengthInMinutes)}"
+            }
+        }
+    }
+    // Define the function to update the slider value and displayed text
     val onKnotChanged: (Float) -> Unit = { value ->
         knot = value.roundToInt().toFloat()
+        lengthInMinutes = calculateTimeInMinutes(distanceInMeters, knot)
+        updateDisplayedText()
     }
 
     // Define the function to handle long press on the map
     val onLongPress: (LatLng) -> Unit = { position ->
-        onClickPosition = position
-        markerPosition = position
-        // Do something with the position, e.g. save it to a database
+        markerPositions.add(position)
+        coordinatesToFindDistanceBetween.add(position)
+        val lastPosition = markerPositions[markerPositions.size - 2]
+        val options = PolylineOptions()
+            .add(lastPosition, position)
+            .color(android.graphics.Color.RED)
+        polyLines.add(options)
+        if (coordinatesToFindDistanceBetween.size > 1) {
+            distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
+            lengthInMinutes = calculateTimeInMinutes(distanceInMeters, knot)
+            updateDisplayedText()
+        }
+    }
+
+    // Define the function to minimize the screen
+    fun removeLastMarker() {
+        if (markerPositions.size > 1) {
+            val removedMarker = markerPositions.removeLast()
+            coordinatesToFindDistanceBetween.remove(removedMarker)
+            polyLines.removeLast()
+            if (coordinatesToFindDistanceBetween.size > 1) {
+                distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
+                lengthInMinutes = calculateTimeInMinutes(distanceInMeters, knot)
+            } else {
+                distanceInMeters = 0.0
+                lengthInMinutes = 0.0
+            }
+            updateDisplayedText()
+        }
     }
 
     // Define the UI
     Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(20.dp)
+        modifier = Modifier.fillMaxSize()
     ) {
-        Text(
-            text = "Velg antall knop:",
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
-        )
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Antall knop: ${knot.toInt()}",
+                fontSize = 25.sp,
+                fontWeight = FontWeight.Bold,
+                modifier = Modifier.padding(20.dp)
+            )
+            TextButton(
+                onClick = { removeLastMarker() },
+                modifier = Modifier.padding(16.dp),
+
+                ) {
+                Text(text = "-", fontSize = 25.sp)
+            }
+        }
+
         Slider(
             value = knot,
             onValueChange = onKnotChanged,
@@ -69,28 +135,17 @@ fun TidsbrukScreen(
             modifier = Modifier
                 .fillMaxWidth()
         )
-        if (markerPosition==null){
-            displayedText = "Valgt hastighet: ${knot.roundToInt()} knop"
-        }
-        else{
-            if(knot==0f){
-                displayedText = "Du vil ikke komme fram hvis du kjører 0 knop"
-            }
-            else{
-                displayedText = "Når du kjører fra din posisjon til markøren sin posisjon, i ${knot.toInt()} knop vil du bruke "+ formatTime(calculateTravelTimeInMinutes(myPosition, markerPosition!!, knot))
-            }
 
-        }
         Text(
             text = displayedText,
             fontSize = 12.sp,
-            modifier = Modifier.padding(top = 8.dp)
+            modifier = Modifier.padding(top = 8.dp, start = 8.dp)
         )
         Box(
             modifier = Modifier
                 //.clip(RoundedCornerShape(20.dp))
                 .fillMaxSize()
-                .padding(top = 20.dp, bottom = 70.dp, start = 20.dp, end = 20.dp)
+                .padding(top = 20.dp)
         ) {
             GoogleMap(
                 modifier = Modifier.fillMaxSize(),
@@ -98,15 +153,16 @@ fun TidsbrukScreen(
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
-                if (markerPosition != null) {
+                markerPositions.forEach { position ->
                     Marker(
-                        state = MarkerState(position = markerPosition!!)
-                    )
-                    Polyline(
-                        points = listOf(myPosition, markerPosition!!),
-                        color = Color("#ABF44336".toColorInt())
+                        state = MarkerState(position = position)
                     )
                 }
+                polyLines.forEach { options ->
+                    val points = options.getPoints()
+                    Polyline(points)
+                }
+
             }
         }
     }
@@ -123,23 +179,35 @@ private suspend fun CameraPositionState.centerOnLocation(
     ),
 )
 
-private fun calculateTravelTimeInMinutes(coordinateA: LatLng, coordinateB: LatLng, knots: Float): Float {
-    // Calculate the distance in nautical miles between the two coordinates
-    val earthRadiusInNauticalMiles = 3440.06479
-    val latDistance = Math.toRadians(coordinateB.latitude - coordinateA.latitude)
-    val lngDistance = Math.toRadians(coordinateB.longitude - coordinateA.longitude)
-    val a = sin(latDistance / 2) * sin(latDistance / 2) +
-            cos(Math.toRadians(coordinateA.latitude)) * cos(Math.toRadians(coordinateB.latitude)) *
-            sin(lngDistance / 2) * sin(lngDistance / 2)
-    val c = 2 * atan2(sqrt(a), sqrt(1 - a))
-    val distanceInNauticalMiles = earthRadiusInNauticalMiles * c
-
-    // Calculate the time in minutes to travel the distance at the given speed
-    val speedInNauticalMilesPerMinute = knots / 60f
-    val travelTimeInMinutes = distanceInNauticalMiles / speedInNauticalMilesPerMinute
-    return travelTimeInMinutes.toFloat()
+private fun calculateDistance(coordinates: List<LatLng>): Double {
+    var distanceInMeters = 0.0
+    for (i in 0 until coordinates.size - 1) {
+        val lat1 = coordinates[i].latitude
+        val lon1 = coordinates[i].longitude
+        val lat2 = coordinates[i + 1].latitude
+        val lon2 = coordinates[i + 1].longitude
+        val dLat = (lat2 - lat1).toRadians()
+        val dLon = (lon2 - lon1).toRadians()
+        val a = sin(dLat/2) * sin(dLat/2) + cos(lat1.toRadians()) * cos(lat2.toRadians()) * sin(dLon/2) * sin(dLon/2)
+        val c = 2 * atan2(sqrt(a), sqrt(1-a))
+        distanceInMeters += 6371e3 * c // Earth radius in meters
+    }
+    return distanceInMeters
 }
-fun formatTime(duration: Float): String {
+
+private fun Double.toRadians(): Double {
+    return this * PI / 180
+}
+
+fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Double {
+    // 1 knot = 0.514444 m/s
+    val speedInMetersPerSecond = speedInKnots * 0.514444
+    val timeInSeconds = distanceInMeters / speedInMetersPerSecond
+    val timeInMinutes = timeInSeconds / 60
+    return timeInMinutes
+}
+
+fun formatTime(duration: Double): String {
     return when {
         duration < 60 -> "${duration.roundToInt()} minutter"
         duration < 1440 -> {
@@ -162,4 +230,3 @@ fun formatTime(duration: Float): String {
 private fun locationToLatLng(loc: Location?): LatLng {
     return LatLng(loc!!.latitude, loc.longitude)
 }
-
