@@ -44,8 +44,10 @@ fun MapScreen(
         //position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
     }
     var selectedCoordinate by remember { mutableStateOf(state.circle.coordinates) }
+    var currentRadius by remember { mutableStateOf(25.0) }
     var circleVisibility by remember { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(true) }
+    var counter by remember { mutableStateOf( 0 ) }
 
     Box(
         /*
@@ -64,7 +66,7 @@ fun MapScreen(
         ) {
             Circle(
                 center = selectedCoordinate,
-                radius = state.circle.radius,
+                radius = currentRadius,
                 fillColor = Color("#ABF44336".toColorInt()),
                 strokeWidth = 2F,
                 visible = circleVisibility
@@ -75,10 +77,9 @@ fun MapScreen(
         Button(
             onClick = {
                 selectedCoordinate = locationToLatLng(state.lastKnownLocation)
-                viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation))
+                viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //unødvendig?
                 circleVisibility = true
                 enabled = false
-                //calculateNewPosition(viewModel, state.circle.coordinates)
             },
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
@@ -87,6 +88,7 @@ fun MapScreen(
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
             border= BorderStroke(1.dp, Color.Red),
+            enabled = enabled
 
         ) {
             Text(
@@ -96,33 +98,15 @@ fun MapScreen(
             )
             LaunchedEffect(selectedCoordinate) { //oppdaterer posisjon hvert 3. sek
                 while(true) {
-                    delay(3000)
+                    delay(60000)
+                    counter++
+
                     selectedCoordinate = calculateNewPosition(selectedCoordinate)
+                    currentRadius = calculateRadius(counter)
                 }
             }
         }
-
-        /*
-        Button(
-            onClick = {
-                selectedCoordinate = calculateNewPosition(selectedCoordinate)
-            },
-            modifier = Modifier
-                .padding(start = 168.dp)
-                .size(70.dp)
-                .border(BorderStroke(0.dp, Color.Transparent), shape = CircleShape),
-            colors = ButtonDefaults.outlinedButtonColors(backgroundColor = Color.Transparent),
-            elevation = null
-
-        ) {
-            Icon(
-                imageVector = Icons.Default.Refresh,
-                contentDescription = "refreshButton"
-            )
-        }
-         */
     }
-
 }
 
 /**
@@ -140,19 +124,9 @@ private suspend fun CameraPositionState.centerOnLocation(
 
 const val degrees = 180.0
 const val seaSpeed = 1.0
-const val searchTime = 5.0
+const val searchTime = 1.0
 fun calculateNewPosition(coordinate: LatLng): LatLng {
-
-    val newCoordinate = test(coordinate)
-
-    //viewModel.changeCircleCoordinate(newCoordinate)
-
-    //Thread.sleep(5000)
-
-    //calculateNewPosition(viewModel, newCoordinate)
-
-    return newCoordinate
-
+    return calculatePosition(listOf(coordinate.latitude, coordinate.longitude), degrees, seaSpeed, searchTime)
 }
 
 private fun locationToLatLng(loc: Location?): LatLng {
@@ -190,6 +164,17 @@ fun calculatePosition(coordinatesStart:List<Double>,
     val newLng = Math.toDegrees(newLngInRadians)
 
     return LatLng(newLat, newLng)
+}
+
+
+fun calculateRadius(minutes: Int): Double {
+
+    var newRadius: Double = minutes * 5.0
+
+    return if (newRadius > 200.0) 200.0
+    else if (newRadius < 25.0) 25.0
+    else newRadius
+
 }
 
 

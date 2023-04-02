@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp.maps.clusters
+package com.in2000_project.BoatApp.maps
 
 import com.google.android.gms.maps.model.LatLng
 
