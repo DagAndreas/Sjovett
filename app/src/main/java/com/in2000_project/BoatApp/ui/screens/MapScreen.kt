@@ -87,6 +87,7 @@ fun MapScreen(
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
             border= BorderStroke(1.dp, Color.Red),
+            enabled = enabled
 
         ) {
             Text(

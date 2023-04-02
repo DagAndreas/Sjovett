@@ -2,10 +2,11 @@ package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
-import com.in2000_project.BoatApp.maps.clusters.*
+import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
+import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow

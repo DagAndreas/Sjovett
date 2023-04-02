@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp.maps.clusters
+package com.in2000_project.BoatApp.maps
 
 /**
  * A set of utility functions for centering the camera given some [LatLng] points.
