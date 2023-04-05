@@ -16,15 +16,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import com.example.gruppe_16.model.oceanforecast.OceanForecastResponse
+import com.example.gruppe_16.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import kotlinx.coroutines.delay
-import kotlin.math.asin
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
+import com.in2000_project.BoatApp.data.OceanForecastDataSource
+import com.in2000_project.BoatApp.viewmodel.ApiViewModel
+import com.in2000_project.BoatApp.viewmodel.OceanForecastViewModel
+import com.in2000_project.BoatApp.viewmodel.OceanViewModel
+import kotlinx.coroutines.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.math.*
 
 @Composable
 fun MapScreen(
@@ -48,6 +53,14 @@ fun MapScreen(
     var circleVisibility by remember { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(true) }
     var counter by remember { mutableStateOf( 0 ) }
+    var oceanForecastResponse: OceanForecastResponse
+
+    
+    val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
+    val currentLat = state.lastKnownLocation!!.latitude
+    val currentLong = state.lastKnownLocation!!.longitude
+    val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
+
 
     Box(
         /*
@@ -96,12 +109,14 @@ fun MapScreen(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
+
+            /** */
             LaunchedEffect(selectedCoordinate) { //oppdaterer posisjon hvert 3. sek
                 while(true) {
                     delay(60000)
                     counter++
 
-                    selectedCoordinate = calculateNewPosition(selectedCoordinate)
+                    selectedCoordinate = calculateNewPosition2(selectedCoordinate, oceanViewModel)
                     currentRadius = calculateRadius(counter)
                 }
             }
@@ -129,8 +144,41 @@ fun calculateNewPosition(coordinate: LatLng): LatLng {
     return calculatePosition(listOf(coordinate.latitude, coordinate.longitude), degrees, seaSpeed, searchTime)
 }
 
+
+/** når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
+ * på nytt. */
+fun calculateNewPosition2(coordinate: LatLng, ovm: OceanViewModel): LatLng{
+    //henter oceanforecast objektet
+    val oceanForecastResponse: OceanForecastResponse = ovm.oceanForecastResponse
+
+    //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
+    val OceanForecastWaterData = findClosestTimesery(oceanForecastResponse.properties.timeseries)
+
+
+
+
+
+
+
+    return calculatePosition(listOf(coordinate.latitude, coordinate.latitude) /**degrees, seaSpeed, searchTime*/ )
+}
+
+fun findClosestTimesery(timeseries: List<Timesery>): Timesery {
+    //finner nåværende klokkeslett
+    val calendar: Calendar
+    val dateFormat = SimpleDateFormat("MM-dd-yyyy HH:mm:ss")
+    val formattedDate = dateFormat.format(Date())
+
+    var closesIndex = 0
+    for (i in timeseries.indices){
+        val diff = timeseries.
+        if (timeseries[closesIndex].time -         )
+    }
+    return timeseries[closesIndex]
+}
+
 private fun locationToLatLng(loc: Location?): LatLng {
-    return LatLng(loc!!.latitude, loc.longitude)
+    return LatLng(loc!!.latitude, loc.longitude) //assert bare på 1 loc?
 }
 
 // should find a way to know when it changes grid

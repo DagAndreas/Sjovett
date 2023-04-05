@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.*
 
+/** blir denne brukt?*/
 class OceanForecastViewModel: ViewModel() {
     // should find a way to know when it changes grid
     // take into account that I assume timeCheckingFor is given in minutes
