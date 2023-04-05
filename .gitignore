@@ -9,6 +9,16 @@
 #Gradle
 .gradle/
 *.lock
+.gradle/7.3.3/executionHistory/executionHistory.bin
+.gradle/7.3.3/executionHistory/executionHistory.lock
+.gradle/7.3.3/fileHashes/fileHashes.bin
+.gradle/7.3.3/fileHashes/fileHashes.lock
+.gradle/7.3.3/fileHashes/resourceHashesCache.bin
+.gradle/buildOutputCleanup/buildOutputCleanup.lock
+.gradle/buildOutputCleanup/outputFiles.bin
+.gradle/file-system.probe
+
+
 
 # Local configuration files
 /local.properties
