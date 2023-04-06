@@ -1,5 +1,6 @@
 package com.in2000_project.BoatApp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.in2000_project.BoatApp.data.ApiDataSource
@@ -20,23 +21,30 @@ class ApiViewModel: ViewModel() {
         locationForecastResponse = getLocationForecastResponse("https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=60.10&lon=9.58")
     }
     fun getMetAlertsResponse(path: String): MetAlertsResponse{
+        Log.d("API_request", "attempting getMetAlertsResponse.launch")
         viewModelScope.launch {
             metAlertsResponse = dataSource.fetchMetAlertsData(path)
         }
+
+        Log.d("API_request", "getMetAlertsResponse.launch success")
         return metAlertsResponse
     }
 
     fun getOceanForecastResponse(path: String): OceanForecastResponse{
+        Log.d("API_request", "attempting getOceanForecastResponse.launch")
         viewModelScope.launch {
             oceanForecastResponse = dataSource.fetchOceanForecastData(path)
         }
+        Log.d("API_request", "getOceanForecastResponse.launch success")
         return oceanForecastResponse
     }
 
     fun getLocationForecastResponse(path: String): LocationForecastResponse{
+        Log.d("API_request", "attempting getLocationForecastResponse.launch")
         viewModelScope.launch {
             locationForecastResponse = dataSource.fetchLocationForecastData(path)
         }
+        Log.d("API_request", "getLocationForecastResponse.launch success")
         return locationForecastResponse
     }
 
