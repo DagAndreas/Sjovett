@@ -14,6 +14,8 @@ import kotlinx.coroutines.launch
 var userLat = 57.3
 var userLng = 7.0
 
+// url: https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=57.3&lon=7.0
+
 class LocationForecastViewModel {
     val _dataSource = ApiDataSource()
     private val _temperatureUiState = MutableStateFlow(TemperatureUiState())

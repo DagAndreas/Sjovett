@@ -25,41 +25,21 @@ class ApiDataSource () {
         }
     }
 
-    suspend fun fetchLocationForecastData(itempath: String): LocationForecastResponse {
+    suspend fun fetchLocationForecastData(url: String): LocationForecastResponse {
         Log.d("API_request", "attempting fetchLocationForecastData.launch")
         val response = try {
-            client.get(itempath) {
-                url(itempath)
+            client.get() {
+                url(url)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",
-                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"
+                        name = "X-Gravitee-Api-Key",//R.string.Proxy_name.toString(),
+                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"//R.string.Proxy_key.toString()
                     )
                 }
             }.body<LocationForecastResponse>()
-            /*
-            headers {
-                        append(
-                            name = "X-Gravitee-Api-Key",
-                            value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"
-                        )
-                    }
-             */
-        }  catch (e: RedirectResponseException) {
-            // 3xx - responses
-            Log.e("API_request 3xx", e.response.status.description)
-            exitProcess(0)
-        } catch (e: RedirectResponseException) {
-            // 4xx - responses
-            Log.e("API_request 4xx", e.response.status.description)
-            exitProcess(0)
-        } catch (e: ServerResponseException) {
-            // 5xx - responses
-            Log.e("API_request 5xx", e.response.status.description)
-            exitProcess(0)
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", itempath)
+            Log.e("API_request xxx", url)
             Log.e("API_request xxx", e.message.toString())
             exitProcess(0)
         }
@@ -71,32 +51,20 @@ class ApiDataSource () {
     suspend fun fetchMetAlertsData(url: String): MetAlertsResponse {
         Log.d("API_request", "attempting fetchMetAlertsData.launch")
         val response = try {
-            client.get(url) {
+            client.get {
                 url(url)
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",
-                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"
+                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"//R.string.Proxy_key.toString()
                     )
                 }
             }.body<MetAlertsResponse>()
-        }  catch (e: RedirectResponseException) {
-            // 3xx - responses
-            Log.e("API_request 3xx", e.response.status.description)
-            exitProcess(0)
-        } catch (e: RedirectResponseException) {
-            // 4xx - responses
-            Log.e("API_request 4xx", e.response.status.description)
-            exitProcess(0)
-        } catch (e: ServerResponseException) {
-            // 5xx - responses
-            Log.e("API_request 5xx", e.response.status.description)
-            exitProcess(0)
-        } catch (e: Exception) {
+        } catch (e: Exception) { // Denne kan kanskje fjernes?
             // General exception
             Log.e("API_request xxx", url)
             Log.e("API_request xxx", e.message.toString())
-            exitProcess(0)
+            exitProcess(0) // Avslutter appen?
         }
         Log.d("API_request", "fetchMetAlertsData.launch success, response: ${response}")
         return response

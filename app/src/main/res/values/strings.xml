@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ComposeGoogleMaps</string>
+    <string name="Proxy_key">dc1732ae-a8a0-4dd5-8052-26094bfbca11</string>
+    <string name="Proxy_name">X-Gravitee-Api-Key</string>
 </resources>

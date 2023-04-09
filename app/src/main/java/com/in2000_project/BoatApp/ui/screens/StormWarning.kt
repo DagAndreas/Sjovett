@@ -2,13 +2,12 @@ package com.in2000_project.BoatApp.ui.screens
 
 //package com.example.StormWarning
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,6 +18,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -29,6 +30,18 @@ import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.viewmodel.LocationForecastViewModel
 import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Geometry
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.GoogleMap
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapEffect
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.ktx.model.polygonOptions
+import com.in2000_project.BoatApp.ZoneClusterManager
+import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
+import kotlinx.coroutines.launch
 
 import java.util.*
 
@@ -41,15 +54,30 @@ var userLng = 7.0
 
 @Composable
 fun StormWarning(
-    viewModel1: MetAlertsViewModel,
-    viewModel2: LocationForecastViewModel,
+    viewModelAlerts: MetAlertsViewModel,
+    viewModelForecast: LocationForecastViewModel,
+    viewModelMap: AlertsMapViewModel,
+    setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
+    calculateZoneViewCenter: () -> LatLngBounds,
     modifier: Modifier
 ){
+    // hentet fra MapScreen:
+    val mapState by viewModelMap.state.collectAsState()
+    val mapProperties = MapProperties(
+        // Only enable if user has accepted location permissions.
+        isMyLocationEnabled = mapState.lastKnownLocation != null,
+    )
+    val cameraPositionState = rememberCameraPositionState{
+        //position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
+    }
+    //slutt på hentet fra MapScreen
+
     var placeInput by remember{ mutableStateOf("") }
-    val stormWarningUiState = viewModel1.stormWarningUiState.collectAsState()
-    val temperatureUiState = viewModel2.temperatureUiState.collectAsState()
+    val stormWarningUiState = viewModelAlerts.stormWarningUiState.collectAsState()
+    val temperatureUiState = viewModelForecast.temperatureUiState.collectAsState()
     val warnings = stormWarningUiState.value.warningList
     val temperatureData = temperatureUiState.value.timeList
+    val configuration = LocalConfiguration.current
 
     Log.d("LISTEN", temperatureData.toString())
 
@@ -72,101 +100,125 @@ fun StormWarning(
         Log.d("truls", temperatureData[0].data.instant.details.air_temperature.toString())
     }
     // Therese slutt
-    LazyColumn(modifier = modifier,
+    Column(modifier = modifier,
         //verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        items(warnings) { warning ->
+        for(warning in warnings){
             if(warning.properties.geographicDomain == "marine" && checkIfCloseToWarning(warning.geometry)) {
-                StormTextCard(warning.properties.area)
+                //StormTextCard(warning.properties.area)
+                Log.d("Lokasjon", warning.properties.area)
+                viewModelMap.addCluster( // her må det endres litt
+                    id = warning.properties.area,
+                    title = warning.properties.description,
+                    description = warning.properties.consequences,
+                    polygonOptions = polygonOptions {
+                        for (item in warning.geometry.coordinates) {
+                            for (coordinate in item) {
+                                add(LatLng(coordinate[1], coordinate[0]))
+                            }
+                        }
+                        fillColor(0xFFFFFFF)
+                    }
+                )
                 Log.d("Koordinater", warning.geometry.toString())
             }
         }
-        item {
-            Text(
-                text = "Weather Forecast",
-                fontSize = 30.sp
+
+        Spacer(modifier = Modifier.height(30.dp))
+
+        Column(modifier = Modifier,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            ForecastTextField( //her burde det være en form for dropdown-meny, slik at hvis man begynner å skrive så bør det dukke opp forslag
+                value = placeInput,
+                onValueChange = {placeInput = it}
             )
-        }
-        item {
-            Spacer(modifier = Modifier.height(30.dp))
-        }
-        item {
-            Column(modifier = Modifier,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                ForecastTextField( //her burde det være en form for dropdown-meny, slik at hvis man begynner å skrive så bør det dukke opp forslag
-                    value = placeInput,
-                    onValueChange = {placeInput = it}
+            Spacer(modifier = Modifier.height(20.dp))
+            Text(
+                text = placeInput,
+                fontSize = 30.sp,
+                fontWeight = FontWeight.Bold
+            )
+            Row(
+                modifier = Modifier
+                    .border(
+                        BorderStroke(2.dp, Color.Black),
+                        shape = RoundedCornerShape(15.dp)
+                    )
+                    .padding(16.dp)
+
+
+            ){
+                Image(
+                    painter = painterResource(id = R.drawable.img_cloud_sun),
+                    contentDescription = "Picture of cloud and sun",
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .size(75.dp)
                 )
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.width(20.dp))
+
                 Text(
-                    text = placeInput,
-                    fontSize = 30.sp,
+                    "$temp C°",
+                    fontSize = 50.sp,
                     fontWeight = FontWeight.Bold
                 )
-                Row(
+                Spacer(modifier = Modifier.width(10.dp))
+                Text(
+                    "$windSpeed m/s",
+                    fontSize = 25.sp,
+                    fontWeight = FontWeight.Light
+                )
+                Image(
+                    painter = painterResource(id = R.drawable.baseline_arrow_right_alt_24),
+                    contentDescription = "Wind arrow",
                     modifier = Modifier
-                        .border(
-                            BorderStroke(2.dp, Color.Black),
-                            shape = RoundedCornerShape(15.dp)
+                        .wrapContentSize()
+                        .size(100.dp)
+                        .graphicsLayer(
+                            rotationZ = windDirection.toFloat()
                         )
-                        .padding(16.dp)
 
-
-                ){
-                    Image(
-                        painter = painterResource(id = R.drawable.img_cloud_sun),
-                        contentDescription = "Picture of cloud and sun",
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .size(75.dp)
-                    )
-                    Spacer(modifier = Modifier.width(20.dp))
-
-                    Text(
-                        "$temp C°",
-                        fontSize = 50.sp,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Text(
-                        "$windSpeed m/s",
-                        fontSize = 25.sp,
-                        fontWeight = FontWeight.Light
-                    )
-                    Image(
-                        painter = painterResource(id = R.drawable.baseline_arrow_right_alt_24),
-                        contentDescription = "Wind arrow",
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .size(100.dp)
-                            .graphicsLayer(
-                                rotationZ = windDirection.toFloat()
-                            )
-
-                    )
-                }
-                Spacer(modifier = Modifier.height(70.dp))
-                Text("Beskrivelse av faresone",
-                    fontWeight = FontWeight.Bold
                 )
-                Spacer(modifier = Modifier.height(30.dp))
-                Row(
-                    modifier = Modifier
-                ){
-                    Image(
-                        painter = painterResource(id = R.drawable.map_temporary),
-                        contentDescription = "Picture of map",
-                        modifier = Modifier
-                            .wrapContentSize()
-                            .size(300.dp)
+            }
+            Spacer(modifier = Modifier.height(30.dp))
 
-                    )
+            GoogleMap(
+                modifier = Modifier
+                    .height(configuration.screenWidthDp.dp)
+                //.clip(RoundedCornerShape(20.dp)),
+                ,properties = mapProperties,
+                cameraPositionState = cameraPositionState
+            ) {
+                val context = LocalContext.current
+                val scope = rememberCoroutineScope()
+                MapEffect(mapState.clusterItems) { map ->
+                    if (mapState.clusterItems.isNotEmpty()) {
+                        val clusterManager = setupClusterManager(context, map)
+                        map.setOnCameraIdleListener(clusterManager)
+                        map.setOnMarkerClickListener(clusterManager)
+                        mapState.clusterItems.forEach { clusterItem ->
+                            map.addPolygon(clusterItem.polygonOptions)
+                        }
+                        map.setOnMapLoadedCallback {
+                            if (mapState.clusterItems.isNotEmpty()) {
+                                scope.launch {
+                                    cameraPositionState.animate(
+                                        update = CameraUpdateFactory.newLatLngBounds(
+                                            calculateZoneViewCenter(),
+                                            0
+                                        ),
+                                    )
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-    }
+
+    }// Lazy
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
