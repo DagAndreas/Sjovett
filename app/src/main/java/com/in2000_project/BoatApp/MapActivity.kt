@@ -38,6 +38,7 @@ import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.MetAlertsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.BottomNavWithBadgesTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -135,7 +136,14 @@ fun Navigation(navController: NavHostController, viewModel: MapViewModel) {
         composable("været") {
             val stormWarningViewModels = MetAlertsViewModel()
             val temperatureViewModel = LocationForecastViewModel()
-            StormWarning(stormWarningViewModels,temperatureViewModel, modifier = Modifier)
+            val alertsMapViewModel = AlertsMapViewModel()
+            StormWarning(
+                stormWarningViewModels,
+                temperatureViewModel,
+                alertsMapViewModel,
+                setupClusterManager = alertsMapViewModel::setupClusterManager,
+                calculateZoneViewCenter = alertsMapViewModel::calculateZoneLatLngBounds,
+                modifier = Modifier)
         }
         composable("tidsbruk") {
             TidsbrukScreen(viewModel = viewModel)
