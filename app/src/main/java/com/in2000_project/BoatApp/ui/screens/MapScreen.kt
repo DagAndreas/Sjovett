@@ -69,7 +69,7 @@ fun MapScreen(
             Circle(
                 center = selectedCoordinate,
                 radius = currentRadius,
-                fillColor = Color("#ABF44336".toColorInt()),
+                fillColor = Color("#60F93C3A".toColorInt()),
                 strokeWidth = 2F,
                 visible = circleVisibility
             )

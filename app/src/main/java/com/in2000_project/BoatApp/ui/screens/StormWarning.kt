@@ -40,6 +40,7 @@ import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import kotlinx.coroutines.launch
 import android.graphics.Color
 import android.location.Location
+import com.google.android.gms.maps.model.CameraPosition
 import java.util.*
 
 
@@ -65,7 +66,7 @@ fun StormWarning(
         isMyLocationEnabled = mapState.lastKnownLocation != null,
     )
     val cameraPositionState = rememberCameraPositionState{
-        //position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
+        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
     }
     //slutt på hentet fra MapScreen
     // nullpointerException
@@ -119,7 +120,8 @@ fun StormWarning(
                                 add(LatLng(coordinate[1], coordinate[0]))
                             }
                         }
-                        fillColor(Color.parseColor("#ABF44336"))
+                        fillColor(Color.parseColor("#40F93C3A")) //endrer farge/density
+                        strokeWidth(0.5f) //endrer bredde på kant
                     }
                 )
                 Log.d("Koordinater", warning.geometry.toString() )
