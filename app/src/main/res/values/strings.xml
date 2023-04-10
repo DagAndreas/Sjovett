@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">ComposeGoogleMaps</string>
+    <string name="icon_delete">&#xe872;</string>
+
 </resources>

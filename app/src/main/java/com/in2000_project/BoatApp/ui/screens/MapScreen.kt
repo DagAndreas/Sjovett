@@ -100,7 +100,6 @@ fun MapScreen(
                 while(true) {
                     delay(60000)
                     counter++
-
                     selectedCoordinate = calculateNewPosition(selectedCoordinate)
                     currentRadius = calculateRadius(counter)
                 }

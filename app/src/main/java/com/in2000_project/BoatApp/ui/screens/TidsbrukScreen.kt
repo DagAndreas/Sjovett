@@ -3,11 +3,10 @@ package com.in2000_project.BoatApp.compose
 
 import android.location.Location
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.Slider
-import androidx.compose.material.Text
-import androidx.compose.material.TextButton
+import androidx.compose.material.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Undo
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -27,7 +26,8 @@ fun TidsbrukScreen(
     viewModel: MapViewModel = viewModel()
 ) {
     // Define the state variables
-    var knot by remember { mutableStateOf(0f) }
+    // start at 15 knots
+    var knot by remember { mutableStateOf(15f) }
     val state by viewModel.state.collectAsState()
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
@@ -35,14 +35,18 @@ fun TidsbrukScreen(
     )
 
     val cameraPositionState = rememberCameraPositionState()
+
     // stores position of the user
     var myPosition by remember { mutableStateOf(locationToLatLng(state.lastKnownLocation)!!) }
+
     // a list containing the markers the user creates
     val markerPositions = remember { mutableStateListOf<LatLng>().apply {add(myPosition)}}
+
     // a list of lines between the markers
     val polyLines = remember { mutableStateListOf<PolylineOptions>() }
+
     // text that should be displayed to the user
-    var displayedText by remember { mutableStateOf("")}
+    var displayedText by remember { mutableStateOf("Du kan legge til en destinasjon ved å holde inne et sted på kartet. ")}
     // distance between all of the markers
     var coordinatesToFindDistanceBetween = remember { mutableStateListOf<LatLng>().apply { add(myPosition) } }
     var distanceInMeters by remember { mutableStateOf(0.0) }
@@ -50,7 +54,10 @@ fun TidsbrukScreen(
 
 
     // Define the function to update displayed text
+    // endre navn på tidsbruk - reiseplanlegger
+
     fun updateDisplayedText() {
+
         if (knot == 0f) {
             displayedText = "Du vil ikke komme fram hvis du kjører 0 knop"
         }
@@ -102,8 +109,7 @@ fun TidsbrukScreen(
             updateDisplayedText()
         }
     }
-
-    // Define the UI
+// Define the UI
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -114,19 +120,21 @@ fun TidsbrukScreen(
         ) {
             Text(
                 text = "Antall knop: ${knot.toInt()}",
-                fontSize = 25.sp,
+                fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(20.dp)
+                modifier = Modifier.padding(16.dp)
             )
-            TextButton(
+            IconButton(
                 onClick = { removeLastMarker() },
-                modifier = Modifier.padding(16.dp),
-
-                ) {
-                Text(text = "-", fontSize = 25.sp)
+                modifier = Modifier.padding(16.dp)
+            ) {
+                Icon(
+                    Icons.Outlined.Undo,
+                    contentDescription = "Undo",
+                    modifier = Modifier.size(24.dp)
+                )
             }
         }
-
         Slider(
             value = knot,
             onValueChange = onKnotChanged,
@@ -134,16 +142,15 @@ fun TidsbrukScreen(
             steps = 50,
             modifier = Modifier
                 .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         )
-
         Text(
             text = displayedText,
-            fontSize = 12.sp,
-            modifier = Modifier.padding(top = 8.dp, start = 8.dp)
+            fontSize = 14.sp,
+            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
         )
         Box(
             modifier = Modifier
-                //.clip(RoundedCornerShape(20.dp))
                 .fillMaxSize()
                 .padding(top = 20.dp)
         ) {
@@ -162,11 +169,12 @@ fun TidsbrukScreen(
                     val points = options.getPoints()
                     Polyline(points)
                 }
-
             }
         }
     }
 }
+
+
 
 
 
