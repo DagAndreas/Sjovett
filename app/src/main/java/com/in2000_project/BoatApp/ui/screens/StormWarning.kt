@@ -4,11 +4,8 @@ package com.in2000_project.BoatApp.ui.screens
 
 import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
@@ -16,7 +13,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -42,7 +38,8 @@ import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import kotlinx.coroutines.launch
-
+import android.graphics.Color
+import android.location.Location
 import java.util.*
 
 
@@ -71,6 +68,9 @@ fun StormWarning(
         //position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
     }
     //slutt på hentet fra MapScreen
+    // nullpointerException
+    // var myPosition by remember { mutableStateOf(locationToLatLng(mapState.lastKnownLocation)!!) }
+
 
     var placeInput by remember{ mutableStateOf("") }
     val stormWarningUiState = viewModelAlerts.stormWarningUiState.collectAsState()
@@ -78,6 +78,7 @@ fun StormWarning(
     val warnings = stormWarningUiState.value.warningList
     val temperatureData = temperatureUiState.value.timeList
     val configuration = LocalConfiguration.current
+
 
     Log.d("LISTEN", temperatureData.toString())
 
@@ -118,13 +119,12 @@ fun StormWarning(
                                 add(LatLng(coordinate[1], coordinate[0]))
                             }
                         }
-                        fillColor(0xFFFFFFF)
+                        fillColor(Color.parseColor("#ABF44336"))
                     }
                 )
-                Log.d("Koordinater", warning.geometry.toString())
+                Log.d("Koordinater", warning.geometry.toString() )
             }
         }
-
         Spacer(modifier = Modifier.height(30.dp))
 
         Column(modifier = Modifier,
@@ -142,10 +142,11 @@ fun StormWarning(
             )
             Row(
                 modifier = Modifier
-                    .border(
+                    /*.border(
                         BorderStroke(2.dp, Color.Black),
                         shape = RoundedCornerShape(15.dp)
                     )
+                    */
                     .padding(16.dp)
 
 
@@ -183,38 +184,39 @@ fun StormWarning(
                 )
             }
             Spacer(modifier = Modifier.height(30.dp))
-
-            GoogleMap(
-                modifier = Modifier
-                    .height(configuration.screenWidthDp.dp)
-                //.clip(RoundedCornerShape(20.dp)),
-                ,properties = mapProperties,
-                cameraPositionState = cameraPositionState
-            ) {
-                val context = LocalContext.current
-                val scope = rememberCoroutineScope()
-                MapEffect(mapState.clusterItems) { map ->
-                    if (mapState.clusterItems.isNotEmpty()) {
-                        val clusterManager = setupClusterManager(context, map)
-                        map.setOnCameraIdleListener(clusterManager)
-                        map.setOnMarkerClickListener(clusterManager)
-                        mapState.clusterItems.forEach { clusterItem ->
-                            map.addPolygon(clusterItem.polygonOptions)
-                        }
-                        map.setOnMapLoadedCallback {
+            if (warnings.isNotEmpty()){
+                GoogleMap(
+                    modifier = Modifier
+                        .height(configuration.screenWidthDp.dp)
+                    //.clip(RoundedCornerShape(20.dp)),
+                    ,properties = mapProperties,
+                    cameraPositionState = cameraPositionState
+                ) {
+                        val context = LocalContext.current
+                        val scope = rememberCoroutineScope()
+                        MapEffect(mapState.clusterItems) { map ->
                             if (mapState.clusterItems.isNotEmpty()) {
-                                scope.launch {
-                                    cameraPositionState.animate(
-                                        update = CameraUpdateFactory.newLatLngBounds(
-                                            calculateZoneViewCenter(),
-                                            0
-                                        ),
-                                    )
+                                val clusterManager = setupClusterManager(context, map)
+                                map.setOnCameraIdleListener(clusterManager)
+                                map.setOnMarkerClickListener(clusterManager)
+                                mapState.clusterItems.forEach { clusterItem ->
+                                    map.addPolygon(clusterItem.polygonOptions)
+                                }
+                                map.setOnMapLoadedCallback {
+                                    if (mapState.clusterItems.isNotEmpty()) {
+                                        scope.launch {
+                                            cameraPositionState.animate(
+                                                update = CameraUpdateFactory.newLatLngBounds(
+                                                    calculateZoneViewCenter(),
+                                                    0
+                                                ),
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
-                }
             }
         }
 
@@ -317,7 +319,9 @@ fun findBorders(
     Log.d("StromWarningBorders", "N: ${northernPoint[0]}:${northernPoint[1]}, S: ${southernPoint[0]}:${southernPoint[1]}, E: ${easternPoint[0]}:${easternPoint[1]}, W: ${westernPoint[0]}:${westernPoint[1]}")
     return listOf(northernBorder, southernBorder, easternBorder, westernBorder)
 }
-
+private fun locationToLatLng(loc: Location?): LatLng {
+    return LatLng(loc!!.latitude, loc.longitude)
+}
 /*
 fun chooseTime(timeList: List<Timesery>): String {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")

@@ -19,7 +19,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import kotlin.math.roundToInt
 import kotlin.math.*
 
 @Composable
