@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import kotlinx.coroutines.delay
@@ -41,8 +42,9 @@ fun MapScreen(
     Log.d("tester", state.lastKnownLocation.toString())
 
     val cameraPositionState = rememberCameraPositionState{
-        //position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
+        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
     }
+
     var selectedCoordinate by remember { mutableStateOf(state.circle.coordinates) }
     var currentRadius by remember { mutableStateOf(25.0) }
     var circleVisibility by remember { mutableStateOf(false) }
@@ -112,12 +114,10 @@ fun MapScreen(
  * If you want to center on a specific location.
  */
 
-private suspend fun CameraPositionState.centerOnLocation(
-    location: Location
-) = animate(
+private suspend fun CameraPositionState.centerOnLocation() = animate(
     update = CameraUpdateFactory.newLatLngZoom(
-        LatLng(location.latitude, location.longitude),
-        15f
+        LatLng(62.0, 10.0),
+        150f
     ),
 )
 
