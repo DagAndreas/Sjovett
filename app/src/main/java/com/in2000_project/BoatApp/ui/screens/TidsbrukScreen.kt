@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.compose.*
@@ -34,7 +35,9 @@ fun TidsbrukScreen(
         isMyLocationEnabled = state.lastKnownLocation != null,
     )
 
-    val cameraPositionState = rememberCameraPositionState()
+    val cameraPositionState = rememberCameraPositionState{
+        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
+    }
 
     // stores position of the user
     var myPosition by remember { mutableStateOf(locationToLatLng(state.lastKnownLocation)!!) }
