@@ -4,14 +4,14 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.maps.model.LatLng
 import kotlin.math.*
 
-/** blir denne brukt?*/
 class OceanForecastViewModel: ViewModel() {
     // should find a way to know when it changes grid
     // take into account that I assume timeCheckingFor is given in minutes
-    fun calculatePosition(coordinatesStart:List<Double>,
-                          seaSurfaceWaveToDegrees: Double,
-                          seaWaterSpeedInMeters: Double,
-                          timeCheckingFor: Double
+    fun calculatePosition(
+        coordinatesStart:List<Double>,
+        seaSurfaceWaveToDegrees: Double,
+        seaWaterSpeedInMeters: Double,
+        timeCheckingFor: Double
     ): LatLng {
         // Convert degrees to radians
         val waveFromInRadians = Math.toRadians(seaSurfaceWaveToDegrees)

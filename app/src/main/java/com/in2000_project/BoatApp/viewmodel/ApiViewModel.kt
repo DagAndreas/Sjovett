@@ -5,7 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.example.gruppe_16.model.locationforecast.LocationForecastResponse
 import com.example.gruppe_16.model.metalerts.MetAlertsResponse
-import com.example.gruppe_16.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import kotlinx.coroutines.launch
 
 class ApiViewModel: ViewModel() {

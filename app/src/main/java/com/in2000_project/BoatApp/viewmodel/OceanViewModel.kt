@@ -3,18 +3,20 @@ package com.in2000_project.BoatApp.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.in2000_project.BoatApp.data.ApiDataSource
-import com.example.gruppe_16.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import kotlinx.coroutines.launch
 
-class OceanViewModel(path: String): ViewModel() {
+class OceanViewModel(urlPath: String): ViewModel() {
     val dataSource = ApiDataSource()
-    var oceanForecastResponse: OceanForecastResponse = getOceanForecastResponse(path)
+    var path: String = urlPath
+    var oceanForecastResponse: OceanForecastResponse = getOceanForecastResponse()
 
-    fun getOceanForecastResponse(path: String): OceanForecastResponse{
+    fun getOceanForecastResponse(): OceanForecastResponse{
         viewModelScope.launch {
             oceanForecastResponse = dataSource.fetchOceanForecastData(path)
         }
         return oceanForecastResponse
     }
+
 }
 

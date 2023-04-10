@@ -83,7 +83,7 @@ private fun List<LatLng>.findMaxMins(): CameraViewCoord {
  * returnerer true dersom personen har driftet enten 400m i lengdegrad eller i breddegrad.
  */
 
-private fun personHarDriftetTilNesteGrid(dataCoordinate: LatLng, personCoordinate: LatLng): Boolean {
+fun personHarDriftetTilNesteGrid(dataCoordinate: LatLng, personCoordinate: LatLng): Boolean {
     val jordaRadiusMeter = 6371000.0 // approximate radius of the Earth in meters
 
     val deltaLengdegrad = abs(dataCoordinate.longitude - personCoordinate.longitude)

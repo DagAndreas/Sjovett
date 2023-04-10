@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.gruppe_16.model.locationforecast.LocationForecastResponse
 import com.example.gruppe_16.model.metalerts.MetAlertsResponse
 import com.example.gruppe_16.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 
 import io.ktor.client.*
 import io.ktor.client.call.*

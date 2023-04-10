@@ -16,20 +16,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import com.example.gruppe_16.model.oceanforecast.OceanForecastResponse
-import com.example.gruppe_16.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.in2000_project.BoatApp.data.OceanForecastDataSource
-import com.in2000_project.BoatApp.viewmodel.ApiViewModel
-import com.in2000_project.BoatApp.viewmodel.OceanForecastViewModel
+import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
+import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.*
+
+const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
 
 @Composable
 fun MapScreen(
@@ -56,11 +56,10 @@ fun MapScreen(
     var oceanForecastResponse: OceanForecastResponse
 
     
-    val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
+    //val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
     val currentLat = state.lastKnownLocation!!.latitude
     val currentLong = state.lastKnownLocation!!.longitude
     val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
-
 
     Box(
         /*
@@ -113,10 +112,13 @@ fun MapScreen(
             /** */
             LaunchedEffect(selectedCoordinate) { //oppdaterer posisjon hvert 3. sek
                 while(true) {
-                    delay(60000)
+                    //Flytte time to wait opp til map objektet?
+                    val time_to_wait_in_minutes: Float = 1.0f //1.0f er 1 minutt.
+                    delay((time_to_wait_in_minutes * 60_000).toLong())
+                    Log.i("time to wait in min", time_to_wait_in_minutes.toString())
                     counter++
 
-                    selectedCoordinate = calculateNewPosition2(selectedCoordinate, oceanViewModel)
+                    selectedCoordinate = calculateNewPosition2(selectedCoordinate, oceanViewModel, time_to_wait_in_minutes.toDouble())
                     currentRadius = calculateRadius(counter)
                 }
             }
@@ -147,34 +149,41 @@ fun calculateNewPosition(coordinate: LatLng): LatLng {
 
 /** når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
  * på nytt. */
-fun calculateNewPosition2(coordinate: LatLng, ovm: OceanViewModel): LatLng{
+fun calculateNewPosition2(coordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
+    Log.i("NEW POS: LatLng", coordinate.toString())
+
+
     //henter oceanforecast objektet
-    val oceanForecastResponse: OceanForecastResponse = ovm.oceanForecastResponse
+    var oceanForecastResponse = ovm.oceanForecastResponse
+    val dataCoordinate = oceanForecastResponse.geometry.coordinates
+    val dataLatLng: LatLng = LatLng(dataCoordinate[0], dataCoordinate[1])
+    if (personHarDriftetTilNesteGrid(dataLatLng, coordinate)){
+        ovm.path = "${oceanURL}?lat=${coordinate.latitude}&lon=${coordinate.longitude}"
+    }
+    oceanForecastResponse = ovm.getOceanForecastResponse()
+
+
 
     //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
-    val OceanForecastWaterData = findClosestTimesery(oceanForecastResponse.properties.timeseries)
+    val forecastDetails = findClosestTimesery(oceanForecastResponse.properties.timeseries).data.instant.details
 
-
-
-
-
-
-
-    return calculatePosition(listOf(coordinate.latitude, coordinate.latitude) /**degrees, seaSpeed, searchTime*/ )
+    return calculatePosition(listOf(coordinate.latitude, coordinate.latitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
 }
-
+/** henter den listen med bølgedata som er nærmest nåværende klokkeslett */
 fun findClosestTimesery(timeseries: List<Timesery>): Timesery {
-    //finner nåværende klokkeslett
-    val calendar: Calendar
-    val dateFormat = SimpleDateFormat("MM-dd-yyyy HH:mm:ss")
-    val formattedDate = dateFormat.format(Date())
+    return timeseries[0]
 
+    //TODO: hente riktig dato, finne nærmeste / runde opp til nærmeste tid i listen med timesieries
+    //finner nåværende klokkeslett
+/*
     var closesIndex = 0
     for (i in timeseries.indices){
         val diff = timeseries.
         if (timeseries[closesIndex].time -         )
     }
     return timeseries[closesIndex]
+
+ */
 }
 
 private fun locationToLatLng(loc: Location?): LatLng {
@@ -183,11 +192,13 @@ private fun locationToLatLng(loc: Location?): LatLng {
 
 // should find a way to know when it changes grid
 // take into account that I assume timeCheckingFor is given in minutes
-fun calculatePosition(coordinatesStart:List<Double>,
-                      seaSurfaceWaveToDegrees: Double,
-                      seaWaterSpeedInMeters: Double,
-                      timeCheckingFor: Double
-                      ): LatLng {
+fun calculatePosition(
+        coordinatesStart:List<Double>,
+        seaSurfaceWaveToDegrees: Double,
+        seaWaterSpeedInMeters: Double,
+        timeCheckingFor: Double
+    ): LatLng {
+
     // Convert degrees to radians
     val waveFromInRadians = Math.toRadians(seaSurfaceWaveToDegrees)
     val earthRadiusInKm = 6371
@@ -216,9 +227,7 @@ fun calculatePosition(coordinatesStart:List<Double>,
 
 
 fun calculateRadius(minutes: Int): Double {
-
     var newRadius: Double = minutes * 5.0
-
     return if (newRadius > 200.0) 200.0
     else if (newRadius < 25.0) 25.0
     else newRadius

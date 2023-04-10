@@ -1,7 +1,7 @@
 package com.in2000_project.BoatApp.data
 
 import android.util.Log
-import com.example.gruppe_16.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
