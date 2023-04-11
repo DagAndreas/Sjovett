@@ -6,9 +6,15 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Undo
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.DropdownMenuItem
+
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -18,16 +24,18 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.compose.*
+import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import kotlin.math.*
 
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TidsbrukScreen(
     viewModel: MapViewModel = viewModel()
 ) {
     // Define the state variables
     // start at 15 knots
-    var knot by remember { mutableStateOf(15f) }
+    var speedNumber by remember { mutableStateOf(15f) }
     val state by viewModel.state.collectAsState()
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
@@ -39,7 +47,7 @@ fun TidsbrukScreen(
     }
 
     // stores position of the user
-    var myPosition by remember { mutableStateOf(locationToLatLng(state.lastKnownLocation)!!) }
+    var myPosition by remember { mutableStateOf(locationToLatLng(state.lastKnownLocation!!)) }
 
     // a list containing the markers the user creates
     val markerPositions = remember { mutableStateListOf<LatLng>().apply {add(myPosition)}}
@@ -54,14 +62,17 @@ fun TidsbrukScreen(
     var distanceInMeters by remember { mutableStateOf(0.0) }
     var lengthInMinutes by remember { mutableStateOf(0.0) }
 
+    var speedUnitSelected by remember { mutableStateOf("knop") }
 
+    val speedUnits = LocalContext.current.resources.getStringArray(R.array.speedUnits)
+    var menuExpanded by remember { mutableStateOf(false) }
     // Define the function to update displayed text
     // endre navn på tidsbruk - reiseplanlegger
 
     fun updateDisplayedText() {
 
-        if (knot == 0f) {
-            displayedText = "Du vil ikke komme fram hvis du kjører 0 knop"
+        if (speedNumber == 0f) {
+            displayedText = "Du vil ikke komme fram hvis du kjører 0 $speedUnitSelected"
         }
         else{
             if(markerPositions.size < 2) {
@@ -73,9 +84,9 @@ fun TidsbrukScreen(
         }
     }
     // Define the function to update the slider value and displayed text
-    val onKnotChanged: (Float) -> Unit = { value ->
-        knot = value.roundToInt().toFloat()
-        lengthInMinutes = calculateTimeInMinutes(distanceInMeters, knot)
+    val onSpeedChanged: (Float) -> Unit = { value ->
+        speedNumber = value.roundToInt().toFloat()
+        lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
         updateDisplayedText()
     }
 
@@ -90,7 +101,7 @@ fun TidsbrukScreen(
         polyLines.add(options)
         if (coordinatesToFindDistanceBetween.size > 1) {
             distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
-            lengthInMinutes = calculateTimeInMinutes(distanceInMeters, knot)
+            lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
             updateDisplayedText()
         }
     }
@@ -103,7 +114,7 @@ fun TidsbrukScreen(
             polyLines.removeLast()
             if (coordinatesToFindDistanceBetween.size > 1) {
                 distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
-                lengthInMinutes = calculateTimeInMinutes(distanceInMeters, knot)
+                lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
             } else {
                 distanceInMeters = 0.0
                 lengthInMinutes = 0.0
@@ -121,11 +132,39 @@ fun TidsbrukScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Antall knop: ${knot.toInt()}",
+                text = "Antall $speedUnitSelected: ${speedNumber.toInt()}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
+            ExposedDropdownMenuBox(expanded = menuExpanded, onExpandedChange = {menuExpanded=it}
+            )
+            {
+                TextField(
+                readOnly = true,
+                value = speedUnitSelected,
+                onValueChange = {},
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                )
+
+                ExposedDropdownMenu(
+                expanded = menuExpanded,
+                onDismissRequest = {menuExpanded = false},
+                ) {
+                    speedUnits.forEach{speedUnit ->
+                        DropdownMenuItem(
+                            text = {Text(speedUnit)},
+                            onClick = {
+                                speedUnitSelected = speedUnit
+                                menuExpanded = false
+                                lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnit)
+                                updateDisplayedText()
+                            }
+                        )
+                }
+            }
+        }
             IconButton(
                 onClick = { removeLastMarker() },
                 modifier = Modifier.padding(16.dp)
@@ -138,8 +177,8 @@ fun TidsbrukScreen(
             }
         }
         Slider(
-            value = knot,
-            onValueChange = onKnotChanged,
+            value = speedNumber,
+            onValueChange = onSpeedChanged,
             valueRange = 0f..50f,
             steps = 50,
             modifier = Modifier
@@ -209,9 +248,15 @@ private fun Double.toRadians(): Double {
     return this * PI / 180
 }
 
-fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Double {
+fun calculateTimeInMinutes(distanceInMeters: Double, speedNumber: Float, speedUnit: String): Double {
+    // 1 km/t = 0.2778 m/s
     // 1 knot = 0.514444 m/s
-    val speedInMetersPerSecond = speedInKnots * 0.514444
+    var speedInMetersPerSecond = 0.0
+    when(speedUnit){
+        "km/t" -> speedInMetersPerSecond = speedNumber*1000.0/3600
+        "m/s" -> speedInMetersPerSecond = speedNumber.toDouble()
+        "knop" -> speedInMetersPerSecond = speedNumber*0.514444
+    }
     val timeInSeconds = distanceInMeters / speedInMetersPerSecond
     val timeInMinutes = timeInSeconds / 60
     return timeInMinutes
