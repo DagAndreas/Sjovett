@@ -65,6 +65,9 @@ fun StormWarning(
         // Only enable if user has accepted location permissions.
         isMyLocationEnabled = mapState.lastKnownLocation != null,
     )
+
+    Log.d("tester", mapState.lastKnownLocation.toString())
+
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
     }
