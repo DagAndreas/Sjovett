@@ -61,11 +61,16 @@ fun TidsbrukScreen(
     var coordinatesToFindDistanceBetween = remember { mutableStateListOf<LatLng>().apply { add(myPosition) } }
     var distanceInMeters by remember { mutableStateOf(0.0) }
     var lengthInMinutes by remember { mutableStateOf(0.0) }
-
     var speedUnitSelected by remember { mutableStateOf("knop") }
-
     val speedUnits = LocalContext.current.resources.getStringArray(R.array.speedUnits)
+
     var menuExpanded by remember { mutableStateOf(false) }
+
+    // is the routed locked in or not?
+    var lockMarkers by remember { mutableStateOf(false) }
+
+    val lastMarkerPosition = if (lockMarkers) markerPositions.last() else null
+
     // Define the function to update displayed text
     // endre navn på tidsbruk - reiseplanlegger
 
@@ -79,7 +84,7 @@ fun TidsbrukScreen(
                 displayedText = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
             }
             else {
-                displayedText = "${formatTime(lengthInMinutes)}"
+                displayedText = "Denne ruten vil ta ${formatTime(lengthInMinutes)}."
             }
         }
     }
@@ -92,19 +97,22 @@ fun TidsbrukScreen(
 
     // Define the function to handle long press on the map
     val onLongPress: (LatLng) -> Unit = { position ->
-        markerPositions.add(position)
-        coordinatesToFindDistanceBetween.add(position)
-        val lastPosition = markerPositions[markerPositions.size - 2]
-        val options = PolylineOptions()
-            .add(lastPosition, position)
-            .color(android.graphics.Color.RED)
-        polyLines.add(options)
-        if (coordinatesToFindDistanceBetween.size > 1) {
-            distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
-            lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
-            updateDisplayedText()
+        if (!lockMarkers) {
+            markerPositions.add(position)
+            coordinatesToFindDistanceBetween.add(position)
+            val lastPosition = markerPositions[markerPositions.size - 2]
+            val options = PolylineOptions()
+                .add(lastPosition, position)
+                .color(android.graphics.Color.RED)
+            polyLines.add(options)
+            if (coordinatesToFindDistanceBetween.size > 1) {
+                distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
+                lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
+                updateDisplayedText()
+            }
         }
     }
+
 
     // Define the function to minimize the screen
     fun removeLastMarker() {
@@ -122,6 +130,8 @@ fun TidsbrukScreen(
             updateDisplayedText()
         }
     }
+
+
 // Define the UI
     Column(
         modifier = Modifier.fillMaxSize()
@@ -137,7 +147,7 @@ fun TidsbrukScreen(
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
-            ExposedDropdownMenuBox(expanded = menuExpanded, onExpandedChange = {menuExpanded=it}
+            ExposedDropdownMenuBox(expanded = menuExpanded, onExpandedChange = {menuExpanded=it},
             )
             {
                 TextField(
@@ -146,6 +156,7 @@ fun TidsbrukScreen(
                 onValueChange = {},
                 trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
                 colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                    modifier = Modifier.width(100.dp)
                 )
 
                 ExposedDropdownMenu(
@@ -166,7 +177,7 @@ fun TidsbrukScreen(
             }
         }
             IconButton(
-                onClick = { removeLastMarker() },
+                onClick = { if(!lockMarkers){removeLastMarker()} },
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(
@@ -185,11 +196,22 @@ fun TidsbrukScreen(
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         )
+
         Text(
             text = displayedText,
             fontSize = 14.sp,
             modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
         )
+        Button(onClick = {lockMarkers=!lockMarkers}, modifier = Modifier.width(150.dp) ) {
+            if(!lockMarkers) {
+                Text("Lås inn ruten ")
+            }
+            else{
+                Text("Åpne ruten ")
+            }
+        }
+
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
@@ -201,15 +223,18 @@ fun TidsbrukScreen(
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
-                markerPositions.forEach { position ->
-                    Marker(
-                        state = MarkerState(position = position)
-                    )
+                if(!lockMarkers){
+                    markerPositions.forEach { position ->
+                        Marker(
+                            state = MarkerState(position = position)
+                        )
+                    }
                 }
-                polyLines.forEach { options ->
-                    val points = options.getPoints()
-                    Polyline(points)
-                }
+                    polyLines.forEach { options ->
+                        val points = options.getPoints()
+                        Polyline(points)
+                    }
+
             }
         }
     }
