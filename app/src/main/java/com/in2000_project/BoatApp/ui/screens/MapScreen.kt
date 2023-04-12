@@ -163,12 +163,12 @@ fun calculateNewPosition2(personCoordinate: LatLng, ovm: OceanViewModel, time: D
     Log.i("MapScreen", "New Pos fra $personCoordinate")
 
     //henter oceanforecast objektet som allerede finnes
-    var oceanForecastResponse = ovm.oceanForecastResponseObject
-    Log.i("MapScreen forecast", "$oceanForecastResponse")
+    //var oceanForecastResponse = ovm.oceanForecastResponseObject
+    //Log.i("MapScreen forecast", "$oceanForecastResponse")
 
 
-    val dataCoordinate = oceanForecastResponse.geometry.coordinates
-    val dataLatLng: LatLng = LatLng(dataCoordinate[0], dataCoordinate[1])
+    val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
+    val dataLatLng: LatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
 
 
     if (personHarDriftetTilNesteGrid(dataLatLng, personCoordinate)){
@@ -177,7 +177,7 @@ fun calculateNewPosition2(personCoordinate: LatLng, ovm: OceanViewModel, time: D
     ovm.getOceanForecastResponse()
 
     //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
-    val forecastDetails = findClosestTimesery(oceanForecastResponse.properties.timeseries).data.instant.details
+    val forecastDetails = findClosestTimesery(ovm.oceanForecastResponseObject.properties.timeseries).data.instant.details
 
     return calculatePosition(listOf(personCoordinate.latitude, personCoordinate.longitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
 }

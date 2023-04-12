@@ -1,5 +1,6 @@
 package com.in2000_project.BoatApp.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.in2000_project.BoatApp.data.ApiDataSource
@@ -13,6 +14,7 @@ class OceanViewModel(urlPath: String): ViewModel() {
 
     fun getOceanForecastResponse(): OceanForecastResponse{
         viewModelScope.launch {
+            Log.i("OceanViewModel", "Henter bølgedata fra $path")
             oceanForecastResponseObject = _dataSource.fetchOceanForecastData(path)
         }
         return oceanForecastResponseObject
