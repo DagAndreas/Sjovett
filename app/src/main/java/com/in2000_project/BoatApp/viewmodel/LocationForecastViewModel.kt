@@ -20,7 +20,6 @@ class LocationForecastViewModel {
     val _dataSource = ApiDataSource()
     private val _temperatureUiState = MutableStateFlow(TemperatureUiState())
     val temperatureUiState = _temperatureUiState.asStateFlow()
-
     init {
         fetchLocationForecastData()
     }
