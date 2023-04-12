@@ -33,6 +33,12 @@ import kotlin.math.*
 fun TidsbrukScreen(
     viewModel: MapViewModel = viewModel()
 ) {
+
+
+    viewModel.updateLocation()
+
+
+
     // Define the state variables
     // start at 15 knots
     var speedNumber by remember { mutableStateOf(15f) }

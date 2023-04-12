@@ -34,27 +34,20 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     val state: StateFlow<MapState> = _state.asStateFlow()
 
-    fun updateLocation(){
+    fun updateLocation() {
         try {
             val locationResult = locationProviderClient.lastLocation
             locationResult.addOnCompleteListener { task ->
                 if (task.isSuccessful) {
                     val location = task.result
                     if (location != null) {
-                        _state.value = state.value.copy(
-                            lastKnownLocation = location,
-                        )
+                        _state.update {
+                            it.copy(
+                                lastKnownLocation = location,
+                            )
+                        }
                     }
                 }
-            }
-            _state.update {
-                MapState(
-                    lastKnownLocation = locationResult.result, // <- Use getResult() method here
-                    circle = CircleInfo(
-                        coordinates = LatLng(50.0, 50.0),
-                        radius = 250.0
-                    )
-                )
             }
         } catch (e: SecurityException) {
             // Show error or something
