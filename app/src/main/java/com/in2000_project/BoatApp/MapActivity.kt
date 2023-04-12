@@ -73,6 +73,7 @@ class MapActivity : ComponentActivity() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MapViewModel by viewModels()
+
     private val alertsMapViewModel = AlertsMapViewModel()
 
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -80,6 +81,7 @@ class MapActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        viewModel.setClient(fusedLocationProviderClient)
         askPermissions()
         setContent {
 
