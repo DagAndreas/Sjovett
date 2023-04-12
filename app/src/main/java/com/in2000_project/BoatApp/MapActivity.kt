@@ -65,6 +65,7 @@ class MapActivity : ComponentActivity() {
         ) == PackageManager.PERMISSION_GRANTED -> {
             viewModel.getDeviceLocation(fusedLocationProviderClient)
             alertsMapViewModel.getDeviceLocation(fusedLocationProviderClient)
+
         }
         else -> {
             requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
@@ -73,6 +74,7 @@ class MapActivity : ComponentActivity() {
 
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MapViewModel by viewModels()
+
     private val alertsMapViewModel = AlertsMapViewModel()
 
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
@@ -80,6 +82,7 @@ class MapActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        viewModel.setClient(fusedLocationProviderClient)
         askPermissions()
         setContent {
 

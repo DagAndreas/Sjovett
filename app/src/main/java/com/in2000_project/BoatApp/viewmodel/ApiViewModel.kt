@@ -16,9 +16,9 @@ class ApiViewModel: ViewModel() {
     var locationForecastResponse: LocationForecastResponse
 
     init {
-        metAlertsResponse = getMetAlertsResponse("https://api.met.no/weatherapi/metalerts/1.1/.json")
-        oceanForecastResponse = getOceanForecastResponse("https://api.met.no/weatherapi/oceanforecast/2.0/complete?lat=60.10&lon=5")
-        locationForecastResponse = getLocationForecastResponse("https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=60.10&lon=9.58")
+        metAlertsResponse = getMetAlertsResponse("https://gw-uio.intark.uh-it.no/in2000/weatherapi/metalerts/1.1/.json")//"https://api.met.no/weatherapi/metalerts/1.1/.json")
+        oceanForecastResponse = getOceanForecastResponse("https://gw-uio.intark.uh-it.no/in2000/weatherapi/oceanforecast/2.0/complete?lat=60.10&lon=5")//"https://api.met.no/weatherapi/oceanforecast/2.0/complete?lat=60.10&lon=5")
+        locationForecastResponse = getLocationForecastResponse("https://gw-uio.intark.uh-it.no/in2000/weatherapi/locationforecast/2.0/compact?lat=60.10&lon=9.58")//"https://api.met.no/weatherapi/locationforecast/2.0/compact?lat=60.10&lon=9.58")
     }
     fun getMetAlertsResponse(path: String): MetAlertsResponse{
         Log.d("API_request", "attempting getMetAlertsResponse.launch")

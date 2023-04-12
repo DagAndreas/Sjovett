@@ -11,8 +11,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 // disse skal endres til brukerens faktiske lokasjon
-var userLat = 57.3
-var userLng = 7.0
+// latitude = north-south
+var userLat = 59.911 // disse skal endres til brukerens faktiske lokasjon
+// longitude = east-west
+var userLng = 10.757
 
 // url: https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=57.3&lon=7.0
 

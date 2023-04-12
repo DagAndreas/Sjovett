@@ -25,11 +25,11 @@ class ApiDataSource () {
         }
     }
 
-    suspend fun fetchLocationForecastData(url: String): LocationForecastResponse {
+    suspend fun fetchLocationForecastData(path: String): LocationForecastResponse {
         Log.d("API_request", "attempting fetchLocationForecastData.launch")
         val response = try {
             client.get() {
-                url(url)
+                url(path)
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",//R.string.Proxy_name.toString(),
@@ -39,7 +39,7 @@ class ApiDataSource () {
             }.body<LocationForecastResponse>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", url)
+            Log.e("API_request xxx", path)
             Log.e("API_request xxx", e.message.toString())
             exitProcess(0)
         }
@@ -48,11 +48,11 @@ class ApiDataSource () {
     }
 
 
-    suspend fun fetchMetAlertsData(url: String): MetAlertsResponse {
+    suspend fun fetchMetAlertsData(path: String): MetAlertsResponse {
         Log.d("API_request", "attempting fetchMetAlertsData.launch")
         val response = try {
             client.get {
-                url(url)
+                url(path)
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",
@@ -62,7 +62,7 @@ class ApiDataSource () {
             }.body<MetAlertsResponse>()
         } catch (e: Exception) { // Denne kan kanskje fjernes?
             // General exception
-            Log.e("API_request xxx", url)
+            Log.e("API_request xxx", path)
             Log.e("API_request xxx", e.message.toString())
             exitProcess(0) // Avslutter appen?
         }
@@ -72,8 +72,22 @@ class ApiDataSource () {
 
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
         Log.d("API_request", "attempting fetchOceanForecastData.launch")
-        val response = client.get(path).body<OceanForecastResponse>()
-
+        val response = try {
+            client.get() {
+                url(path)
+                headers {
+                    append(
+                        name = "X-Gravitee-Api-Key",//R.string.Proxy_name.toString(),
+                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"//R.string.Proxy_key.toString()
+                    )
+                }
+            }.body<OceanForecastResponse>()
+        } catch (e: Exception) {
+            // General exception
+            Log.e("API_request xxx", path)
+            Log.e("API_request xxx", e.message.toString())
+            exitProcess(0)
+        }
         val itr = response.properties.timeseries.listIterator()
         while (itr.hasNext()){
             Log.i("oceanforecast", itr.next().toString())

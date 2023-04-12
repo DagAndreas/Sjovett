@@ -2,6 +2,7 @@ package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.location.CurrentLocationRequest
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -11,11 +12,16 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
-
+    lateinit var locationProviderClient: FusedLocationProviderClient
+    fun setClient(fusedLocationProviderClient: FusedLocationProviderClient) {
+        locationProviderClient = fusedLocationProviderClient
+    }
     private val _state = MutableStateFlow(
         MapState(
             lastKnownLocation = null,
@@ -28,6 +34,25 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     val state: StateFlow<MapState> = _state.asStateFlow()
 
+    fun updateLocation() {
+        try {
+            val locationResult = locationProviderClient.lastLocation
+            locationResult.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val location = task.result
+                    if (location != null) {
+                        _state.update {
+                            it.copy(
+                                lastKnownLocation = location,
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (e: SecurityException) {
+            // Show error or something
+        }
+    }
     @SuppressLint("MissingPermission")
     fun getDeviceLocation(
         fusedLocationProviderClient: FusedLocationProviderClient
