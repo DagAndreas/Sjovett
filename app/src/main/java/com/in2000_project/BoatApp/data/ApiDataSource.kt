@@ -39,12 +39,7 @@ class ApiDataSource () {
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
         Log.i("Henter vanndata", "fra $path")
         val response = client.get(path).body<OceanForecastResponse>()
-/*
-        val itr = response.properties.timeseries.listIterator()
-        while (itr.hasNext()){
-            Log.i("oceanforecast", itr.next().toString())
-        }
-*/
+
         Log.i("Fetched OceanForecast", response.toString())
         return response
     }

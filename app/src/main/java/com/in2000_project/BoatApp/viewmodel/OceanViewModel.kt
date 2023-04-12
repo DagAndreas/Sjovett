@@ -7,13 +7,13 @@ import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import kotlinx.coroutines.launch
 
 class OceanViewModel(urlPath: String): ViewModel() {
-    val dataSource = ApiDataSource()
+    val _dataSource = ApiDataSource()
     var path: String = urlPath
     var oceanForecastResponseObject: OceanForecastResponse = getOceanForecastResponse()
 
     fun getOceanForecastResponse(): OceanForecastResponse{
         viewModelScope.launch {
-            oceanForecastResponseObject = dataSource.fetchOceanForecastData(path)
+            oceanForecastResponseObject = _dataSource.fetchOceanForecastData(path)
         }
         return oceanForecastResponseObject
     }

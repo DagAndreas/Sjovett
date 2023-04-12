@@ -16,7 +16,7 @@ class OceanForecastDataSource (val path: String){
     }
     suspend fun fetchOceanForecast(): OceanForecastResponse {
         val ans = client.get(path).body<OceanForecastResponse>()
-        Log.i("Fetched Ocean Forecast ", ans.toString())
+        Log.i("OceanForecastDataSrc ", ans.toString())
         return ans
     }
 }
