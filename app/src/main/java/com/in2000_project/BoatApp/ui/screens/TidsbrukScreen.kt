@@ -81,7 +81,6 @@ fun TidsbrukScreen(
     // endre navn på tidsbruk - reiseplanlegger
 
     fun updateDisplayedText() {
-
         if (speedNumber == 0f) {
             displayedText = "Du vil ikke komme fram hvis du kjører 0 $speedUnitSelected"
         }
@@ -99,24 +98,30 @@ fun TidsbrukScreen(
         speedNumber = value.roundToInt().toFloat()
         lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
         updateDisplayedText()
+        viewModel.updateLocation()
     }
 
     // Define the function to handle long press on the map
+    // Define the function to handle long press on the map
     val onLongPress: (LatLng) -> Unit = { position ->
         if (!lockMarkers) {
+            viewModel.updateLocation()
+            markerPositions[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
             markerPositions.add(position)
             coordinatesToFindDistanceBetween.add(position)
             val lastPosition = markerPositions[markerPositions.size - 2]
             val options = PolylineOptions()
+                .add(markerPositions[0], lastPosition)
                 .add(lastPosition, position)
                 .color(android.graphics.Color.RED)
             polyLines.add(options)
             if (coordinatesToFindDistanceBetween.size > 1) {
                 distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
                 lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
-                updateDisplayedText()
             }
+            updateDisplayedText()
         }
+    //polyLines[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
     }
 
 
@@ -183,7 +188,7 @@ fun TidsbrukScreen(
             }
         }
             IconButton(
-                onClick = { if(!lockMarkers){removeLastMarker()} },
+                onClick = {if(!lockMarkers){removeLastMarker()}},
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(
