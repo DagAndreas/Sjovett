@@ -49,7 +49,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
             }
             _state.update {
                 MapState(
-                    lastKnownLocation = locationResult.getResult(), // <- Use getResult() method here
+                    lastKnownLocation = locationResult.result, // <- Use getResult() method here
                     circle = CircleInfo(
                         coordinates = LatLng(50.0, 50.0),
                         radius = 250.0
