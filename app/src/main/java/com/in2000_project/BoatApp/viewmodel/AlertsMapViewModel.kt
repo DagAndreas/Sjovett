@@ -48,6 +48,16 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
         //Oppdatere state?
     }
 
+    fun resetCluster() {
+        listOfClusters.clear()
+        _state.update{
+            MapStateCluster(
+                lastKnownLocation = null,
+                clusterItems = listOfClusters
+            )
+        }
+    }
+
     @SuppressLint("MissingPermission")
     fun getDeviceLocation(
         fusedLocationProviderClient: FusedLocationProviderClient
@@ -69,6 +79,8 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
             // Show error or something
         }
     }
+
+
 
     fun setupClusterManager(
         context: Context,
