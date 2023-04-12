@@ -84,7 +84,7 @@ fun TidsbrukScreen(
                 displayedText = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
             }
             else {
-                displayedText = "${formatTime(lengthInMinutes)}"
+                displayedText = "Denne ruten vil ta ${formatTime(lengthInMinutes)}."
             }
         }
     }
