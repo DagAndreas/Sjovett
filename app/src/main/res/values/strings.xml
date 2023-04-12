@@ -6,4 +6,16 @@
         <item>km/t</item>
         <item>m/s</item>
     </string-array>
+    <string-array name="verktoyCards">
+        <item>Båtregler</item>
+        <item>Førstehjelp</item>
+    </string-array>
+    <array name="verktoyCardss">
+        <item>
+            <string-array name = "Båtregler">
+                <item>Fargekode</item>
+
+            </string-array>
+        </item>
+    </array>
 </resources>

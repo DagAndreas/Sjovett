@@ -38,6 +38,7 @@ import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.MetAlertsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.in2000_project.BoatApp.ui.screens.VerktoyScreen
 import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.BottomNavWithBadgesTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -220,14 +221,5 @@ fun VaeretScreen() {
     }
 }
 
-@Composable
-fun VerktoyScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Verktøy")
-    }
-}
 
 
