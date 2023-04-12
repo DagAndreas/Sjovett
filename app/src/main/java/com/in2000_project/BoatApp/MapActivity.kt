@@ -64,6 +64,7 @@ class MapActivity : ComponentActivity() {
         ) == PackageManager.PERMISSION_GRANTED -> {
             viewModel.getDeviceLocation(fusedLocationProviderClient)
             alertsMapViewModel.getDeviceLocation(fusedLocationProviderClient)
+
         }
         else -> {
             requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
