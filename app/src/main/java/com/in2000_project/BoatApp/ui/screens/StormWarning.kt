@@ -109,8 +109,10 @@ fun StormWarning(
         //verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
+        viewModelMap.resetCluster()
         for(warning in warnings){
-            if(warning.properties.geographicDomain == "marine" && checkIfCloseToWarning(warning.geometry)) {
+            Log.d("Lokasjon Warning", "${warning.properties.area} - ${warning.properties.geographicDomain}")
+            if(warning.properties.geographicDomain == "marine" || warning.properties.geographicDomain == "land" /*&& checkIfCloseToWarning(warning.geometry)*/){ // checkIfCloseToWarning viser kun de i nærhetenn av brukeren
                 //StormTextCard(warning.properties.area)
                 Log.d("Lokasjon", warning.properties.area)
                 viewModelMap.addCluster( // her må det endres litt
@@ -123,7 +125,8 @@ fun StormWarning(
                                 add(LatLng(coordinate[1], coordinate[0]))
                             }
                         }
-                        fillColor(Color.parseColor("#40F93C3A")) //endrer farge/density
+                        fillColor(Color.parseColor((getColor(warning.properties.awareness_level)))) //endrer farge/density
+                        //fillColor(Color.parseColor("#40F93C3A")) //endrer farge/density
                         strokeWidth(0.5f) //endrer bredde på kant
                     }
                 )
@@ -326,6 +329,17 @@ fun findBorders(
 }
 private fun locationToLatLng(loc: Location?): LatLng {
     return LatLng(loc!!.latitude, loc.longitude)
+}
+fun getColor(awarenessLevel: String): String {
+    val color = awarenessLevel.split("; ")[1]
+    Log.d("Farge", color)
+
+    return when (color) {
+        "green" -> "#803AF93C"
+        "yellow" -> "#80F5D062"
+        "red" -> "#80F93C3A"
+        else -> "#40000000"
+    }
 }
 /*
 fun chooseTime(timeList: List<Timesery>): String {
