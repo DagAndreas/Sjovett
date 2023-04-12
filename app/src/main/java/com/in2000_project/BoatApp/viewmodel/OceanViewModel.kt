@@ -9,13 +9,13 @@ import kotlinx.coroutines.launch
 class OceanViewModel(urlPath: String): ViewModel() {
     val dataSource = ApiDataSource()
     var path: String = urlPath
-    var oceanForecastResponse: OceanForecastResponse = getOceanForecastResponse()
+    var oceanForecastResponseObject: OceanForecastResponse = getOceanForecastResponse()
 
     fun getOceanForecastResponse(): OceanForecastResponse{
         viewModelScope.launch {
-            oceanForecastResponse = dataSource.fetchOceanForecastData(path)
+            oceanForecastResponseObject = dataSource.fetchOceanForecastData(path)
         }
-        return oceanForecastResponse
+        return oceanForecastResponseObject
     }
 
 }

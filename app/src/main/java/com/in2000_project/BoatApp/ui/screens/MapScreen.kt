@@ -18,15 +18,13 @@ import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
-import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import kotlinx.coroutines.*
-import java.text.SimpleDateFormat
-import java.util.*
 import kotlin.math.*
 
 const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
@@ -43,23 +41,33 @@ fun MapScreen(
         isMyLocationEnabled = state.lastKnownLocation != null,
     )
 
-    Log.d("tester", state.lastKnownLocation.toString())
+    Log.d("MapScreen", "$state er staten tidlig")
 
     val cameraPositionState = rememberCameraPositionState{
-        //position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
+    //    position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
     }
     var selectedCoordinate by remember { mutableStateOf(state.circle.coordinates) }
-    var currentRadius by remember { mutableStateOf(25.0) }
+    var currentRadius by remember { mutableStateOf(200.0) }
     var circleVisibility by remember { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(true) }
     var counter by remember { mutableStateOf( 0 ) }
-    var oceanForecastResponse: OceanForecastResponse
+    var mann_er_overbord by remember { mutableStateOf(false)}
 
     
     //val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
-    val currentLat = state.lastKnownLocation!!.latitude
-    val currentLong = state.lastKnownLocation!!.longitude
+    var currentLat: Double
+    var currentLong: Double
+    if (state.lastKnownLocation != null) {
+        currentLat = state.lastKnownLocation!!.latitude
+        currentLong = state.lastKnownLocation!!.longitude
+    }else{
+        Log.i("MapScreen", state.toString())
+        currentLat = 59.0646
+        currentLong = 10.6778
+    }
     val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
+
+
 
     Box(
         /*
@@ -92,6 +100,7 @@ fun MapScreen(
                 viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //unødvendig?
                 circleVisibility = true
                 enabled = false
+                mann_er_overbord = true
             },
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
@@ -108,16 +117,18 @@ fun MapScreen(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-
-            /** */
             LaunchedEffect(selectedCoordinate) { //oppdaterer posisjon hvert 3. sek
-                while(true) {
-                    //Flytte time to wait opp til map objektet?
-                    val time_to_wait_in_minutes: Float = 1.0f //1.0f er 1 minutt.
-                    delay((time_to_wait_in_minutes * 60_000).toLong())
-                    Log.i("time to wait in min", time_to_wait_in_minutes.toString())
-                    counter++
+                Log.i("MapScreen selectedCoor", "$selectedCoordinate")
+                delay(1000)
+                Log.i("Hei", "ABABABABABABA\n\n")
+                while (mann_er_overbord){
 
+
+                    Log.i("Hei", "CDCDCDCDCDCDCDCD\n\n")
+                    val time_to_wait_in_minutes: Float = 1f //1.0f er 1 minutt. 0.1 = 6sek
+                    delay((time_to_wait_in_minutes * 60_000).toLong())
+                    Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
+                    counter++
                     selectedCoordinate = calculateNewPosition2(selectedCoordinate, oceanViewModel, time_to_wait_in_minutes.toDouble())
                     currentRadius = calculateRadius(counter)
                 }
@@ -129,7 +140,6 @@ fun MapScreen(
 /**
  * If you want to center on a specific location.
  */
-
 private suspend fun CameraPositionState.centerOnLocation(
     location: Location
 ) = animate(
@@ -149,41 +159,32 @@ fun calculateNewPosition(coordinate: LatLng): LatLng {
 
 /** når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
  * på nytt. */
-fun calculateNewPosition2(coordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
-    Log.i("NEW POS: LatLng", coordinate.toString())
+fun calculateNewPosition2(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
+    Log.i("MapScreen", "New Pos fra $personCoordinate")
+
+    //henter oceanforecast objektet som allerede finnes
+    var oceanForecastResponse = ovm.oceanForecastResponseObject
+    Log.i("MapScreen forecast", "$oceanForecastResponse")
 
 
-    //henter oceanforecast objektet
-    var oceanForecastResponse = ovm.oceanForecastResponse
     val dataCoordinate = oceanForecastResponse.geometry.coordinates
     val dataLatLng: LatLng = LatLng(dataCoordinate[0], dataCoordinate[1])
-    if (personHarDriftetTilNesteGrid(dataLatLng, coordinate)){
-        ovm.path = "${oceanURL}?lat=${coordinate.latitude}&lon=${coordinate.longitude}"
+
+
+    if (personHarDriftetTilNesteGrid(dataLatLng, personCoordinate)){
+        ovm.path = "${oceanURL}?lat=${personCoordinate.latitude}&lon=${personCoordinate.longitude}"
     }
-    oceanForecastResponse = ovm.getOceanForecastResponse()
-
-
+    ovm.getOceanForecastResponse()
 
     //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
     val forecastDetails = findClosestTimesery(oceanForecastResponse.properties.timeseries).data.instant.details
 
-    return calculatePosition(listOf(coordinate.latitude, coordinate.latitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
+    return calculatePosition(listOf(personCoordinate.latitude, personCoordinate.longitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
 }
 /** henter den listen med bølgedata som er nærmest nåværende klokkeslett */
 fun findClosestTimesery(timeseries: List<Timesery>): Timesery {
     return timeseries[0]
-
     //TODO: hente riktig dato, finne nærmeste / runde opp til nærmeste tid i listen med timesieries
-    //finner nåværende klokkeslett
-/*
-    var closesIndex = 0
-    for (i in timeseries.indices){
-        val diff = timeseries.
-        if (timeseries[closesIndex].time -         )
-    }
-    return timeseries[closesIndex]
-
- */
 }
 
 private fun locationToLatLng(loc: Location?): LatLng {

@@ -16,11 +16,13 @@ import javax.inject.Inject
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
 
+
+    //Hvorfor settes coordinates manuelt til 50, 50?
     private val _state = MutableStateFlow(
         MapState(
             lastKnownLocation = null,
             circle = CircleInfo(
-                coordinates = LatLng(50.0, 50.0),
+                coordinates = LatLng(59.0373, 10.5883),
                 radius = 250.0
             )
         )

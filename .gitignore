@@ -45,3 +45,7 @@ fabric.properties
 
 # Keystore files
 *.jks
+
+.gradle/
+*.lock
+file-system.probe

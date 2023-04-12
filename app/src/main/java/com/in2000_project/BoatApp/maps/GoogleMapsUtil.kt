@@ -4,6 +4,7 @@ package com.in2000_project.BoatApp.maps
  * A set of utility functions for centering the camera given some [LatLng] points.
  * Author: Mitch Tabian 2022
  */
+import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
 import kotlin.math.*
@@ -92,7 +93,9 @@ fun personHarDriftetTilNesteGrid(dataCoordinate: LatLng, personCoordinate: LatLn
     val avstandLengdegrad = 2 * PI * jordaRadiusMeter * cos(personCoordinate.latitude * PI / 180) * deltaLengdegrad / 360
     val avstandBreddegrad = 2 * PI * jordaRadiusMeter * deltaBreddegrad / 360
 
-    return avstandLengdegrad > 400.0 || avstandBreddegrad > 400.0
+    val svar = avstandLengdegrad > 400.0 || avstandBreddegrad > 400.0
+    Log.i("Driftsjekk:", "person: $personCoordinate, data: $dataCoordinate. Har byttet? = $svar")
+    return svar
 }
 
 
