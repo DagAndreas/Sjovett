@@ -9,7 +9,6 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
-import androidx.compose.runtime.R
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -17,18 +16,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
-import com.google.android.gms.maps.model.CameraPosition
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
-import com.in2000_project.BoatApp.model.oceanforecast.Details
-import com.in2000_project.BoatApp.model.oceanforecast.Timesery
-import com.in2000_project.BoatApp.viewmodel.OceanViewModel
-import kotlinx.coroutines.*
-import kotlin.math.*
-
-const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
+import kotlinx.coroutines.delay
+import kotlin.math.asin
+import kotlin.math.atan2
+import kotlin.math.cos
+import kotlin.math.sin
 
 @Composable
 fun MapScreen(
@@ -55,7 +51,7 @@ fun MapScreen(
     var counter by remember { mutableStateOf( 0 ) }
     var mann_er_overbord by remember { mutableStateOf(false)}
 
-    
+
     //val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
     var currentLat: Double
     var currentLong: Double

@@ -38,6 +38,8 @@ import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.MetAlertsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.in2000_project.BoatApp.ui.screens.VerktoyScreen
+import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.BottomNavWithBadgesTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -52,6 +54,7 @@ class MapActivity : ComponentActivity() {
         ) { isGranted: Boolean ->
             if (isGranted) {
                 viewModel.getDeviceLocation(fusedLocationProviderClient)
+                alertsMapViewModel.getDeviceLocation(fusedLocationProviderClient)
             }
         }
 
@@ -61,6 +64,8 @@ class MapActivity : ComponentActivity() {
             ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED -> {
             viewModel.getDeviceLocation(fusedLocationProviderClient)
+            alertsMapViewModel.getDeviceLocation(fusedLocationProviderClient)
+
         }
         else -> {
             requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
@@ -70,11 +75,14 @@ class MapActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MapViewModel by viewModels()
 
+    private val alertsMapViewModel = AlertsMapViewModel()
+
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+        viewModel.setClient(fusedLocationProviderClient)
         askPermissions()
         setContent {
 
@@ -86,7 +94,7 @@ class MapActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxHeight(0.912F)
                     ) {
-                        Navigation(navController = navController, viewModel = viewModel)
+                        Navigation(navController = navController, viewModel = viewModel, alertsMapViewModel = alertsMapViewModel)
                     }
 
                     BottomNavigationBar(
@@ -127,7 +135,7 @@ class MapActivity : ComponentActivity() {
 }
 
 @Composable
-fun Navigation(navController: NavHostController, viewModel: MapViewModel) {
+fun Navigation(navController: NavHostController, viewModel: MapViewModel, alertsMapViewModel: AlertsMapViewModel) {
     NavHost(navController = navController, startDestination = "kart") {
         composable("kart") {
             MapScreen(viewModel = viewModel)
@@ -135,7 +143,13 @@ fun Navigation(navController: NavHostController, viewModel: MapViewModel) {
         composable("været") {
             val stormWarningViewModels = MetAlertsViewModel()
             val temperatureViewModel = LocationForecastViewModel()
-            StormWarning(stormWarningViewModels,temperatureViewModel, modifier = Modifier)
+            StormWarning(
+                stormWarningViewModels,
+                temperatureViewModel,
+                alertsMapViewModel,
+                setupClusterManager = alertsMapViewModel::setupClusterManager,
+                calculateZoneViewCenter = alertsMapViewModel::calculateZoneLatLngBounds,
+                modifier = Modifier)
         }
         composable("tidsbruk") {
             TidsbrukScreen(viewModel = viewModel)
@@ -210,14 +224,5 @@ fun VaeretScreen() {
     }
 }
 
-@Composable
-fun VerktoyScreen() {
-    Box(
-        modifier = Modifier.fillMaxSize(),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Verktøy")
-    }
-}
 
 
