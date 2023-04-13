@@ -11,11 +11,13 @@ class OceanViewModel(urlPath: String): ViewModel() {
     val _dataSource = ApiDataSource()
     var path: String = urlPath
     var oceanForecastResponseObject: OceanForecastResponse = getOceanForecastResponse()
+    var antallGangerHentet = 0
 
     fun getOceanForecastResponse(): OceanForecastResponse{
         viewModelScope.launch {
-            Log.i("OceanViewModel", "Henter bølgedata fra $path")
             oceanForecastResponseObject = _dataSource.fetchOceanForecastData(path)
+            antallGangerHentet++
+            Log.i("hentet vanndata", "$antallGangerHentet ganger")
         }
         return oceanForecastResponseObject
     }
