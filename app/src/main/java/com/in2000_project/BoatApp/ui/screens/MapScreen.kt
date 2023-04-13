@@ -9,6 +9,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.runtime.*
+import androidx.compose.runtime.R
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -149,13 +150,24 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
 }
 /** henter den listen med bølgedata som er nærmest nåværende klokkeslett */
 fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
-    Log.i("MapScreen new details", "${timeseries[0].data.instant.details}")
-    return timeseries[0].data.instant.details
+
     //TODO: hente riktig dato, finne nærmeste / runde opp til nærmeste tid i listen med timesieries
+
+    //val currentTime = Time.now()
+    var closest = timeseries[0]
+    //loop through timeseries and find closes time to current timestamp.
+
+    Log.i("MapScreen new details", "${timeseries[0].data.instant.details}")
+
+    //return
+    return closest.data.instant.details
+
 }
 
+/** brukes for å hente posisjonen fra state. default hvis null*/
 private fun locationToLatLng(loc: Location?): LatLng {
-    return LatLng(loc!!.latitude, loc.longitude) //assert bare på 1 loc?
+    if (loc != null){ return LatLng(loc.latitude, loc.longitude)}
+    return LatLng(59.0, 11.0) //default val i oslofjorden
 }
 
 // should find a way to know when it changes grid
