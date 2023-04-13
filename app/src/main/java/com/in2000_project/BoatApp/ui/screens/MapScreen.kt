@@ -16,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
+import com.google.android.gms.maps.model.CameraPosition
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
@@ -37,13 +38,14 @@ fun MapScreen(
 
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
-        isMyLocationEnabled = state.lastKnownLocation != null,
+        //isMyLocationEnabled = state.lastKnownLocation != null,
+        isMyLocationEnabled = true
     )
 
     Log.d("MapScreen", "$state er staten tidlig")
 
     val cameraPositionState = rememberCameraPositionState{
-    //    position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 17f)
+        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), 4f)
     }
     var circleCenter by remember { mutableStateOf(state.circle.coordinates) }
     var circleRadius by remember { mutableStateOf(200.0) }

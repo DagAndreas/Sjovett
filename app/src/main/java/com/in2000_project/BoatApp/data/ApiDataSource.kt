@@ -23,24 +23,47 @@ class ApiDataSource () {
 
     suspend fun fetchLocationForecastData(path: String): LocationForecastResponse {
         Log.i("Henter lokasjonsdata", "fra $path")
-        val response = client.get(path).body<LocationForecastResponse>()
-        Log.i("FetchedLocationForecast", response.toString())
+        val response = client.get {
+            url(path)
+            headers {
+                append(
+                    name = "X-Api-Key",
+                    value = "Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
+                )
+            }
+        }.body<LocationForecastResponse>()
+        Log.i("FetchedLocationForecast", "$response")
         return response
     }
 
 
     suspend fun fetchMetAlertsData(path: String): MetAlertsResponse {
         Log.i("Henter alertdata", "fra $path")
-        val response = client.get(path).body<MetAlertsResponse>()
-        Log.i("Fetched MetAlerts api", response.toString())
+        val response = client.get {
+            url(path)
+            headers {
+                append(
+                    name = "X-Api-Key",
+                    value = "Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
+                )
+            }
+        }.body<MetAlertsResponse>()
+        Log.i("Fetched MetAlerts api", "$response")
         return response
     }
 
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
         Log.i("Henter vanndata", "fra $path")
-        val response = client.get(path).body<OceanForecastResponse>()
-
-        Log.i("Fetched OceanForecast", response.toString())
+        val response = client.get {
+            url(path)
+            headers {
+                append(
+                    name = "X-Api-Key",
+                    value = "Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
+                )
+            }
+        }.body<OceanForecastResponse>()
+        Log.i("Fetched OceanForecast", "$response")
         return response
     }
 }
