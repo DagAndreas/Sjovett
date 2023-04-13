@@ -17,14 +17,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.graphics.toColorInt
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
+import com.in2000_project.BoatApp.model.oceanforecast.Details
+import com.in2000_project.BoatApp.model.oceanforecast.Timesery
+import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import kotlinx.coroutines.delay
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
+
+const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
 
 @Composable
 fun MapScreen(
@@ -49,12 +55,11 @@ fun MapScreen(
     var circleVisibility by remember { mutableStateOf(false) }
     var enabled by remember { mutableStateOf(true) }
     var counter by remember { mutableStateOf( 0 ) }
+
     var mann_er_overbord by remember { mutableStateOf(false)}
-
-
-    //val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
     var currentLat: Double
     var currentLong: Double
+
     if (state.lastKnownLocation != null) {
         currentLat = state.lastKnownLocation!!.latitude
         currentLong = state.lastKnownLocation!!.longitude
