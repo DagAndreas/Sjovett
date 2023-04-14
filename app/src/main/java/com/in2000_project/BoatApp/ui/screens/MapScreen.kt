@@ -128,7 +128,7 @@ fun calculateNewPosition(coordinate: LatLng): LatLng {
     return calculatePosition(listOf(coordinate.latitude, coordinate.longitude), degrees, seaSpeed, searchTime)
 }
 
-private fun locationToLatLng(loc: Location?): LatLng {
+fun locationToLatLng(loc: Location?): LatLng {
     return LatLng(loc!!.latitude, loc.longitude)
 }
 

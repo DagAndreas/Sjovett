@@ -1,12 +1,17 @@
 package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
+import android.location.Location
+import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.CurrentLocationRequest
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.PolylineOptions
+import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,6 +38,30 @@ class MapViewModel @Inject constructor(): ViewModel() {
     )
 
     val state: StateFlow<MapState> = _state.asStateFlow()
+
+    //var myPosition =  mutableStateOf(locationToLatLng(_state.value.lastKnownLocation!!))
+
+    var displayedText = mutableStateOf("Du kan legge til en destinasjon ved å holde inne et sted på kartet. ")
+
+
+    var distanceInMeters = mutableStateOf(0.0)
+    var lengthInMinutes = mutableStateOf(0.0)
+    var speedUnitSelected = mutableStateOf("knop")
+    var polyLines =  mutableStateListOf<PolylineOptions>()
+    var lockMarkers =  mutableStateOf(false)
+    // Convert location to LatLng
+    fun locationToLatLng(location: Location): LatLng {
+        return LatLng(location.latitude, location.longitude)
+    }
+
+    var markerPositions =  mutableStateListOf<LatLng>()
+    //.apply { myPosition.value?.let { add(it) } }
+    var speedNumber =    mutableStateOf(15f)
+    // distance between all of the markers
+    var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
+
+
+
 
     fun updateLocation() {
         try {
