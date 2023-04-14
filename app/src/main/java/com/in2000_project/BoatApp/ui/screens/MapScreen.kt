@@ -47,7 +47,7 @@ fun MapScreen(
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    val cameraPositionState = rememberCameraPositionState{
+    var cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), 4f)
     }
     var circleCenter by remember { mutableStateOf(state.circle.coordinates) }
@@ -99,6 +99,8 @@ fun MapScreen(
     Column() {
         Button(
             onClick = {
+                cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
+
                 circleCenter = locationToLatLng(state.lastKnownLocation)
                 viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //unødvendig?
                 circleVisibility = true
@@ -122,11 +124,11 @@ fun MapScreen(
             )
             LaunchedEffect(circleCenter) { //oppdaterer posisjon hvert 3. sek
                 while (mann_er_overbord){
-                    val time_to_wait_in_minutes: Float = 0.05f //1.0f er 1 minutt. 0.1 = 6sek
+                    val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
                     delay((time_to_wait_in_minutes * 60_000).toLong())
                     //Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
                     counter++
-                    circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*1000)
+                    circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*2000)
                     circleRadius = calculateRadius(counter)
                 }
             }
@@ -161,7 +163,7 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
     Log.i("MapScreen new details", "${timeseries[0].data.instant.details}")
 
     //return
-    return closest.data.instant.details
+    return timeseries[0].data.instant.details
 
 }
 
