@@ -168,7 +168,7 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
 }
 
 /** brukes for å hente posisjonen fra state. default hvis null*/
-private fun locationToLatLng(loc: Location?): LatLng {
+fun locationToLatLng(loc: Location?): LatLng {
     if (loc != null){ return LatLng(loc.latitude, loc.longitude)}
     return LatLng(59.0, 11.0) //default val i oslofjorden
 }
