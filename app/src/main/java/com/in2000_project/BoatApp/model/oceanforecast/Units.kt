@@ -1,4 +1,4 @@
-package com.example.gruppe_16.model.oceanforecast
+package com.in2000_project.BoatApp.model.oceanforecast
 
 data class Units(
     val sea_surface_wave_from_direction: String,

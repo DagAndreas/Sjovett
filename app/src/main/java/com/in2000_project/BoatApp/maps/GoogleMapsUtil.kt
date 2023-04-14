@@ -4,8 +4,10 @@ package com.in2000_project.BoatApp.maps
  * A set of utility functions for centering the camera given some [LatLng] points.
  * Author: Mitch Tabian 2022
  */
+import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
+import kotlin.math.*
 
 fun List<LatLng>.getCenterOfPolygon(): LatLngBounds {
     val centerBuilder: LatLngBounds.Builder = LatLngBounds.builder()
@@ -73,3 +75,27 @@ private fun List<LatLng>.findMaxMins(): CameraViewCoord {
     }
     return viewCoord ?: throw IllegalStateException("viewCoord cannot be null.")
 }
+
+
+/**
+ *tar inn 2 koordinater, posisjonen til målingen fra oceanforecast og person-overbord.
+ * finner endringen fra lengdegraden og breddegraden. abs funksjonen fjerner fortegn på tall. abs (-30) = 30, abs(30) = 30.
+ * beregner antall meter mellom lengdegrad og breddegrad.
+ * returnerer true dersom personen har driftet enten 400m i lengdegrad eller i breddegrad.
+ */
+
+fun personHarDriftetTilNesteGrid(dataCoordinate: LatLng, personCoordinate: LatLng): Boolean {
+    val jordaRadiusMeter = 6371000.0 // approximate radius of the Earth in meters
+
+    val deltaLengdegrad = abs(dataCoordinate.longitude - personCoordinate.longitude)
+    val deltaBreddegrad = abs(dataCoordinate.latitude - personCoordinate.latitude)
+
+    val avstandLengdegrad = 2 * PI * jordaRadiusMeter * cos(personCoordinate.latitude * PI / 180) * deltaLengdegrad / 360
+    val avstandBreddegrad = 2 * PI * jordaRadiusMeter * deltaBreddegrad / 360
+
+    val svar = avstandLengdegrad > 400.0 || avstandBreddegrad > 400.0
+    Log.i("Driftsjekk:", "person: $personCoordinate, data: $dataCoordinate. Har byttet? = $svar")
+    return svar
+}
+
+

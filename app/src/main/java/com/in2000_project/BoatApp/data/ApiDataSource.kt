@@ -3,18 +3,15 @@ package com.in2000_project.BoatApp.data
 import android.util.Log
 import com.example.gruppe_16.model.locationforecast.LocationForecastResponse
 import com.example.gruppe_16.model.metalerts.MetAlertsResponse
-import com.example.gruppe_16.model.oceanforecast.OceanForecastResponse
-import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
+
 
 import io.ktor.client.*
 import io.ktor.client.call.*
-import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 
 import io.ktor.client.request.*
-import io.ktor.http.*
 import io.ktor.serialization.gson.*
-import java.lang.System.exit
 import kotlin.system.exitProcess
 
 
@@ -26,7 +23,7 @@ class ApiDataSource () {
     }
 
     suspend fun fetchLocationForecastData(path: String): LocationForecastResponse {
-        Log.d("API_request", "attempting fetchLocationForecastData.launch")
+        Log.i("Henter lokasjonsdata", "fra $path")
         val response = try {
             client.get() {
                 url(path)
@@ -87,10 +84,6 @@ class ApiDataSource () {
             Log.e("API_request xxx", path)
             Log.e("API_request xxx", e.message.toString())
             exitProcess(0)
-        }
-        val itr = response.properties.timeseries.listIterator()
-        while (itr.hasNext()){
-            Log.i("oceanforecast", itr.next().toString())
         }
 
         Log.d("API_request", "fetchOceanForecastData.launch success, response: ")

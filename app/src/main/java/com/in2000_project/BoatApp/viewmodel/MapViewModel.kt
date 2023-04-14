@@ -18,6 +18,10 @@ import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
+
+
+    //Koordinater settes til default: 59.0373, 10.5883
+
     lateinit var locationProviderClient: FusedLocationProviderClient
     fun setClient(fusedLocationProviderClient: FusedLocationProviderClient) {
         locationProviderClient = fusedLocationProviderClient
@@ -26,7 +30,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         MapState(
             lastKnownLocation = null,
             circle = CircleInfo(
-                coordinates = LatLng(50.0, 50.0),
+                coordinates = LatLng(59.0373, 10.5883),
                 radius = 250.0
             )
         )
