@@ -6,15 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Undo
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.DropdownMenuItem
 
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,124 +19,138 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.compose.*
-import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import kotlin.math.*
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun TidsbrukScreen(
     viewModel: MapViewModel = viewModel()
 ) {
-
-
     viewModel.updateLocation()
 
-
-
-    // Define the state variables
-    // start at 15 knots
-    var speedNumber by remember { mutableStateOf(15f) }
+    // Collect the current state from the view model
     val state by viewModel.state.collectAsState()
-    val mapProperties = MapProperties(
-        // Only enable if user has accepted location permissions.
-        isMyLocationEnabled = state.lastKnownLocation != null,
-    )
 
-    val cameraPositionState = rememberCameraPositionState{
+// Remember the camera position state so that it persists across recompositions
+    val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
     }
 
-    // stores position of the user
-    var myPosition by remember { mutableStateOf(locationToLatLng(state.lastKnownLocation!!)) }
+// Define the properties of the map
+    val mapProperties = MapProperties(
+        isMyLocationEnabled = state.lastKnownLocation != null
+    )
 
-    // a list containing the markers the user creates
-    val markerPositions = remember { mutableStateListOf<LatLng>().apply {add(myPosition)}}
-
-    // a list of lines between the markers
-    val polyLines = remember { mutableStateListOf<PolylineOptions>() }
-
-    // text that should be displayed to the user
-    var displayedText by remember { mutableStateOf("Du kan legge til en destinasjon ved å holde inne et sted på kartet. ")}
-    // distance between all of the markers
-    var coordinatesToFindDistanceBetween = remember { mutableStateListOf<LatLng>().apply { add(myPosition) } }
-    var distanceInMeters by remember { mutableStateOf(0.0) }
-    var lengthInMinutes by remember { mutableStateOf(0.0) }
-    var speedUnitSelected by remember { mutableStateOf("knop") }
-    val speedUnits = LocalContext.current.resources.getStringArray(R.array.speedUnits)
-
-    var menuExpanded by remember { mutableStateOf(false) }
-
-    // is the routed locked in or not?
-    var lockMarkers by remember { mutableStateOf(false) }
-
-    val lastMarkerPosition = if (lockMarkers) markerPositions.last() else null
-
-    // Define the function to update displayed text
-    // endre navn på tidsbruk - reiseplanlegger
-
-    fun updateDisplayedText() {
-        if (speedNumber == 0f) {
-            displayedText = "Du vil ikke komme fram hvis du kjører 0 $speedUnitSelected"
+// Maintain a list of marker positions on the map
+    val markerPositions = viewModel.markerPositions.apply {
+        if (size == 0) {
+            // If the list is empty, add the last known location as the first marker
+            add(locationToLatLng(state.lastKnownLocation!!))
         }
-        else{
-            if(markerPositions.size < 2) {
-                displayedText = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
-            }
-            else {
-                displayedText = "Denne ruten vil ta ${formatTime(lengthInMinutes)}."
+    }
+
+// Maintain a list of polylines on the map
+    val polyLines = viewModel.polyLines
+
+// Maintain a list of coordinates for calculating the distance between markers
+    val coordinatesToFindDistanceBetween = viewModel.coordinatesToFindDistanceBetween.apply {
+        if (size == 0) {
+            // If the list is empty, add the last known location as the first coordinate
+            add(locationToLatLng(state.lastKnownLocation!!))
+        }
+    }
+
+// Maintain various view model state variables
+    val displayedText = viewModel.displayedText
+    val distanceInMeters = viewModel.distanceInMeters
+    val lengthInMinutes = viewModel.lengthInMinutes
+    val speedUnitSelected = viewModel.speedUnitSelected
+    val lockMarkers = viewModel.lockMarkers
+
+// Get the position of the last marker if locking is enabled, otherwise it's null
+    val lastMarkerPosition = if (lockMarkers.value) markerPositions.last() else null
+
+    // Define a function to update the displayed text based on the current state
+    fun updateDisplayedText() {
+        if (viewModel.speedNumber.value == 0f) {
+            viewModel.displayedText.value = "Du vil ikke komme fram hvis du kjører 0 knop"
+        } else {
+            if (markerPositions.size < 2) {
+                viewModel.displayedText.value = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
+            } else {
+                viewModel.displayedText.value = "Denne ruten vil ta ${formatTime(lengthInMinutes.value)}."
             }
         }
     }
-    // Define the function to update the slider value and displayed text
+
+// Define a function to handle changes to the speed slider
     val onSpeedChanged: (Float) -> Unit = { value ->
-        speedNumber = value.roundToInt().toFloat()
-        lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
+        viewModel.speedNumber.value = value.roundToInt().toFloat()
+        lengthInMinutes.value = calculateTimeInMinutes(distanceInMeters.value, viewModel.speedNumber.value)
         updateDisplayedText()
         viewModel.updateLocation()
     }
 
-    // Define the function to handle long press on the map
-    // Define the function to handle long press on the map
+// Define a function to handle long presses on the map
     val onLongPress: (LatLng) -> Unit = { position ->
-        if (!lockMarkers) {
+        if (!lockMarkers.value) {
+            // Update the current location
             viewModel.updateLocation()
-            markerPositions[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
+
+            // Update the first marker position to the current location
+            markerPositions[0] = locationToLatLng(state.lastKnownLocation!!)
+
+            // Add the new marker position and coordinate for calculating distance
             markerPositions.add(position)
             coordinatesToFindDistanceBetween.add(position)
+
+            // Add a new polyline between the last two markers
             val lastPosition = markerPositions[markerPositions.size - 2]
             val options = PolylineOptions()
-                .add(markerPositions[0], lastPosition)
                 .add(lastPosition, position)
                 .color(android.graphics.Color.RED)
+
+            if(polyLines.size>1){
+                val updatedFirstPolyLine = PolylineOptions()
+                .add(markerPositions[0], markerPositions[1])
+                .color(android.graphics.Color.RED)
+                polyLines[0] = updatedFirstPolyLine
+            }
             polyLines.add(options)
+
             if (coordinatesToFindDistanceBetween.size > 1) {
-                distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
-                lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
+                distanceInMeters.value = calculateDistance(coordinatesToFindDistanceBetween)
+                lengthInMinutes.value = calculateTimeInMinutes(distanceInMeters.value, viewModel.speedNumber.value)
             }
             updateDisplayedText()
         }
-    //polyLines[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
+        //polyLines[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
     }
 
 
-    // Define the function to minimize the screen
     fun removeLastMarker() {
         if (markerPositions.size > 1) {
             val removedMarker = markerPositions.removeLast()
             coordinatesToFindDistanceBetween.remove(removedMarker)
             polyLines.removeLast()
+            // update first polyLine
+            markerPositions[0] = locationToLatLng(state.lastKnownLocation!!)
+            coordinatesToFindDistanceBetween[0] = markerPositions[0]
+
             if (coordinatesToFindDistanceBetween.size > 1) {
-                distanceInMeters = calculateDistance(coordinatesToFindDistanceBetween)
-                lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnitSelected)
+                val updatedPolyLine = PolylineOptions()
+                    .add(markerPositions[0], markerPositions[1])
+                    .color(android.graphics.Color.RED)
+                polyLines[0] = updatedPolyLine
+                distanceInMeters.value = calculateDistance(coordinatesToFindDistanceBetween)
+                lengthInMinutes.value = calculateTimeInMinutes(distanceInMeters.value, viewModel.speedNumber.value)
             } else {
-                distanceInMeters = 0.0
-                lengthInMinutes = 0.0
+                distanceInMeters.value = 0.0
+                lengthInMinutes.value = 0.0
             }
             updateDisplayedText()
         }
     }
-
 
 // Define the UI
     Column(
@@ -153,42 +162,18 @@ fun TidsbrukScreen(
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Antall $speedUnitSelected: ${speedNumber.toInt()}",
+                text = "Antall knop: ${viewModel.speedNumber.value.toInt()}",
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 modifier = Modifier.padding(16.dp)
             )
-            ExposedDropdownMenuBox(expanded = menuExpanded, onExpandedChange = {menuExpanded=it},
-            )
-            {
-                TextField(
-                readOnly = true,
-                value = speedUnitSelected,
-                onValueChange = {},
-                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuExpanded) },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                    modifier = Modifier.width(100.dp)
-                )
 
-                ExposedDropdownMenu(
-                expanded = menuExpanded,
-                onDismissRequest = {menuExpanded = false},
-                ) {
-                    speedUnits.forEach{speedUnit ->
-                        DropdownMenuItem(
-                            text = {Text(speedUnit)},
-                            onClick = {
-                                speedUnitSelected = speedUnit
-                                menuExpanded = false
-                                lengthInMinutes = calculateTimeInMinutes(distanceInMeters, speedNumber, speedUnit)
-                                updateDisplayedText()
-                            }
-                        )
-                }
-            }
-        }
             IconButton(
-                onClick = {if(!lockMarkers){removeLastMarker()}},
+                onClick = {
+                    if (!viewModel.lockMarkers.value) {
+                        removeLastMarker()
+                    }
+                },
                 modifier = Modifier.padding(16.dp)
             ) {
                 Icon(
@@ -199,7 +184,7 @@ fun TidsbrukScreen(
             }
         }
         Slider(
-            value = speedNumber,
+            value = viewModel.speedNumber.value,
             onValueChange = onSpeedChanged,
             valueRange = 0f..50f,
             steps = 50,
@@ -209,15 +194,17 @@ fun TidsbrukScreen(
         )
 
         Text(
-            text = displayedText,
+            text = viewModel.displayedText.value,
             fontSize = 14.sp,
             modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
         )
-        Button(onClick = {lockMarkers=!lockMarkers}, modifier = Modifier.width(150.dp) ) {
-            if(!lockMarkers) {
+        Button(
+            onClick = { viewModel.lockMarkers.value = !viewModel.lockMarkers.value },
+            modifier = Modifier.width(150.dp)
+        ) {
+            if (!viewModel.lockMarkers.value) {
                 Text("Lås inn ruten ")
-            }
-            else{
+            } else {
                 Text("Åpne ruten ")
             }
         }
@@ -234,23 +221,23 @@ fun TidsbrukScreen(
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
-                if(!lockMarkers){
-                    markerPositions.forEach { position ->
+                if (!viewModel.lockMarkers.value) {
+                    viewModel.markerPositions.forEach { position ->
                         Marker(
                             state = MarkerState(position = position)
                         )
                     }
                 }
-                    polyLines.forEach { options ->
-                        val points = options.getPoints()
-                        Polyline(points)
-                    }
+                viewModel.polyLines.forEach { options ->
+                    val points = options.getPoints()
+                    Polyline(points)
+                }
 
             }
         }
     }
-}
 
+}
 
 
 
@@ -264,60 +251,40 @@ private suspend fun CameraPositionState.centerOnLocation(
     ),
 )
 
-private fun calculateDistance(coordinates: List<LatLng>): Double {
-    var distanceInMeters = 0.0
-    for (i in 0 until coordinates.size - 1) {
-        val lat1 = coordinates[i].latitude
-        val lon1 = coordinates[i].longitude
-        val lat2 = coordinates[i + 1].latitude
-        val lon2 = coordinates[i + 1].longitude
-        val dLat = (lat2 - lat1).toRadians()
-        val dLon = (lon2 - lon1).toRadians()
-        val a = sin(dLat/2) * sin(dLat/2) + cos(lat1.toRadians()) * cos(lat2.toRadians()) * sin(dLon/2) * sin(dLon/2)
-        val c = 2 * atan2(sqrt(a), sqrt(1-a))
-        distanceInMeters += 6371e3 * c // Earth radius in meters
+// Calculate distance between coordinates
+fun calculateDistance(coordinates: List<LatLng>): Double {
+    var distance = 0.0
+    for (i in 0 until coordinates.lastIndex) {
+        val from = coordinates[i]
+        val to = coordinates[i + 1]
+        val results = FloatArray(1)
+        Location.distanceBetween(
+            from.latitude,
+            from.longitude,
+            to.latitude,
+            to.longitude,
+            results
+        )
+        distance += results[0]
     }
-    return distanceInMeters
+    return distance
 }
 
-private fun Double.toRadians(): Double {
-    return this * PI / 180
+// Calculate time in minutes based on distance and speed
+fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Double {
+    val metersInNauticalMile = 1853
+    val minutesInHour = 60
+    return (distanceInMeters / (speedInKnots * metersInNauticalMile )) * minutesInHour
 }
 
-fun calculateTimeInMinutes(distanceInMeters: Double, speedNumber: Float, speedUnit: String): Double {
-    // 1 km/t = 0.2778 m/s
-    // 1 knot = 0.514444 m/s
-    var speedInMetersPerSecond = 0.0
-    when(speedUnit){
-        "km/t" -> speedInMetersPerSecond = speedNumber*1000.0/3600
-        "m/s" -> speedInMetersPerSecond = speedNumber.toDouble()
-        "knop" -> speedInMetersPerSecond = speedNumber*0.514444
-    }
-    val timeInSeconds = distanceInMeters / speedInMetersPerSecond
-    val timeInMinutes = timeInSeconds / 60
-    return timeInMinutes
-}
-
-fun formatTime(duration: Double): String {
-    return when {
-        duration < 60 -> "${duration.roundToInt()} minutter"
-        duration < 1440 -> {
-            val hours = duration.toInt() / 60
-            val minutes = duration.toInt() % 60
-            if (minutes == 0) "$hours time(r)" else "$hours time(r) og $minutes minutter"
-        }
-        else -> {
-            val days = duration.toInt() / 1440
-            val hours = (duration.toInt() % 1440) / 60
-            val minutes = (duration.toInt() % 1440) % 60
-            if (hours == 0 && minutes == 0) "$days dag(er)"
-            else if (hours == 0) "$days dag(er) og $minutes minutter"
-            else if (minutes == 0) "$days dag(er) og $hours minutter"
-            else "$days dag(er), $hours time(r) og $minutes minutter"
-        }
+// Format time in minutes to display as text
+fun formatTime(timeInMinutes: Double): String {
+    val hours = (timeInMinutes / 60).toInt()
+    val minutes = (timeInMinutes % 60).toInt()
+    return if (hours == 0) {
+        "$minutes minutter"
+    } else {
+        "$hours timer og $minutes minutter"
     }
 }
 
-private fun locationToLatLng(loc: Location?): LatLng {
-    return LatLng(loc!!.latitude, loc.longitude)
-}
