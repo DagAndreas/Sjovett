@@ -53,7 +53,7 @@ class ApiDataSource () {
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",
-                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"//R.string.Proxy_key.toString()
+                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"
                     )
                 }
             }.body<MetAlertsResponse>()

@@ -1,10 +1,12 @@
 package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import com.in2000_project.BoatApp.maps.*
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.LatLngBounds
@@ -21,7 +23,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AlertsMapViewModel @Inject constructor(): ViewModel() {
-    val listOfClusters = mutableListOf<ZoneClusterItem>()
+    private val listOfClusters = mutableListOf<ZoneClusterItem>()
 
     private val _state = MutableStateFlow(
         MapStateCluster(

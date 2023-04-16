@@ -1,6 +1,8 @@
 package com.in2000_project.BoatApp.viewmodel
 
 import android.util.Log
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.TemperatureUiState
 import kotlinx.coroutines.CoroutineScope
@@ -23,14 +25,14 @@ class LocationForecastViewModel {
     private val _temperatureUiState = MutableStateFlow(TemperatureUiState())
     val temperatureUiState = _temperatureUiState.asStateFlow()
     init {
-        fetchLocationForecastData()
+        fetchLocationForecastData(0.0,0.0)
     }
 
-    fun fetchLocationForecastData() { // Henter data fra APIet
+    fun fetchLocationForecastData(lat: Double, lng: Double) { // Henter data fra APIet
         Log.d("Fetch", "LocationForecast")
         CoroutineScope(Dispatchers.IO).launch {
-            //val url = "https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=$userLat&lon=$userLng"
-            val url = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/locationforecast/2.0/complete?lat=$userLat&lon=$userLng"
+            //val url = "https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=59.9139&lon=10.7522"
+            val url = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/locationforecast/2.0/complete?lat=$lat&lon=$lng"
             _temperatureUiState.update {
                 // setter warningList til å være en MetAlertsResponse
                 (it.copy(timeList = _dataSource.fetchLocationForecastData(url).properties.timeseries))
