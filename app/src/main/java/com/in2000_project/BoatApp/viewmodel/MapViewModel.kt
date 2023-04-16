@@ -1,25 +1,28 @@
 package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.location.Location
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.location.CurrentLocationRequest
-import com.in2000_project.BoatApp.maps.*
-import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
-import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.maps.CircleInfo
+import com.in2000_project.BoatApp.data.MapState
+import com.in2000_project.BoatApp.maps.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import java.io.IOException
+import java.io.InputStream
+import java.net.HttpURLConnection
+import java.net.URL
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
+
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {

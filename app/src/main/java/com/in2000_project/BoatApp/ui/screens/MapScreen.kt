@@ -24,6 +24,7 @@ import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
+import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import kotlinx.coroutines.delay
 import kotlin.math.asin
 import kotlin.math.atan2
@@ -70,6 +71,13 @@ fun MapScreen(
     }
     val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
 
+    val apiKeySeaOrLand = "fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff"
+    val latLng = LatLng(58.628244, -9.823267)
+    val urlPath = "https://isitwater-com.p.rapidapi.com/?latitude=${latLng.latitude}&longitude=${latLng.longitude}&rapidapi-key=$apiKeySeaOrLand"
+    println(urlPath)
+    val seaOrLandViewModel = SeaOrLandViewModel(urlPath)
+
+    println("HEI")
 
 
     Box(

@@ -1,12 +1,14 @@
 package com.in2000_project.BoatApp.compose
 
-
+import android.R.attr.bitmap
+import android.R.attr.x
+import android.R.attr.y
+import android.graphics.Color
 import android.location.Location
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Undo
-
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,6 +23,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import kotlin.math.*
+
 
 @Composable
 fun TidsbrukScreen(
@@ -74,6 +77,8 @@ fun TidsbrukScreen(
     fun updateDisplayedText() {
         if (viewModel.speedNumber.value == 0f) {
             viewModel.displayedText.value = "Du vil ikke komme fram hvis du kjører 0 knop"
+
+            viewModel.displayedText.value = "Du er på land. ${state.lastKnownLocation!!.altitude} moh. "
         } else {
             if (markerPositions.size < 2) {
                 viewModel.displayedText.value = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "

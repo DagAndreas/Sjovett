@@ -4,6 +4,7 @@ import android.util.Log
 import com.example.gruppe_16.model.locationforecast.LocationForecastResponse
 import com.example.gruppe_16.model.metalerts.MetAlertsResponse
 import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.seaOrLand.SeaOrLandResponse
 
 
 import io.ktor.client.*
@@ -90,4 +91,9 @@ class ApiDataSource () {
         Log.i("API_request", response.toString())
         return response
     }
+    suspend fun fetchSeaOrLandResponse(path: String): SeaOrLandResponse {
+        return client.get(path).body()
+    }
+
+
 }
