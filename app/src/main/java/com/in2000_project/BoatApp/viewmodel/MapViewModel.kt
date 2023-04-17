@@ -75,33 +75,10 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var mann_er_overbord = mutableStateOf(false)
     var currentLat: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.latitude else 56.0646
     var currentLong: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.longitude else 10.6778
-    var followCircle: Boolean = true;
+    var followCircle: Boolean = false;
 
     val oceanViewModel = OceanViewModel("$oceanURL?lat=${currentLat}&lon=${currentLong}")
 
-    fun setCircleCenter(center: LatLng) {
-        circleCenter.value = center
-    }
-
-    fun setCircleRadius(radius: Double) {
-        circleRadius.value = radius
-    }
-
-    fun setCircleVisibility(visibility: Boolean) {
-        circleVisibility.value = visibility
-    }
-
-    fun setEnabled(enabled: Boolean) {
-        this.enabled.value = enabled
-    }
-
-    fun setCounter(counter: Int) {
-        this.counter.value = counter
-    }
-
-    fun setMannErOverbord(mannErOverbord: Boolean) {
-        this.mann_er_overbord.value = mannErOverbord
-    }
 
     fun updateLocation() {
         try {

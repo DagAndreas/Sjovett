@@ -21,6 +21,7 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
+import com.in2000_project.BoatApp.model.oceanforecast.Data
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
@@ -84,11 +85,11 @@ fun MapScreen(
             onClick = {
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
 
-                v.setCircleCenter(locationToLatLng(state.lastKnownLocation))
+                v.circleCenter.value = locationToLatLng(state.lastKnownLocation)
                 //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //forårsaker at knappen ikke fungere 2 ganger.
-                v.setCircleVisibility(true)
-                v.setEnabled(false)
-                v.setMannErOverbord(true)
+                v.circleVisibility.value = true
+                v.enabled.value = false
+                v.mann_er_overbord.value = true
                 Log.i("MapScreen button", "Hei fra buttonpress")
             },
             modifier = Modifier
@@ -118,8 +119,8 @@ fun MapScreen(
                     //Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
                     v.counter.value++
                     //circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*2000)
-                    v.setCircleCenter(calculateNewPosition(v.circleCenter.value, v.oceanViewModel, time_to_wait_in_minutes.toDouble()*2000))
-                    v.setCircleRadius(calculateRadius(v.counter.value))
+                    v.circleCenter.value = calculateNewPosition(v.circleCenter.value, v.oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
+                    v.circleRadius.value = calculateRadius(v.counter.value)
                 }
             }
         }
@@ -146,6 +147,10 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
 
     //TODO: hente riktig dato, finne nærmeste / runde opp til nærmeste tid i listen med timesieries
 
+    if (timeseries == null){
+        Log.d("MapScreen findClosestD", "timeseries listen er null. Fant ikke data, og setter 0 verdier for mann overbord.")
+        return (Details(0.0, 0.0, 0.0, 0.0, 0.0))}
+
     //val currentTime = Time.now()
     var closest = timeseries[0]
     //loop through timeseries and find closes time to current timestamp.
@@ -153,6 +158,7 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
     Log.i("MapScreen new details", "${closest.data.instant.details}")
 
     //return
+
     return timeseries[0].data.instant.details
 
 }
