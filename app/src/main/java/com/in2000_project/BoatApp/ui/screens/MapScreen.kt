@@ -92,6 +92,7 @@ fun MannOverbord(
                 mapViewModel.circleVisibility.value = true
                 mapViewModel.enabled.value = false
                 mapViewModel.mann_er_overbord.value = true
+                mapViewModel.mapUpdateThread.start()
 
                 Log.i("MapScreen button", "Hei fra buttonpress")
             },
@@ -115,15 +116,6 @@ fun MannOverbord(
                 if (mapViewModel.followCircle) {
                     cameraPositionState.position =
                         CameraPosition.fromLatLngZoom(mapViewModel.circleCenter.value, 13.0f)
-                }
-                while (mapViewModel.mann_er_overbord.value){
-                    val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
-                    delay((time_to_wait_in_minutes * 60_000).toLong())
-                    //Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
-                    mapViewModel.counter.value++
-                    //circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*2000)
-                    mapViewModel.circleCenter.value = calculateNewPosition(mapViewModel.circleCenter.value, mapViewModel.oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
-                    mapViewModel.circleRadius.value = calculateRadius(mapViewModel.counter.value)
                 }
             }
         }

@@ -10,12 +10,17 @@ import com.google.android.gms.location.CurrentLocationRequest
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
+import com.google.maps.android.compose.CameraPositionState
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.compose.calculateNewPosition
+import com.in2000_project.BoatApp.compose.calculateRadius
 import com.in2000_project.BoatApp.compose.oceanURL
 import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -78,6 +83,29 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var followCircle: Boolean = false;
 
     val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
+
+    val mapUpdateThread = MapUpdateThread(this)
+    class MapUpdateThread(
+        val mapViewModel: MapViewModel
+    ) : Thread() {
+        override fun run() {
+            while(true){
+                sleep(5000) // x antall sek
+                mapViewModel.updateMap()
+                Log.i("HIEIHEIEHIE", "HDASDHJKASDKASJHDJAKSD")
+            }
+        }
+    }
+
+
+    fun updateMap(){
+        val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
+        Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
+
+        counter.value++
+        circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
+        circleRadius.value = calculateRadius(counter.value)
+    }
 
 
     fun updateLocation() {
