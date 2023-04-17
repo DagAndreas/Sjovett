@@ -20,6 +20,7 @@ import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import com.in2000_project.BoatApp.data.MannOverbordData
 import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
@@ -65,7 +66,7 @@ fun MapScreen(
         currentLong = state.lastKnownLocation!!.longitude
     }else{
         Log.i("MapScreen", state.toString())
-        currentLat = 59.0646
+        currentLat = 56.0646
         currentLong = 10.6778
     }
     val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
@@ -102,10 +103,11 @@ fun MapScreen(
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
 
                 circleCenter = locationToLatLng(state.lastKnownLocation)
-                viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //unødvendig?
+                //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //forårsaker at knappen ikke fungere 2 ganger.
                 circleVisibility = true
                 enabled = false
                 mann_er_overbord = true
+                Log.i("MapScreen button", "Hei fra buttonpress")
             },
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
@@ -123,6 +125,7 @@ fun MapScreen(
                 fontSize = 20.sp
             )
             LaunchedEffect(circleCenter) { //oppdaterer posisjon hvert 3. sek
+                Log.i("MapScreen launchedff", "$mann_er_overbord and in launched effect. Counter is $counter")
                 while (mann_er_overbord){
                     val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
                     delay((time_to_wait_in_minutes * 60_000).toLong())
@@ -160,7 +163,7 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
     var closest = timeseries[0]
     //loop through timeseries and find closes time to current timestamp.
 
-    Log.i("MapScreen new details", "${timeseries[0].data.instant.details}")
+    Log.i("MapScreen new details", "${closest.data.instant.details}")
 
     //return
     return timeseries[0].data.instant.details
@@ -170,6 +173,7 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
 /** brukes for å hente posisjonen fra state. default hvis null*/
 fun locationToLatLng(loc: Location?): LatLng {
     if (loc != null){ return LatLng(loc.latitude, loc.longitude)}
+    Log.i("locationToLatLng","Fant ingen location. Returnerer default LatLng(59.0, 11.0)")
     return LatLng(59.0, 11.0) //default val i oslofjorden
 }
 

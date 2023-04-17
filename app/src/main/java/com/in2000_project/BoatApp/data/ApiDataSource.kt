@@ -68,7 +68,7 @@ class ApiDataSource () {
     }
 
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
-        Log.d("API_request", "attempting fetchOceanForecastData.launch")
+        //Log.d("API_request", "attempting fetchOceanForecastData.launch")
         val response = try {
             client.get() {
                 url(path)
@@ -87,7 +87,7 @@ class ApiDataSource () {
         }
 
         Log.d("API_request", "fetchOceanForecastData.launch success, response: ")
-        Log.i("API_request", response.toString())
+        Log.i("ApiData_Source_Ocean", "response: $response")
         return response
     }
 }
