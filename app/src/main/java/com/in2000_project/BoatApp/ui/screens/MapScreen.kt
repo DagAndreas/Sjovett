@@ -24,6 +24,7 @@ import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
+import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import kotlinx.coroutines.delay
 import kotlin.math.asin
 import kotlin.math.atan2
@@ -50,6 +51,32 @@ fun MannOverbord(
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
+    var circleCenter by remember { mutableStateOf(state.circle.coordinates) }
+    var circleRadius by remember { mutableStateOf(200.0) }
+    var circleVisibility by remember { mutableStateOf(false) }
+    var enabled by remember { mutableStateOf(true) }
+    var counter by remember { mutableStateOf( 0 ) }
+
+    var mann_er_overbord by remember { mutableStateOf(false)}
+    var currentLat: Double
+    var currentLong: Double
+
+    if (state.lastKnownLocation != null) {
+        currentLat = state.lastKnownLocation!!.latitude
+        currentLong = state.lastKnownLocation!!.longitude
+    }else{
+        Log.i("MapScreen", state.toString())
+        currentLat = 59.0646
+        currentLong = 10.6778
+    }
+    val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
+
+
+    val apiKeySeaOrLand = "fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff"
+    val latLng = LatLng(58.628244, -9.823267)
+    val urlPath = "https://isitwater-com.p.rapidapi.com/?latitude=${latLng.latitude}&longitude=${latLng.longitude}&rapidapi-key=$apiKeySeaOrLand"
+    println(urlPath)
+    val seaOrLandViewModel = SeaOrLandViewModel(urlPath)
 
     Box(
         /*
