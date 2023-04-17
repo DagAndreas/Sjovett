@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -13,8 +15,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,112 +26,65 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.times
 import androidx.core.graphics.toColorInt
 import coil.compose.AsyncImage
+import com.in2000_project.BoatApp.R
 
 
 //@Preview
 @Composable
-fun VerktoyCard(name: String, color: String, icon: String) {
+fun VerktoyCard(name: String, color: String, icon: Painter) {
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
-
-    ElevatedCard(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(start = 0.1 * screenWidth, end = 0.1 * screenWidth, top = 0.1 * screenWidth)
-            .shadow(
-                elevation = 20.dp
-            )
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Text(
-                text = name,
-                modifier = Modifier
-                    .background(Color(color.toColorInt()))
-                    .fillMaxWidth()
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-                    .wrapContentHeight(Alignment.CenterVertically)
-                    .height(30.dp)
-                    .padding(top = 2.dp),
-                fontWeight = FontWeight.Bold
-            )
-
-            AsyncImage(
-                model = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_1yLt7BIszwuDrY55U_9gSL96cGqrnZdXJ5NQYv7vRWPJ0DguzA&s",
-                contentDescription = "cardIcon",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.Gray, CircleShape)
-                    .fillMaxSize(0.5f)
-            )
-
-        }
-    }
-}
-
-
-
-/*
-@Composable
-fun VerktoyCard(name: String, color: String, icon: String) {
-
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
+    val screenHeight = configuration.screenHeightDp.dp
 
     Box(
         modifier = Modifier
-            .wrapContentWidth(Alignment.CenterHorizontally)
-            .border(BorderStroke(1.dp, Color.Black))
-            .padding(20.dp)
+            .height(0.35 * screenHeight)
+            .padding(start = 0.1 * screenWidth, end = 0.1 * screenWidth, bottom = 0.1 * screenWidth)
     ) {
-        ElevatedCard(
+        Box(
             modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxHeight(0.9f)
                 .fillMaxWidth()
-                .padding(
-                    start = 0.1 * screenWidth,
-                    end = 0.1 * screenWidth,
-                    top = 0.1 * screenWidth
-                )
-                .shadow(
-                    elevation = 20.dp
+                .background(
+                    color = Color.White,
+                    shape = RoundedCornerShape(10.dp)
                 )
         ) {
-            AsyncImage(
-                model = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcR_1yLt7BIszwuDrY55U_9gSL96cGqrnZdXJ5NQYv7vRWPJ0DguzA&s",
-                contentDescription = "cardIcon",
-                contentScale = ContentScale.Crop,
+            Icon(
+                painter = icon,
+                contentDescription = "verktoyIcon",
+                tint = Color.Unspecified,
                 modifier = Modifier
-                    .size(150.dp)
-                    .clip(CircleShape)
-                    .border(2.dp, Color.Gray, CircleShape)
-                    .fillMaxSize(0.5f)
+                    .align(Alignment.Center)
+                    .size(0.2 * screenWidth)
             )
+
         }
 
-        ElevatedCard(
+        Box(
             modifier = Modifier
-                .offset(x = 0.dp, y = -20.dp)
+                .align(Alignment.TopCenter)
+                .wrapContentSize(Alignment.Center)
+                .fillMaxHeight(0.2f)
+                .fillMaxWidth(0.5f)
+                .background(
+                    color = Color(color.toColorInt()),
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .shadow(
+                    elevation = 0.dp,
+                    shape = RoundedCornerShape(0.dp)
+                )
         ) {
             Text(
                 text = name,
                 modifier = Modifier
-                    .background(Color(color.toColorInt()))
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-                    .height(30.dp)
-                    .padding(5.dp)
-                    .shadow(elevation = 20.dp),
+                    .wrapContentSize(Alignment.Center)
+                    .align(Alignment.Center),
                 fontWeight = FontWeight.Bold
             )
         }
     }
 }
-
- */
