@@ -3,18 +3,36 @@ package com.in2000_project.BoatApp.compose
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Undo
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.CameraPosition
@@ -78,13 +96,10 @@ fun MannOverbord(
     println(urlPath)
     val seaOrLandViewModel = SeaOrLandViewModel(urlPath)
 
+    var popupControl by remember { mutableStateOf(false) }
+
     Box(
-        /*
-        modifier = Modifier
-            //.clip(RoundedCornerShape(20.dp))
-            .fillMaxSize()
-            .padding(bottom = 60.dp /*, start = 20.dp, end = 20.dp, top = 20.dp */)
-         */
+
     ) {
         GoogleMap(
             modifier = Modifier
@@ -102,7 +117,68 @@ fun MannOverbord(
             )
         }
     }
-    Column() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        IconButton(
+            onClick = { popupControl = true }
+        ) {
+            Icon(
+                Icons.Outlined.Info,
+                contentDescription = "Info",
+                modifier = Modifier
+                    .size(24.dp),
+                tint = Color.White
+            )
+        }
+        if (popupControl) {
+            Popup(
+                alignment = Center,
+                properties = PopupProperties(
+                    focusable = true
+                )
+            ) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
+                        .height(LocalConfiguration.current.screenHeightDp.dp * 0.15f)
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        IconButton(
+                            onClick = { popupControl = false },
+                            modifier = Modifier
+                                .align(Alignment.End)
+                        ) {
+                            Icon(
+                                Icons.Outlined.Close,
+                                contentDescription = "Close",
+                                modifier = Modifier
+                                    .size(24.dp),
+                                tint = Color.Gray
+                            )
+                        }
+                        Text(
+                            text = "test",
+                            modifier = Modifier
+                                .align(CenterHorizontally)
+                        )
+                    }
+                }
+            }
+        }
+
         Button(
             onClick = {
 
@@ -125,19 +201,29 @@ fun MannOverbord(
             },
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
-                .padding(start = 160.dp, top = 450.dp)
-                .size(90.dp),
+                .padding(
+                    /*start = LocalConfiguration.current.screenWidthDp.dp * 0.4f,*/
+                    top = LocalConfiguration.current.screenHeightDp.dp * 0.7f
+                )
+                .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
+                .shadow(
+                    elevation = 5.dp,
+                    shape = CircleShape
+                )
+                .align(CenterHorizontally),
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
-            border= BorderStroke(1.dp, Color.Red),
-            enabled = mapViewModel.enabled.value
+            enabled = mapViewModel.enabled.value,
+
 
         ) {
             Text(
-                text = "SOS",
+                text = "Start søk",
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center
             )
+
             LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
                 Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.counter.value}")
                 if (mapViewModel.followCircle) {

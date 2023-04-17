@@ -183,20 +183,19 @@ fun BottomNavigationBar(
             BottomNavigationItem(
                 selected = selected,
                 onClick = { onItemClick(item) },
-                selectedContentColor = Color.Gray,
-                unselectedContentColor = Color.LightGray,
+                selectedContentColor = Color.Black,
+                unselectedContentColor = Color.Gray,
                 icon = {
                     Column(horizontalAlignment = CenterHorizontally) {
                         Icon(
                             imageVector = item.icon,
                             contentDescription = item.name
                         )
-                        if (selected) {
-                            Text(
-                                text = item.name,
-                                textAlign = TextAlign.Center,
-                                fontSize = 10.sp,
-                            )}
+                        Text(
+                            text = item.name,
+                            textAlign = TextAlign.Center,
+                            fontSize = 10.sp,
+                        )
                     }
                 }
             )

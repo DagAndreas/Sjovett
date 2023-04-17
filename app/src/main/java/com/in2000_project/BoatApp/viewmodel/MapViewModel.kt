@@ -13,6 +13,9 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.compose.calculateNewPosition
+import com.in2000_project.BoatApp.compose.calculateRadius
+import com.in2000_project.BoatApp.compose.oceanURL
 import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,9 +54,10 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     var distanceInMeters = mutableStateOf(0.0)
     var lengthInMinutes = mutableStateOf(0.0)
-    var speedUnitSelected = mutableStateOf("knop")
     var polyLines =  mutableStateListOf<PolylineOptions>()
     var lockMarkers =  mutableStateOf(false)
+    var usingMyPositionTidsbruk = mutableStateOf(false)
+
     // Convert location to LatLng
     fun locationToLatLng(location: Location): LatLng {
         return LatLng(location.latitude, location.longitude)
