@@ -21,7 +21,6 @@ import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
-import com.in2000_project.BoatApp.model.oceanforecast.Data
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
@@ -34,11 +33,11 @@ import kotlin.math.sin
 const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
 
 @Composable
-fun MapScreen(
-    v: MapViewModel
+fun MannOverbord(
+    mapViewModel: MapViewModel
 ) {
 
-    val state by v.state.collectAsState()
+    val state by mapViewModel.state.collectAsState()
     val currentLoc = state.lastKnownLocation
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
@@ -51,10 +50,6 @@ fun MapScreen(
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
-
-
-
-
 
     Box(
         /*
@@ -72,24 +67,32 @@ fun MapScreen(
             cameraPositionState = cameraPositionState
         ) {
             Circle(
-                center = v.circleCenter.value,
-                radius = v.circleRadius.value,
+                center = mapViewModel.circleCenter.value,
+                radius = mapViewModel.circleRadius.value,
                 fillColor = Color("#ABF44336".toColorInt()),
                 strokeWidth = 2F,
-                visible = v.circleVisibility.value
+                visible = mapViewModel.circleVisibility.value
             )
         }
     }
     Column() {
         Button(
             onClick = {
+
+                //TODO: Bør garantere at vi bruker telefonens nåværende posisjon
+                val pos = locationToLatLng(state.lastKnownLocation)
+                mapViewModel.oceanViewModel.path = "$oceanURL?lat=${pos.latitude}&lon=${pos.longitude}"
+                mapViewModel.oceanViewModel.getOceanForecastResponse()
+                Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
+
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
 
-                v.circleCenter.value = locationToLatLng(state.lastKnownLocation)
-                //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //forårsaker at knappen ikke fungere 2 ganger.
-                v.circleVisibility.value = true
-                v.enabled.value = false
-                v.mann_er_overbord.value = true
+                mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
+                //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
+                mapViewModel.circleVisibility.value = true
+                mapViewModel.enabled.value = false
+                mapViewModel.mann_er_overbord.value = true
+
                 Log.i("MapScreen button", "Hei fra buttonpress")
             },
             modifier = Modifier
@@ -99,7 +102,7 @@ fun MapScreen(
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
             border= BorderStroke(1.dp, Color.Red),
-            enabled = v.enabled.value
+            enabled = mapViewModel.enabled.value
 
         ) {
             Text(
@@ -107,20 +110,20 @@ fun MapScreen(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-            LaunchedEffect(v.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
-                Log.i("MapScreen launchedff", "${v.mann_er_overbord.value} and in launched effect. Counter is ${v.counter.value}")
-                if (v.followCircle) {
+            LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
+                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.counter.value}")
+                if (mapViewModel.followCircle) {
                     cameraPositionState.position =
-                        CameraPosition.fromLatLngZoom(v.circleCenter.value, 13.0f)
+                        CameraPosition.fromLatLngZoom(mapViewModel.circleCenter.value, 13.0f)
                 }
-                while (v.mann_er_overbord.value){
+                while (mapViewModel.mann_er_overbord.value){
                     val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
                     delay((time_to_wait_in_minutes * 60_000).toLong())
                     //Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
-                    v.counter.value++
+                    mapViewModel.counter.value++
                     //circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*2000)
-                    v.circleCenter.value = calculateNewPosition(v.circleCenter.value, v.oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
-                    v.circleRadius.value = calculateRadius(v.counter.value)
+                    mapViewModel.circleCenter.value = calculateNewPosition(mapViewModel.circleCenter.value, mapViewModel.oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
+                    mapViewModel.circleRadius.value = calculateRadius(mapViewModel.counter.value)
                 }
             }
         }
@@ -153,12 +156,8 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
 
     //val currentTime = Time.now()
     var closest = timeseries[0]
-    //loop through timeseries and find closes time to current timestamp.
-
+    //loop through timeseries and find closes time to current timestamp
     Log.i("MapScreen new details", "${closest.data.instant.details}")
-
-    //return
-
     return timeseries[0].data.instant.details
 
 }
