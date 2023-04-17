@@ -40,10 +40,17 @@ import android.graphics.Color
 import android.location.Location
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+//import androidx.compose.foundation.layout.RowScopeInstance.weight
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.model.CameraPosition
+import com.in2000_project.BoatApp.model.geoCode.CityName
+import com.in2000_project.BoatApp.viewmodel.SearchViewModel
 import java.util.*
 
 
@@ -53,11 +60,13 @@ var userLat = 59.911 // disse skal endres til brukerens faktiske lokasjon
 var userLng = 10.757
 
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StormWarning(
     viewModelAlerts: MetAlertsViewModel,
     viewModelForecast: LocationForecastViewModel,
     viewModelMap: AlertsMapViewModel,
+    viewModelSearch: SearchViewModel,
     setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
     calculateZoneViewCenter: () -> LatLngBounds,
     modifier: Modifier
@@ -82,10 +91,14 @@ fun StormWarning(
     var placeInput by remember{ mutableStateOf("") }
     val stormWarningUiState = viewModelAlerts.stormWarningUiState.collectAsState()
     val temperatureUiState = viewModelForecast.temperatureUiState.collectAsState()
+    val locationSearch = viewModelSearch.locationSearch.collectAsState()
+    val cities = viewModelSearch.cities.collectAsState()
+    val searchInProgress = viewModelSearch.searchInProgress.collectAsState().value
     val warnings = stormWarningUiState.value.warningList
     val temperatureData = temperatureUiState.value.timeList
     val configuration = LocalConfiguration.current
 
+    var openSearch by remember { mutableStateOf(false) }
 
     Log.d("LISTEN", temperatureData.toString())
 
@@ -144,10 +157,49 @@ fun StormWarning(
         Column(modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ForecastTextField( //her burde det være en form for dropdown-meny, slik at hvis man begynner å skrive så bør det dukke opp forslag
-                value = placeInput,
-                onValueChange = {placeInput = it}
+            Box() {
+            TextField(
+                modifier = Modifier
+                    .clickable(onClick = {
+                        openSearch = true
+                    }),
+                value = locationSearch.value,
+                onValueChange = viewModelSearch::onSearchChange,
+                /*onValueChange = { newSearchText ->
+                    viewModelSearch.onSearchChange(newSearchText)
+                    openSearch = true
+                },*/
+                //modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text(text = "Søk på sted") }
             )
+            Spacer(modifier = Modifier.height(16.dp))
+            if (searchInProgress) {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        //.weight(1f)
+                ) {
+                    Log.d("Frosk", cities.value.toString())
+                    items(cities.value) { CityName ->
+                        Text(
+                            text = "${CityName.name}, ${CityName.country}",
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 16.dp)
+                        )
+
+
+                    }
+                }
+            }
+        }
+
             Spacer(modifier = Modifier.height(20.dp))
             Text(
                 text = placeInput,
@@ -189,25 +241,11 @@ fun StormWarning(
                         }
                     }
                 }
+
             }
         }
 
     }// Lazy
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun ForecastTextField(
-    value: String,
-    onValueChange: (String) -> Unit
-){
-    TextField(
-        value = value,
-        onValueChange = onValueChange,
-        label = {Text(text = "Skriv inn sted")}, //endre
-        singleLine = true,
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
-    )
 }
 
 @Composable

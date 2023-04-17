@@ -12,8 +12,10 @@ class SearchViewModel: ViewModel() {
     private val _searchInProgress = MutableStateFlow(false)
     val searchInProgress = _searchInProgress.asStateFlow()
 
-    private val _cities = MutableStateFlow(listOf<CityName>())
+    private val _cities = MutableStateFlow(getAllCities(norwegianCities))
     val cities = locationSearch
+        .onEach { _searchInProgress.update{true}}
+        .debounce(500L)
         .combine(_cities){ text, cities ->
             if(text.isBlank()){
                 cities //viser alle steder om man ikke har begynt søk
@@ -23,6 +25,7 @@ class SearchViewModel: ViewModel() {
                 }
             }
         }
+        .onEach{_searchInProgress.update{false}}
         .stateIn( //for å få stateFlow
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),

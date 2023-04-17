@@ -71,7 +71,8 @@ class ApiDataSource () {
         Log.d("API_request", "attempting fetchOceanForecastData.launch")
         val response = try {
             client.get() {
-                url(path)
+                //url(path)
+                url("https://api.met.no/weatherapi/oceanforecast/2.0/complete?lat=59&lon=10")
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",//R.string.Proxy_name.toString(),
