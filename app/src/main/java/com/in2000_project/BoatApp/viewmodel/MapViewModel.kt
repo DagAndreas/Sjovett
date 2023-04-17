@@ -68,7 +68,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var speedNumber =    mutableStateOf(15f)
     // distance between all of the markers
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
-
+    val markersMapScreen = mutableListOf<LatLng>()
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
     var circleRadius = mutableStateOf(200.0)
     var circleVisibility = mutableStateOf(false)
@@ -89,20 +89,31 @@ class MapViewModel @Inject constructor(): ViewModel() {
         override fun run() {
             while(true){
                 sleep(5000) // x antall sek
-                mapViewModel.updateMap()
+                mapViewModel.updateMap(mapViewModel)
                 Log.i("HIEIHEIEHIE", "HDASDHJKASDKASJHDJAKSD")
+
             }
         }
     }
 
 
-    fun updateMap(){
+    fun updateMap(mapViewModel: MapViewModel){
         val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
         Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
 
         counter.value++
         circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
         circleRadius.value = calculateRadius(counter.value)
+
+        markersMapScreen.add(circleCenter.value)
+        if(markersMapScreen.size>1){
+            val lastPosition = mapViewModel.markersMapScreen[mapViewModel.markersMapScreen.size - 2]
+            val options = PolylineOptions()
+                .add(lastPosition, mapViewModel.markersMapScreen.last())
+                .color(android.graphics.Color.RED)
+            polyLines.add(options)
+        }
+
     }
 
 

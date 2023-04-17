@@ -2,7 +2,6 @@ package com.in2000_project.BoatApp.compose
 
 import android.location.Location
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -13,11 +12,9 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Undo
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.Center
@@ -26,7 +23,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -43,7 +39,6 @@ import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
-import kotlinx.coroutines.delay
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -115,6 +110,13 @@ fun MannOverbord(
                 strokeWidth = 2F,
                 visible = mapViewModel.circleVisibility.value
             )
+            mapViewModel.polyLines.forEach { options ->
+                val points = options.getPoints()
+                Polyline(
+                    points
+                )
+            }
+
         }
     }
     Column(
