@@ -1,6 +1,9 @@
 package com.in2000_project.BoatApp.compose
 
 import android.R.attr.*
+import android.content.Context
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import androidx.compose.ui.graphics.Color
 import android.graphics.drawable.shapes.Shape
 import android.location.Location
@@ -26,18 +29,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.android.gms.maps.model.CameraPosition
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.PolylineOptions
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import kotlin.math.*
 import androidx.compose.ui.graphics.Color.*
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
-import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.*
+import com.in2000_project.BoatApp.R
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -128,6 +130,7 @@ fun TidsbrukScreen(
         }
         //polyLines[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
     }
+
 
     fun removeLastMarker() {
         if (viewModel.markerPositions.size >= 2) {
@@ -329,6 +332,8 @@ fun TidsbrukScreen(
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
+                val context: ProvidableCompositionLocal<Context> = LocalContext
+
                 if (!viewModel.lockMarkers.value) {
                     viewModel.markerPositions.forEach { position ->
                         Marker(
@@ -336,11 +341,29 @@ fun TidsbrukScreen(
                         )
                     }
                 } else {
+                    val bitmapStart = BitmapFactory.decodeResource(context.current.resources, R.drawable.start_icon)
+                    val bitmapFinish = BitmapFactory.decodeResource(context.current.resources, R.drawable.finish_flag)
+
+                    // Create a scaled bitmap with the desired dimensions
+                    val scaledBitmapStart = Bitmap.createScaledBitmap(bitmapStart, 64, 64, false) // Change 64 to the desired size of the icon
+                    val scaledBitmapFinish = Bitmap.createScaledBitmap(bitmapFinish, 64, 64, false) // Change 64 to the desired size of the icon
+
+
+                    // Create a BitmapDescriptor from the scaled bitmap
+                    val iconStartIcon = BitmapDescriptorFactory.fromBitmap(scaledBitmapStart)
+                    val iconFinishFlag = BitmapDescriptorFactory.fromBitmap(scaledBitmapFinish)
+
+                    // Use the icon in your Marker
                     Marker(
-                        state = MarkerState(position = viewModel.markerPositions.first())
+                        state = MarkerState(position = viewModel.markerPositions.first()),
+                        icon = iconStartIcon
                     )
+
                     Marker(
-                        state = MarkerState(position = viewModel.markerPositions.last())
+                        state = MarkerState(position = viewModel.markerPositions.last()),
+                        icon = iconFinishFlag
+
+
                     )
                 }
 
