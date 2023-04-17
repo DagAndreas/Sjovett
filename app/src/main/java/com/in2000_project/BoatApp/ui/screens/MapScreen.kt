@@ -71,13 +71,13 @@ fun MapScreen(
     }
     val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
 
+    // API for land or water
     val apiKeySeaOrLand = "fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff"
     val latLng = LatLng(58.628244, -9.823267)
     val urlPath = "https://isitwater-com.p.rapidapi.com/?latitude=${latLng.latitude}&longitude=${latLng.longitude}&rapidapi-key=$apiKeySeaOrLand"
     println(urlPath)
     val seaOrLandViewModel = SeaOrLandViewModel(urlPath)
 
-    println("HEI")
 
 
     Box(
