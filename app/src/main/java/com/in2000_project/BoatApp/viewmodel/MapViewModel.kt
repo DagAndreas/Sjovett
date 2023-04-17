@@ -1,28 +1,26 @@
 package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.location.Location
+import android.util.Log
 import androidx.compose.runtime.*
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.location.CurrentLocationRequest
+import com.in2000_project.BoatApp.maps.*
+import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
-import com.in2000_project.BoatApp.data.MapState
-import com.in2000_project.BoatApp.maps.*
+import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import java.io.IOException
-import java.io.InputStream
-import java.net.HttpURLConnection
-import java.net.URL
 import javax.inject.Inject
-
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
@@ -67,7 +65,41 @@ class MapViewModel @Inject constructor(): ViewModel() {
     // distance between all of the markers
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
 
+    var circleCenter = mutableStateOf(state.value.circle.coordinates)
+    var circleRadius = mutableStateOf(200.0)
+    var circleVisibility = mutableStateOf(false)
+    var enabled = mutableStateOf(true)
+    var counter = mutableStateOf( 0 )
 
+    var mann_er_overbord = mutableStateOf(false)
+    var currentLat: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.latitude else 56.0646
+    var currentLong: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.longitude else 10.6778
+    var followCircle: Boolean = false;
+
+    val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
+
+    val mapUpdateThread = MapUpdateThread(this)
+    class MapUpdateThread(
+        val mapViewModel: MapViewModel
+    ) : Thread() {
+        override fun run() {
+            while(true){
+                sleep(5000) // x antall sek
+                mapViewModel.updateMap()
+                Log.i("HIEIHEIEHIE", "HDASDHJKASDKASJHDJAKSD")
+            }
+        }
+    }
+
+
+    fun updateMap(){
+        val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
+        Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
+
+        counter.value++
+        circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
+        circleRadius.value = calculateRadius(counter.value)
+    }
 
 
     fun updateLocation() {
@@ -89,6 +121,8 @@ class MapViewModel @Inject constructor(): ViewModel() {
             // Show error or something
         }
     }
+
+
     @SuppressLint("MissingPermission")
     fun getDeviceLocation(
         fusedLocationProviderClient: FusedLocationProviderClient

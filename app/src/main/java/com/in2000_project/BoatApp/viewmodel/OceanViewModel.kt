@@ -17,7 +17,7 @@ class OceanViewModel(urlPath: String): ViewModel() {
         viewModelScope.launch {
             oceanForecastResponseObject = _dataSource.fetchOceanForecastData(path)
             antallGangerHentet++
-            Log.i("hentet vanndata", "$antallGangerHentet ganger")
+            Log.i("OceanViewModel", "hentet vanndata $antallGangerHentet ganger")
         }
         return oceanForecastResponseObject
     }

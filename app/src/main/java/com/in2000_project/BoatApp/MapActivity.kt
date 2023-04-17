@@ -29,7 +29,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.in2000_project.BoatApp.compose.MapScreen
+import com.in2000_project.BoatApp.compose.MannOverbord
 import com.in2000_project.BoatApp.compose.TidsbrukScreen
 import com.in2000_project.BoatApp.ui.BottomNavItem
 import com.in2000_project.BoatApp.ui.screens.StormWarning
@@ -100,8 +100,8 @@ class MapActivity : ComponentActivity() {
                     BottomNavigationBar(
                         items = listOf(
                             BottomNavItem(
-                                name = "Kart",
-                                route = "kart",
+                                name = "SOS",
+                                route = "SOS",
                                 icon = Icons.Default.Map,
                             ),
                             BottomNavItem(
@@ -136,9 +136,9 @@ class MapActivity : ComponentActivity() {
 
 @Composable
 fun Navigation(navController: NavHostController, viewModel: MapViewModel, alertsMapViewModel: AlertsMapViewModel) {
-    NavHost(navController = navController, startDestination = "kart") {
-        composable("kart") {
-            MapScreen(viewModel = viewModel)
+    NavHost(navController = navController, startDestination = "SOS") {
+        composable("SOS") {
+            MannOverbord(mapViewModel = viewModel)
         }
         composable("været") {
             val stormWarningViewModels = MetAlertsViewModel()

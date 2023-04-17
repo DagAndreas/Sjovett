@@ -34,22 +34,22 @@ import kotlin.math.sin
 const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
 
 @Composable
-fun MapScreen(
-    viewModel: MapViewModel
+fun MannOverbord(
+    mapViewModel: MapViewModel
 ) {
 
-    val state by viewModel.state.collectAsState()
-
+    val state by mapViewModel.state.collectAsState()
+    val currentLoc = state.lastKnownLocation
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
-        //isMyLocationEnabled = state.lastKnownLocation != null,
-        isMyLocationEnabled = true
+        isMyLocationEnabled = state.lastKnownLocation != null
     )
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    var cameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), 4f)
+    var cameraZoom: Float = 4f
+    val cameraPositionState = rememberCameraPositionState{
+        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
     var circleCenter by remember { mutableStateOf(state.circle.coordinates) }
     var circleRadius by remember { mutableStateOf(200.0) }
@@ -71,14 +71,12 @@ fun MapScreen(
     }
     val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
 
-    // API for land or water
+
     val apiKeySeaOrLand = "fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff"
     val latLng = LatLng(58.628244, -9.823267)
     val urlPath = "https://isitwater-com.p.rapidapi.com/?latitude=${latLng.latitude}&longitude=${latLng.longitude}&rapidapi-key=$apiKeySeaOrLand"
     println(urlPath)
     val seaOrLandViewModel = SeaOrLandViewModel(urlPath)
-
-
 
     Box(
         /*
@@ -96,24 +94,34 @@ fun MapScreen(
             cameraPositionState = cameraPositionState
         ) {
             Circle(
-                center = circleCenter,
-                radius = circleRadius,
+                center = mapViewModel.circleCenter.value,
+                radius = mapViewModel.circleRadius.value,
                 fillColor = Color("#ABF44336".toColorInt()),
                 strokeWidth = 2F,
-                visible = circleVisibility
+                visible = mapViewModel.circleVisibility.value
             )
         }
     }
     Column() {
         Button(
             onClick = {
+
+                //TODO: Bør garantere at vi bruker telefonens nåværende posisjon
+                val pos = locationToLatLng(state.lastKnownLocation)
+                mapViewModel.oceanViewModel.path = "$oceanURL?lat=${pos.latitude}&lon=${pos.longitude}"
+                mapViewModel.oceanViewModel.getOceanForecastResponse()
+                Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
+
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
 
-                circleCenter = locationToLatLng(state.lastKnownLocation)
-                viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //unødvendig?
-                circleVisibility = true
-                enabled = false
-                mann_er_overbord = true
+                mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
+                //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
+                mapViewModel.circleVisibility.value = true
+                mapViewModel.enabled.value = false
+                mapViewModel.mann_er_overbord.value = true
+                mapViewModel.mapUpdateThread.start()
+
+                Log.i("MapScreen button", "Hei fra buttonpress")
             },
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
@@ -122,7 +130,7 @@ fun MapScreen(
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
             border= BorderStroke(1.dp, Color.Red),
-            enabled = enabled
+            enabled = mapViewModel.enabled.value
 
         ) {
             Text(
@@ -130,14 +138,11 @@ fun MapScreen(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-            LaunchedEffect(circleCenter) { //oppdaterer posisjon hvert 3. sek
-                while (mann_er_overbord){
-                    val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
-                    delay((time_to_wait_in_minutes * 60_000).toLong())
-                    //Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
-                    counter++
-                    circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*2000)
-                    circleRadius = calculateRadius(counter)
+            LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
+                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.counter.value}")
+                if (mapViewModel.followCircle) {
+                    cameraPositionState.position =
+                        CameraPosition.fromLatLngZoom(mapViewModel.circleCenter.value, 13.0f)
                 }
             }
         }
@@ -164,13 +169,14 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
 
     //TODO: hente riktig dato, finne nærmeste / runde opp til nærmeste tid i listen med timesieries
 
+    if (timeseries == null){
+        Log.d("MapScreen findClosestD", "timeseries listen er null. Fant ikke data, og setter 0 verdier for mann overbord.")
+        return (Details(0.0, 0.0, 0.0, 0.0, 0.0))}
+
     //val currentTime = Time.now()
     var closest = timeseries[0]
-    //loop through timeseries and find closes time to current timestamp.
-
-    Log.i("MapScreen new details", "${timeseries[0].data.instant.details}")
-
-    //return
+    //loop through timeseries and find closes time to current timestamp
+    Log.i("MapScreen new details", "${closest.data.instant.details}")
     return timeseries[0].data.instant.details
 
 }
@@ -178,6 +184,7 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
 /** brukes for å hente posisjonen fra state. default hvis null*/
 fun locationToLatLng(loc: Location?): LatLng {
     if (loc != null){ return LatLng(loc.latitude, loc.longitude)}
+    Log.i("locationToLatLng","Fant ingen location. Returnerer default LatLng(59.0, 11.0)")
     return LatLng(59.0, 11.0) //default val i oslofjorden
 }
 
