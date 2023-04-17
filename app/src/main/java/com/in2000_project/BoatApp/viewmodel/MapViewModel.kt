@@ -2,6 +2,7 @@ package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
 import android.location.Location
+import android.util.Log
 import androidx.compose.runtime.*
 import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.compose.oceanURL
 import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,8 +66,42 @@ class MapViewModel @Inject constructor(): ViewModel() {
     // distance between all of the markers
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
 
+    var circleCenter = mutableStateOf(state.value.circle.coordinates)
+    var circleRadius = mutableStateOf(200.0)
+    var circleVisibility = mutableStateOf(false)
+    var enabled = mutableStateOf(true)
+    var counter = mutableStateOf( 0 )
 
+    var mann_er_overbord = mutableStateOf(false)
+    var currentLat: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.latitude else 56.0646
+    var currentLong: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.longitude else 10.6778
+    var followCircle: Boolean = true;
 
+    val oceanViewModel = OceanViewModel("$oceanURL?lat=${currentLat}&lon=${currentLong}")
+
+    fun setCircleCenter(center: LatLng) {
+        circleCenter.value = center
+    }
+
+    fun setCircleRadius(radius: Double) {
+        circleRadius.value = radius
+    }
+
+    fun setCircleVisibility(visibility: Boolean) {
+        circleVisibility.value = visibility
+    }
+
+    fun setEnabled(enabled: Boolean) {
+        this.enabled.value = enabled
+    }
+
+    fun setCounter(counter: Int) {
+        this.counter.value = counter
+    }
+
+    fun setMannErOverbord(mannErOverbord: Boolean) {
+        this.mann_er_overbord.value = mannErOverbord
+    }
 
     fun updateLocation() {
         try {
@@ -86,6 +122,8 @@ class MapViewModel @Inject constructor(): ViewModel() {
             // Show error or something
         }
     }
+
+
     @SuppressLint("MissingPermission")
     fun getDeviceLocation(
         fusedLocationProviderClient: FusedLocationProviderClient

@@ -20,7 +20,6 @@ import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.in2000_project.BoatApp.data.MannOverbordData
 import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
@@ -35,41 +34,24 @@ const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" 
 
 @Composable
 fun MapScreen(
-    viewModel: MapViewModel
+    v: MapViewModel
 ) {
 
-    val state by viewModel.state.collectAsState()
-
+    val state by v.state.collectAsState()
+    val currentLoc = state.lastKnownLocation
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
-        //isMyLocationEnabled = state.lastKnownLocation != null,
-        isMyLocationEnabled = true
+        isMyLocationEnabled = state.lastKnownLocation != null
     )
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    var cameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), 4f)
+    var cameraZoom: Float = 4f
+    val cameraPositionState = rememberCameraPositionState{
+        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
-    var circleCenter by remember { mutableStateOf(state.circle.coordinates) }
-    var circleRadius by remember { mutableStateOf(200.0) }
-    var circleVisibility by remember { mutableStateOf(false) }
-    var enabled by remember { mutableStateOf(true) }
-    var counter by remember { mutableStateOf( 0 ) }
 
-    var mann_er_overbord by remember { mutableStateOf(false)}
-    var currentLat: Double
-    var currentLong: Double
 
-    if (state.lastKnownLocation != null) {
-        currentLat = state.lastKnownLocation!!.latitude
-        currentLong = state.lastKnownLocation!!.longitude
-    }else{
-        Log.i("MapScreen", state.toString())
-        currentLat = 56.0646
-        currentLong = 10.6778
-    }
-    val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
 
 
 
@@ -89,11 +71,11 @@ fun MapScreen(
             cameraPositionState = cameraPositionState
         ) {
             Circle(
-                center = circleCenter,
-                radius = circleRadius,
+                center = v.circleCenter.value,
+                radius = v.circleRadius.value,
                 fillColor = Color("#ABF44336".toColorInt()),
                 strokeWidth = 2F,
-                visible = circleVisibility
+                visible = v.circleVisibility.value
             )
         }
     }
@@ -102,11 +84,11 @@ fun MapScreen(
             onClick = {
                 cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
 
-                circleCenter = locationToLatLng(state.lastKnownLocation)
+                v.setCircleCenter(locationToLatLng(state.lastKnownLocation))
                 //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //forårsaker at knappen ikke fungere 2 ganger.
-                circleVisibility = true
-                enabled = false
-                mann_er_overbord = true
+                v.setCircleVisibility(true)
+                v.setEnabled(false)
+                v.setMannErOverbord(true)
                 Log.i("MapScreen button", "Hei fra buttonpress")
             },
             modifier = Modifier
@@ -116,7 +98,7 @@ fun MapScreen(
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
             border= BorderStroke(1.dp, Color.Red),
-            enabled = enabled
+            enabled = v.enabled.value
 
         ) {
             Text(
@@ -124,15 +106,20 @@ fun MapScreen(
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
-            LaunchedEffect(circleCenter) { //oppdaterer posisjon hvert 3. sek
-                Log.i("MapScreen launchedff", "$mann_er_overbord and in launched effect. Counter is $counter")
-                while (mann_er_overbord){
+            LaunchedEffect(v.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
+                Log.i("MapScreen launchedff", "${v.mann_er_overbord.value} and in launched effect. Counter is ${v.counter.value}")
+                if (v.followCircle) {
+                    cameraPositionState.position =
+                        CameraPosition.fromLatLngZoom(v.circleCenter.value, 13.0f)
+                }
+                while (v.mann_er_overbord.value){
                     val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
                     delay((time_to_wait_in_minutes * 60_000).toLong())
                     //Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
-                    counter++
-                    circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*2000)
-                    circleRadius = calculateRadius(counter)
+                    v.counter.value++
+                    //circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*2000)
+                    v.setCircleCenter(calculateNewPosition(v.circleCenter.value, v.oceanViewModel, time_to_wait_in_minutes.toDouble()*2000))
+                    v.setCircleRadius(calculateRadius(v.counter.value))
                 }
             }
         }

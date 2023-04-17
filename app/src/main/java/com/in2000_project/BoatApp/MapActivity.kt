@@ -138,7 +138,7 @@ class MapActivity : ComponentActivity() {
 fun Navigation(navController: NavHostController, viewModel: MapViewModel, alertsMapViewModel: AlertsMapViewModel) {
     NavHost(navController = navController, startDestination = "kart") {
         composable("kart") {
-            MapScreen(viewModel = viewModel)
+            MapScreen(v = viewModel)
         }
         composable("været") {
             val stormWarningViewModels = MetAlertsViewModel()
