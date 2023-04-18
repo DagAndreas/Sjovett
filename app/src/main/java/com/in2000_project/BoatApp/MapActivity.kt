@@ -33,13 +33,10 @@ import com.in2000_project.BoatApp.compose.MannOverbord
 import com.in2000_project.BoatApp.compose.TidsbrukScreen
 import com.in2000_project.BoatApp.ui.BottomNavItem
 import com.in2000_project.BoatApp.ui.screens.StormWarning
-import com.in2000_project.BoatApp.viewmodel.LocationForecastViewModel
-import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import com.in2000_project.BoatApp.viewmodel.MetAlertsViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.in2000_project.BoatApp.ui.screens.VerktoyScreen
-import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
+import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.BottomNavWithBadgesTheme
 import dagger.hilt.android.AndroidEntryPoint
 
@@ -143,10 +140,12 @@ fun Navigation(navController: NavHostController, viewModel: MapViewModel, alerts
         composable("været") {
             val stormWarningViewModels = MetAlertsViewModel()
             val temperatureViewModel = LocationForecastViewModel()
+            val searchViewModel = SearchViewModel()
             StormWarning(
                 stormWarningViewModels,
                 temperatureViewModel,
                 alertsMapViewModel,
+                searchViewModel,
                 setupClusterManager = alertsMapViewModel::setupClusterManager,
                 calculateZoneViewCenter = alertsMapViewModel::calculateZoneLatLngBounds,
                 modifier = Modifier)
