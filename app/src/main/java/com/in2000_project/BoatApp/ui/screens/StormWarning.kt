@@ -175,7 +175,9 @@ fun StormWarning(
                         openSearch = true
                     },
                     //modifier = Modifier.fillMaxWidth(),
-                    placeholder = { Text(text = "Søk på sted") }
+                    placeholder = { Text(text = "Søk på sted") },
+                    maxLines = 1,
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text)
                 )
                 if (openSearch) {
                     Image(
