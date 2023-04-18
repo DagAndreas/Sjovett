@@ -27,7 +27,7 @@ class SearchViewModel: ViewModel() {
             if(text.isBlank()){
                 cities //viser alle steder om man ikke har begynt søk
             }else{
-                delay(2000L)
+                delay(500L)
                 cities.filter{
                     it.matchesSearch(text)
                 }
