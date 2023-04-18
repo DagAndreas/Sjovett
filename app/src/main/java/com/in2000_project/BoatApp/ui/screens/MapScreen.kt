@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -65,38 +66,11 @@ fun MannOverbord(
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    var cameraZoom: Float = 4f
+    var cameraZoom: Float = 10.0f
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
-    var circleCenter by remember { mutableStateOf(state.circle.coordinates) }
-    var circleRadius by remember { mutableStateOf(200.0) }
-    var circleVisibility by remember { mutableStateOf(false) }
-    var enabled by remember { mutableStateOf(true) }
-    var counter by remember { mutableStateOf( 0 ) }
-
-    var mann_er_overbord by remember { mutableStateOf(false)}
-    var currentLat: Double
-    var currentLong: Double
-
-    if (state.lastKnownLocation != null) {
-        currentLat = state.lastKnownLocation!!.latitude
-        currentLong = state.lastKnownLocation!!.longitude
-    }else{
-        Log.i("MapScreen", state.toString())
-        currentLat = 59.0646
-        currentLong = 10.6778
-    }
-    val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
-
-
-    val apiKeySeaOrLand = "fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff"
-    val latLng = LatLng(58.628244, -9.823267)
-    val urlPath = "https://isitwater-com.p.rapidapi.com/?latitude=${latLng.latitude}&longitude=${latLng.longitude}&rapidapi-key=$apiKeySeaOrLand"
-    println(urlPath)
-    val seaOrLandViewModel = SeaOrLandViewModel(urlPath)
-
-    var popupControl by remember { mutableStateOf(false) }
+    var haveZoomedAtStart = false
 
     Box(
 
@@ -225,6 +199,14 @@ fun MannOverbord(
             )
 
             LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
+                if (!haveZoomedAtStart){
+                    haveZoomedAtStart = true
+                    delay(300)
+                    Log.i("HeiFraLaunchedEffect", "pos: $state.lastKnownLocation")
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 3000)
+                }
+
+
                 Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.counter.value}")
                 if (mapViewModel.followCircle) {
                     cameraPositionState.position =
