@@ -51,6 +51,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import com.google.android.gms.maps.model.CameraPosition
+import com.in2000_project.BoatApp.data.AlertsMapUiState
 import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.model.geoCode.CityName
 import com.in2000_project.BoatApp.viewmodel.SearchViewModel
@@ -92,6 +93,12 @@ fun StormWarning(
     // nullpointerException
     // var myPosition by remember { mutableStateOf(locationToLatLng(mapState.lastKnownLocation)!!) }
 
+    var myPosition = viewModelMap.alertsMapUiState.collectAsState()
+    Log.d("myPosition", "${myPosition.value.latitude},${myPosition.value.longitude}")
+
+    var userLat by remember{ mutableStateOf(myPosition.value.latitude) }
+    var userLng by remember{ mutableStateOf(myPosition.value.longitude) }
+    viewModelForecast.updateUserCoord(userLat, userLng)
 
     var placeInput by remember{ mutableStateOf("") }
     val stormWarningUiState = viewModelAlerts.stormWarningUiState.collectAsState()
