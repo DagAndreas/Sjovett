@@ -35,7 +35,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
-import kotlinx.coroutines.launch
 import android.graphics.Color
 import android.location.Location
 import androidx.compose.foundation.BorderStroke
@@ -49,8 +48,11 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.model.CameraPosition
+import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.model.geoCode.CityName
 import com.in2000_project.BoatApp.viewmodel.SearchViewModel
+import kotlinx.coroutines.*
+import okhttp3.internal.wait
 import java.util.*
 
 
@@ -91,12 +93,16 @@ fun StormWarning(
     var placeInput by remember{ mutableStateOf("") }
     val stormWarningUiState = viewModelAlerts.stormWarningUiState.collectAsState()
     val temperatureUiState = viewModelForecast.temperatureUiState.collectAsState()
+    val geoCodeUiState = viewModelSearch.geoCodeUiState.collectAsState()
     val locationSearch = viewModelSearch.locationSearch.collectAsState()
     val cities = viewModelSearch.cities.collectAsState()
     val searchInProgress = viewModelSearch.searchInProgress.collectAsState().value
     val warnings = stormWarningUiState.value.warningList
     val temperatureData = temperatureUiState.value.timeList
+    var temperatureCoord = temperatureUiState.value.coords
+    var cityData = geoCodeUiState.value.cityList
     val configuration = LocalConfiguration.current
+    var location by remember { mutableStateOf("here") }
 
     var openSearch by remember { mutableStateOf(false) }
 
@@ -110,10 +116,10 @@ fun StormWarning(
     //Log.d("lov", currentTime.toString())
 
     // val chosenTime = chooseTime(times)
-    var temp = 0.0
-    var windSpeed = 0.0
-    var windDirection = 0.0
-    var weatherIcon = ""
+    var temp by remember { mutableStateOf(0.0) }
+    var windSpeed by remember { mutableStateOf(0.0) }
+    var windDirection by remember { mutableStateOf(0.0) }
+    var weatherIcon by remember { mutableStateOf("") }
     if (temperatureData != emptyList<Timesery>()) {
         temp = temperatureData[0].data.instant.details.air_temperature
         windSpeed = temperatureData[0].data.instant.details.wind_speed
@@ -122,6 +128,8 @@ fun StormWarning(
         Log.d("WindDir", "${windDirection-90}")
         Log.d("truls", temperatureData[0].data.instant.details.air_temperature.toString())
     }
+
+
     // Therese slutt
     Column(modifier = modifier,
         //verticalArrangement = Arrangement.Center,
@@ -157,48 +165,123 @@ fun StormWarning(
         Column(modifier = Modifier,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box() {
-            TextField(
-                modifier = Modifier
-                    .clickable(onClick = {
-                        openSearch = true
-                    }),
-                value = locationSearch.value,
-                onValueChange = viewModelSearch::onSearchChange,
-                /*onValueChange = { newSearchText ->
-                    viewModelSearch.onSearchChange(newSearchText)
-                    openSearch = true
-                },*/
-                //modifier = Modifier.fillMaxWidth(),
-                placeholder = { Text(text = "Søk på sted") }
-            )
             Spacer(modifier = Modifier.height(16.dp))
+            Row {
+                TextField(
+                    value = locationSearch.value,
+                    // onValueChange = viewModelSearch::onSearchChange,
+                    onValueChange = { newSearchText ->
+                        viewModelSearch.onSearchChange(newSearchText)
+                        openSearch = true
+                    },
+                    //modifier = Modifier.fillMaxWidth(),
+                    placeholder = { Text(text = "Søk på sted") }
+                )
+                if (openSearch) {
+                    Image(
+                        painter = painterResource(id = R.drawable.dropdown),
+                        contentDescription = "Drop-down menu arrow",
+                        modifier = Modifier
+                            .clickable(
+                                onClick = { openSearch = false }
+                            )
+                    )
+                }
+            }
+            // Spacer(modifier = Modifier.height(16.dp))
             if (searchInProgress) {
-                Box(modifier = Modifier.fillMaxSize()) {
+                Box(/*modifier = Modifier.fillMaxSize()*/) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
             } else {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxWidth()
+                if (openSearch) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxWidth()
                         //.weight(1f)
-                ) {
-                    Log.d("Frosk", cities.value.toString())
-                    items(cities.value) { CityName ->
-                        Text(
-                            text = "${CityName.name}, ${CityName.country}",
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 16.dp)
-                        )
+                    ) {
+                        items(cities.value) { CityName ->
+                            Text(
+                                text = "${CityName.name}, ${CityName.country}",
+                                modifier = Modifier
+                                    .padding(vertical = 16.dp)
+                                    .clickable {
+                                        //openSearch = false
+
+                                        location = CityName.name
+                                        cityData = emptyList()
+                                        Log.d("temper", location)
+
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            viewModelSearch.fetchCityData(CityName.name)
+
+                                            // Wait for the cityData list to be populated
+                                            while (geoCodeUiState.value.cityList.isEmpty()) {
+                                                delay(100) // Wait for 100 milliseconds before checking again
+                                            }
+
+                                            cityData = geoCodeUiState.value.cityList
+
+                                            if (cityData.isNotEmpty()) {
+                                                userLat = cityData[0].latitude
+                                                userLng = cityData[0].longitude
+                                                viewModelForecast.updateUserCoord(userLat, userLng)
+
+                                                Log.d("Temp1", cityData[0].name.toString())
+
+                                                // Assuming temperatureData is already updated at this point
+                                                temp = temperatureData[0].data.instant.details.air_temperature
+                                                windSpeed = temperatureData[0].data.instant.details.wind_speed
+                                                windDirection = 90.0 + temperatureData[0].data.instant.details.wind_from_direction
+                                                weatherIcon = temperatureData[0].data.next_1_hours.summary.symbol_code
+                                            } else {
+                                                Log.e("Temperatur", "Tom liste")
+                                            }
+                                            viewModelSearch.resetCityData()
+                                        }
+                                    }
+                            )
+                            /*Text(
+                                text = "${CityName.name}, ${CityName.country}",
+                                modifier = Modifier
+                                    //.fillMaxWidth()
+                                    .padding(vertical = 16.dp)
+                                    .clickable() {
+                                        //openSearch = false
+                                        location = CityName.name
+
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            viewModelSearch.fetchCityData(CityName.name)
+                                        }
 
 
+
+                                        if (cityData != emptyList<City>()) {
+                                            userLat = cityData[0].latitude
+                                            userLng = cityData[0].longitude
+                                            viewModelForecast.updateUserCoord(userLat, userLng)
+                                            Log.d("Temp1", cityData[0].name.toString())
+                                            Log.d("Temp", temp.toString())
+                                            temp =
+                                                temperatureData[0].data.instant.details.air_temperature
+                                            windSpeed =
+                                                temperatureData[0].data.instant.details.wind_speed
+                                            windDirection =
+                                                90.0 + temperatureData[0].data.instant.details.wind_from_direction
+                                            weatherIcon =
+                                                temperatureData[0].data.next_1_hours.summary.symbol_code
+                                        }
+                                    }
+                            )*/
+                        }
                     }
+
                 }
             }
         }
+        Column(){
 
             Spacer(modifier = Modifier.height(20.dp))
             Text(
@@ -206,7 +289,7 @@ fun StormWarning(
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold
             )
-            DisplayWeather(temp = temp, windSpeed = windSpeed, windDirection = windDirection, weatherIcon = weatherIcon)
+            DisplayWeather(temp = temp, windSpeed = windSpeed, windDirection = windDirection, weatherIcon = weatherIcon, location = location)
             Spacer(modifier = Modifier.height(30.dp))
             if (warnings.isNotEmpty()){
                 GoogleMap(
@@ -352,7 +435,8 @@ fun DisplayWeather(
     temp: Double,
     windSpeed: Double,
     windDirection: Double,
-    weatherIcon: String
+    weatherIcon: String,
+    location: String
 ) {
 
     Row(
@@ -494,6 +578,7 @@ fun DisplayWeather(
 
             )
         }
+        Text(location)
     }
 }//DisplayWeather
 /*
