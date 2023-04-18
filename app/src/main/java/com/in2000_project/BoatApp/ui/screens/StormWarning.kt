@@ -2,6 +2,7 @@ package com.in2000_project.BoatApp.ui.screens
 
 //package com.example.StormWarning
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.Image
@@ -37,7 +38,9 @@ import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import android.graphics.Color
 import android.location.Location
+import android.os.Build
 import android.view.KeyEvent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -51,20 +54,18 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import com.google.android.gms.maps.model.CameraPosition
-import com.in2000_project.BoatApp.model.geoCode.City
-import com.in2000_project.BoatApp.model.geoCode.CityName
 import com.in2000_project.BoatApp.viewmodel.SearchViewModel
 import kotlinx.coroutines.*
-import okhttp3.internal.wait
+import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
+import java.time.temporal.ChronoUnit
 import java.util.*
 
 
-// latitude = north-south
-var userLat = 59.911 // disse skal endres til brukerens faktiske lokasjon
-// longitude = east-west
-var userLng = 10.757
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StormWarning(
@@ -92,6 +93,12 @@ fun StormWarning(
     // nullpointerException
     // var myPosition by remember { mutableStateOf(locationToLatLng(mapState.lastKnownLocation)!!) }
 
+    var myPosition = viewModelMap.alertsMapUiState.collectAsState()
+    Log.d("myPosition", "${myPosition.value.latitude},${myPosition.value.longitude}")
+
+    var userLat by remember{ mutableStateOf(myPosition.value.latitude) }
+    var userLng by remember{ mutableStateOf(myPosition.value.longitude) }
+    viewModelForecast.updateUserCoord(userLat, userLng)
 
     var placeInput by remember{ mutableStateOf("") }
     val stormWarningUiState = viewModelAlerts.stormWarningUiState.collectAsState()
@@ -114,23 +121,22 @@ fun StormWarning(
 
     // Therese start
 
-    //val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    //val currentTime = sdf.format(Calendar.getInstance())
-
-    //Log.d("lov", currentTime.toString())
-
     // val chosenTime = chooseTime(times)
     var temp by remember { mutableStateOf(0.0) }
     var windSpeed by remember { mutableStateOf(0.0) }
     var windDirection by remember { mutableStateOf(0.0) }
     var weatherIcon by remember { mutableStateOf("") }
     if (temperatureData != emptyList<Timesery>()) {
-        temp = temperatureData[0].data.instant.details.air_temperature
-        windSpeed = temperatureData[0].data.instant.details.wind_speed
-        windDirection = 90.0 + temperatureData[0].data.instant.details.wind_from_direction
-        weatherIcon = temperatureData[0].data.next_1_hours.summary.symbol_code
+        //NB! TRENGER API LEVEL 26!
+        val i = indexClosestTime(temperatureData)
+        Log.d("CurrentTime Data", temperatureData[i].time)
+
+        temp = temperatureData[i].data.instant.details.air_temperature
+        windSpeed = temperatureData[i].data.instant.details.wind_speed
+        windDirection = 90.0 + temperatureData[i].data.instant.details.wind_from_direction
+        weatherIcon = temperatureData[i].data.next_1_hours.summary.symbol_code
         Log.d("WindDir", "${windDirection-90}")
-        Log.d("truls", temperatureData[0].data.instant.details.air_temperature.toString())
+        Log.d("truls", temperatureData[i].data.instant.details.air_temperature.toString())
     }
 
 
@@ -248,10 +254,14 @@ fun StormWarning(
                                                 Log.d("Temp1", cityData[0].name.toString())
 
                                                 // Assuming temperatureData is already updated at this point
-                                                temp = temperatureData[0].data.instant.details.air_temperature
-                                                windSpeed = temperatureData[0].data.instant.details.wind_speed
-                                                windDirection = 90.0 + temperatureData[0].data.instant.details.wind_from_direction
-                                                weatherIcon = temperatureData[0].data.next_1_hours.summary.symbol_code
+                                                temp =
+                                                    temperatureData[0].data.instant.details.air_temperature
+                                                windSpeed =
+                                                    temperatureData[0].data.instant.details.wind_speed
+                                                windDirection =
+                                                    90.0 + temperatureData[0].data.instant.details.wind_from_direction
+                                                weatherIcon =
+                                                    temperatureData[0].data.next_1_hours.summary.symbol_code
                                             } else {
                                                 Log.e("Temperatur", "Tom liste")
                                             }
@@ -353,7 +363,11 @@ fun StormTextCard(area: String) {
 }
 
 
-fun checkIfCloseToWarning(geometry: Geometry): Boolean {
+fun checkIfCloseToWarning(
+    geometry: Geometry,
+    userLat: Double,
+    userLng: Double
+): Boolean {
     // NB! Her kan vi lage en test
     /*
     Denne brukes til å sjekke om brukeren er i nærheten av utkanten til en storm
@@ -379,6 +393,52 @@ fun checkIfCloseToWarning(geometry: Geometry): Boolean {
     Kommentert ut: id1
  */
     return false
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun createInstant(date: String): Instant? {
+    val currentTimeData = date.removeSuffix("Z").split("T")
+    val currentYear = currentTimeData[0].split("-")[0].toInt()
+    val currentMonth = currentTimeData[0].split("-")[1].toInt()
+    val currentDay = currentTimeData[0].split("-")[2].toInt()
+    val currentHour = currentTimeData[1].split(":")[0].toInt()
+    val currentMinute = currentTimeData[1].split(":")[1].toInt()
+    val currentSecond = currentTimeData[1].split(":")[2].toInt()
+    val currentInstant = Instant.ofEpochSecond(0)
+        .atZone(ZoneOffset.UTC)
+        .withYear(currentYear)
+        .withMonth(currentMonth)
+        .withDayOfMonth(currentDay)
+        .withHour(currentHour)
+        .withMinute(currentMinute)
+        .withSecond(currentSecond)
+        .toInstant()
+    return currentInstant
+}
+
+@SuppressLint("SimpleDateFormat")
+@RequiresApi(Build.VERSION_CODES.O)
+fun indexClosestTime(listOfTime: List<Timesery>): Int {
+    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    val time = sdf.format(Date())
+    val currentTime = createInstant(time)!!
+    var i = 0
+    for (item in listOfTime) {
+        val checkTime = createInstant(item.time)!!
+        val secondsBetween = compareTimes(currentTime, checkTime)
+        if(secondsBetween >= 0) {
+            return i
+        }
+        i++
+    }
+    return 0
+}
+
+@RequiresApi(Build.VERSION_CODES.O)
+fun compareTimes(currentInstant: Instant, checkTimeInstant: Instant): Long {
+// find the difference in seconds
+    val diffSeconds = ChronoUnit.SECONDS.between(currentInstant, checkTimeInstant)
+    return diffSeconds
 }
 
 fun findBorders(
