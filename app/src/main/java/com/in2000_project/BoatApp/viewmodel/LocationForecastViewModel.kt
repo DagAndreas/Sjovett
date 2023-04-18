@@ -29,12 +29,19 @@ class LocationForecastViewModel {
     fun fetchLocationForecastData() { // Henter data fra APIet
         Log.d("Fetch", "LocationForecast")
         CoroutineScope(Dispatchers.IO).launch {
-            //val url = "https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=$userLat&lon=$userLng"
+            //val url = "https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=59.1lon=10.0"
             val url = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/locationforecast/2.0/complete?lat=$userLat&lon=$userLng"
             _temperatureUiState.update {
                 // setter warningList til å være en MetAlertsResponse
-                (it.copy(timeList = _dataSource.fetchLocationForecastData(url).properties.timeseries))
+                val data  = _dataSource.fetchLocationForecastData(url)
+                (it.copy(timeList = data.properties.timeseries, coords = data.geometry.coordinates))
             }
         }
+    }
+
+    fun updateUserCoord(lat: Double, lng: Double){
+        userLat = lat
+        userLng = lng
+        fetchLocationForecastData()
     }
 }
