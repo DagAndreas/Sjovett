@@ -42,7 +42,11 @@ class SearchViewModel: ViewModel() {
 
 
     fun onSearchChange(text: String){
-        _locationSearch.value = text
+        _locationSearch.value = text.replace("\n", "")
+    }
+
+    fun onEnterKey(){
+        _locationSearch.value.replace("\n", "")
     }
 
 
