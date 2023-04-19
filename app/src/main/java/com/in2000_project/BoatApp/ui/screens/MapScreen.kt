@@ -110,7 +110,7 @@ fun MannOverbord(
                 strokeWidth = 2F,
                 visible = mapViewModel.circleVisibility.value
             )
-            mapViewModel.polyLines.forEach { options ->
+            mapViewModel.polyLinesMap.forEach { options ->
                 val points = options.getPoints()
                 Polyline(
                     points

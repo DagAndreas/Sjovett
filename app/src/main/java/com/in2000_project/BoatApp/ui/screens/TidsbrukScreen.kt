@@ -150,7 +150,6 @@ fun TidsbrukScreen(
             if(!viewModel.usingMyPositionTidsbruk.value) {
                 viewModel.markerPositions.removeLast()
                 viewModel.coordinatesToFindDistanceBetween.removeLast()
-
             }
         }
         updateDisplayedText()
@@ -341,30 +340,37 @@ fun TidsbrukScreen(
                         )
                     }
                 } else {
-                    val bitmapStart = BitmapFactory.decodeResource(context.current.resources, R.drawable.start_icon)
-                    val bitmapFinish = BitmapFactory.decodeResource(context.current.resources, R.drawable.finish_flag)
+                    if(viewModel.markerPositions.size>=2){
+                        val bitmapStart = BitmapFactory.decodeResource(context.current.resources, R.drawable.start_icon)
+                        val bitmapFinish = BitmapFactory.decodeResource(context.current.resources, R.drawable.finish_flag)
 
-                    // Create a scaled bitmap with the desired dimensions
-                    val scaledBitmapStart = Bitmap.createScaledBitmap(bitmapStart, 64, 64, false) // Change 64 to the desired size of the icon
-                    val scaledBitmapFinish = Bitmap.createScaledBitmap(bitmapFinish, 64, 64, false) // Change 64 to the desired size of the icon
-
-
-                    // Create a BitmapDescriptor from the scaled bitmap
-                    val iconStartIcon = BitmapDescriptorFactory.fromBitmap(scaledBitmapStart)
-                    val iconFinishFlag = BitmapDescriptorFactory.fromBitmap(scaledBitmapFinish)
-
-                    // Use the icon in your Marker
-                    Marker(
-                        state = MarkerState(position = viewModel.markerPositions.first()),
-                        icon = iconStartIcon
-                    )
-
-                    Marker(
-                        state = MarkerState(position = viewModel.markerPositions.last()),
-                        icon = iconFinishFlag
+                        // Create a scaled bitmap with the desired dimensions
+                        val scaledBitmapStart = Bitmap.createScaledBitmap(bitmapStart, 64, 64, false) // Change 64 to the desired size of the icon
+                        val scaledBitmapFinish = Bitmap.createScaledBitmap(bitmapFinish, 64, 64, false) // Change 64 to the desired size of the icon
 
 
-                    )
+                        // Create a BitmapDescriptor from the scaled bitmap
+                        val iconStartIcon = BitmapDescriptorFactory.fromBitmap(scaledBitmapStart)
+                        val iconFinishFlag = BitmapDescriptorFactory.fromBitmap(scaledBitmapFinish)
+
+                        // Use the icon in your Marker
+
+                        Marker(
+                            state = MarkerState(position = viewModel.markerPositions.first()),
+                            icon = iconStartIcon
+                        )
+
+                        Marker(
+                            state = MarkerState(position = viewModel.markerPositions.last()),
+                            icon = iconFinishFlag
+
+
+                        )
+                    }
+                    else{
+                        viewModel.displayedText.value = "Du må legge til to markører for å få en rute"
+                    }
+
                 }
 
                 viewModel.polyLines.forEach { options ->
@@ -473,12 +479,16 @@ fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Doubl
 
 // Format time in minutes to display as text
 fun formatTime(timeInMinutes: Double): String {
-    val hours = (timeInMinutes / 60).toInt()
-    val minutes = (timeInMinutes % 60).toInt()
-    return if (hours == 0) {
-        "$minutes minutter"
+    return if (timeInMinutes <= 1) {
+        "Under 1 minutt"
     } else {
-        "$hours timer og $minutes minutter"
+        val hours = (timeInMinutes / 60).toInt()
+        val minutes = (timeInMinutes % 60).toInt()
+        if (hours == 0) {
+            "$minutes minutter"
+        } else {
+            "$hours timer og $minutes minutter"
+        }
     }
 }
 

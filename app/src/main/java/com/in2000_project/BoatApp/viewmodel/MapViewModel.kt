@@ -69,6 +69,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     // distance between all of the markers
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
     val markersMapScreen = mutableListOf<LatLng>()
+    val polyLinesMap = mutableListOf<PolylineOptions>()
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
     var circleRadius = mutableStateOf(200.0)
     var circleVisibility = mutableStateOf(false)
@@ -110,8 +111,8 @@ class MapViewModel @Inject constructor(): ViewModel() {
             val lastPosition = mapViewModel.markersMapScreen[mapViewModel.markersMapScreen.size - 2]
             val options = PolylineOptions()
                 .add(lastPosition, mapViewModel.markersMapScreen.last())
-                .color(android.graphics.Color.RED)
-            polyLines.add(options)
+                .color(android.graphics.Color.BLACK)
+            polyLinesMap.add(options)
         }
 
     }
