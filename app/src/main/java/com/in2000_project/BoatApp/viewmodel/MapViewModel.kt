@@ -90,7 +90,8 @@ class MapViewModel @Inject constructor(): ViewModel() {
         override fun run() {
             while(true){
                 sleep(5000) // x antall sek
-                mapViewModel.updateMap(mapViewModel)
+                mapViewModel.updateMap()
+                mapViewModel.updateMarkerAndPolyLines()
                 Log.i("HIEIHEIEHIE", "HDASDHJKASDKASJHDJAKSD")
 
             }
@@ -98,22 +99,24 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 
 
-    fun updateMap(mapViewModel: MapViewModel){
+    fun updateMap(){
         val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
         Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
 
         counter.value++
         circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
         circleRadius.value = calculateRadius(counter.value)
+
+    }
+    fun updateMarkerAndPolyLines(){
         markersMapScreen.add(circleCenter.value)
         if(markersMapScreen.size>1){
-            val lastPosition = mapViewModel.markersMapScreen[mapViewModel.markersMapScreen.size - 2]
+            val lastPosition = markersMapScreen[markersMapScreen.size - 2]
             val options = PolylineOptions()
-                .add(lastPosition, mapViewModel.markersMapScreen.last())
+                .add(lastPosition, markersMapScreen.last())
                 .color(android.graphics.Color.BLACK)
             polyLinesMap.add(options)
         }
-
     }
 
 
