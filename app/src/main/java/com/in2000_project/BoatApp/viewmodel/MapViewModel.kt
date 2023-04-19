@@ -66,7 +66,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
 
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
-    var circleRadius = mutableStateOf(200.0)
+    var circleRadius = mutableStateOf(25.0)
     var circleVisibility = mutableStateOf(false)
     var enabled = mutableStateOf(true)
     var timePassedInSeconds = mutableStateOf( 0 )

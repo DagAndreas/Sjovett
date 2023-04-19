@@ -60,7 +60,7 @@ fun MannOverbord(
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    var cameraZoom: Float = 10.0f
+    var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
@@ -195,7 +195,7 @@ fun MannOverbord(
                 if (!haveZoomedAtStart){
                     haveZoomedAtStart = true
                     delay(1000)
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1000)
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
 
 
