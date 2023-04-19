@@ -45,6 +45,7 @@ import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import kotlinx.coroutines.delay
+import java.sql.Time
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -196,20 +197,15 @@ fun MannOverbord(
             )
 
             LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
+                delay(200)
                 if (!haveZoomedAtStart){
-                    mapViewModel.updateLocation()
-                    delay(1000)
-                    Log.i("HeiFraLaunchedEffect", "pos: $state.lastKnownLocation")
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 3000)
                     haveZoomedAtStart = true
+                    delay(1000)
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 3000)
                 }
 
 
                 Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.counter.value}")
-                if (mapViewModel.followCircle) {
-                    cameraPositionState.position =
-                        CameraPosition.fromLatLngZoom(mapViewModel.circleCenter.value, 13.0f)
-                }
             }
         }
     }
