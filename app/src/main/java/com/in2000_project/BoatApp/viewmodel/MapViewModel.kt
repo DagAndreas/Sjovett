@@ -20,6 +20,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
@@ -97,6 +98,23 @@ class MapViewModel @Inject constructor(): ViewModel() {
         timePassedInSeconds.value += waittime.toInt()
         circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, waittime.toDouble()/60.0)
         circleRadius.value = calculateRadius(timePassedInSeconds.value/60)
+    fun updateMap(mapViewModel: MapViewModel){
+        val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
+        Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
+
+        counter.value++
+        circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
+        circleRadius.value = calculateRadius(counter.value)
+
+        markersMapScreen.add(circleCenter.value)
+        if(markersMapScreen.size>1){
+            val lastPosition = mapViewModel.markersMapScreen[mapViewModel.markersMapScreen.size - 2]
+            val options = PolylineOptions()
+                .add(lastPosition, mapViewModel.markersMapScreen.last())
+                .color(android.graphics.Color.BLACK)
+            polyLinesMap.add(options)
+        }
+
     }
 
 
