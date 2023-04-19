@@ -37,6 +37,13 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
 
     val state: StateFlow<MapStateCluster> = _state.asStateFlow()
 
+    fun updateUserLocation(lat: Double, lng: Double) {
+        _alertsMapUiState.update {
+            // setter warningList til å være en MetAlertsResponse
+            (it.copy(longitude = lng, latitude = lat))
+        }
+    }
+
     fun addCluster(
         id: String,
         title: String,
@@ -74,9 +81,6 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
                     _state.value = state.value.copy(
                         lastKnownLocation = task.result,
                     )
-                    _alertsMapUiState.update {
-                        it.copy(longitude = task.result.longitude, latitude = task.result.latitude )
-                    }
                 }
             }
         } catch (e: SecurityException) {
