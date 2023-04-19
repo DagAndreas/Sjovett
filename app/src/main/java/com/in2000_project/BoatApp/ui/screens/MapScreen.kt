@@ -40,6 +40,7 @@ import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
+import kotlinx.coroutines.delay
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
