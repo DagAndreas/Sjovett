@@ -51,6 +51,8 @@ const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" 
 fun MannOverbord(
     mapViewModel: MapViewModel
 ) {
+    mapViewModel.updateLocation()
+
     var popupControl by remember { mutableStateOf(false) }
     val state by mapViewModel.state.collectAsState()
     val mapProperties = MapProperties(
@@ -162,6 +164,7 @@ fun MannOverbord(
                 mapViewModel.circleVisibility.value = true
                 mapViewModel.enabled.value = false
                 mapViewModel.mann_er_overbord.value = true
+                mapViewModel.markersMapScreen.add(pos)
                 mapViewModel.mapUpdateThread.start()
 
                 Log.i("MapScreen button", "Hei fra buttonpress")
