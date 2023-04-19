@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -50,48 +51,20 @@ const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" 
 fun MannOverbord(
     mapViewModel: MapViewModel
 ) {
-
+    var popupControl by remember { mutableStateOf(false) }
     val state by mapViewModel.state.collectAsState()
-    val currentLoc = state.lastKnownLocation
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
-        isMyLocationEnabled = state.lastKnownLocation != null
+        isMyLocationEnabled = true //state.lastKnownLocation != null
     )
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    var cameraZoom: Float = 4f
+    var cameraZoom: Float = 10.0f
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
-    var circleCenter by remember { mutableStateOf(state.circle.coordinates) }
-    var circleRadius by remember { mutableStateOf(200.0) }
-    var circleVisibility by remember { mutableStateOf(false) }
-    var enabled by remember { mutableStateOf(true) }
-    var counter by remember { mutableStateOf( 0 ) }
-
-    var mann_er_overbord by remember { mutableStateOf(false)}
-    var currentLat: Double
-    var currentLong: Double
-
-    if (state.lastKnownLocation != null) {
-        currentLat = state.lastKnownLocation!!.latitude
-        currentLong = state.lastKnownLocation!!.longitude
-    }else{
-        Log.i("MapScreen", state.toString())
-        currentLat = 59.0646
-        currentLong = 10.6778
-    }
-    val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
-
-
-    val apiKeySeaOrLand = "fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff"
-    val latLng = LatLng(58.628244, -9.823267)
-    val urlPath = "https://isitwater-com.p.rapidapi.com/?latitude=${latLng.latitude}&longitude=${latLng.longitude}&rapidapi-key=$apiKeySeaOrLand"
-    println(urlPath)
-    val seaOrLandViewModel = SeaOrLandViewModel(urlPath)
-
-    var popupControl by remember { mutableStateOf(false) }
+    var haveZoomedAtStart = false
 
     Box(
 
@@ -190,8 +163,6 @@ fun MannOverbord(
                 mapViewModel.oceanViewModel.getOceanForecastResponse()
                 Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
 
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
-
                 mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
                 //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
                 mapViewModel.circleVisibility.value = true
@@ -227,6 +198,15 @@ fun MannOverbord(
             )
 
             LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
+                if (!haveZoomedAtStart){
+                    mapViewModel.updateLocation()
+                    delay(1000)
+                    Log.i("HeiFraLaunchedEffect", "pos: $state.lastKnownLocation")
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 3000)
+                    haveZoomedAtStart = true
+                }
+
+
                 Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.counter.value}")
                 if (mapViewModel.followCircle) {
                     cameraPositionState.position =
@@ -313,8 +293,8 @@ fun calculatePosition(
 
 
 fun calculateRadius(minutes: Int): Double {
-    var newRadius: Double = minutes * 5.0
-    return if (newRadius > 200.0) newRadius
+    val newRadius: Double = minutes * 5.0
+    return if (newRadius > 200.0) 200.0
     else if (newRadius < 25.0) 25.0
     else newRadius
 }
