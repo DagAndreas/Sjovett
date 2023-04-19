@@ -428,6 +428,7 @@ fun TidsbrukScreen(
                                     tint = androidx.compose.ui.graphics.Color.Gray
                                 )
                             }
+                            //Var bare "text før"
                             androidx.compose.material.Text(
                                 text = "test",
                                 modifier = Modifier
@@ -491,4 +492,3 @@ fun formatTime(timeInMinutes: Double): String {
         }
     }
 }
-
