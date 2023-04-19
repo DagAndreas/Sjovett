@@ -58,10 +58,9 @@ fun MannOverbord(
 ) {
     var popupControl by remember { mutableStateOf(false) }
     val state by mapViewModel.state.collectAsState()
-    val currentLoc = state.lastKnownLocation
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
-        isMyLocationEnabled = state.lastKnownLocation != null
+        isMyLocationEnabled = true //state.lastKnownLocation != null
     )
 
     Log.d("MapScreen", "$state er staten tidlig")
@@ -162,8 +161,6 @@ fun MannOverbord(
                 mapViewModel.oceanViewModel.getOceanForecastResponse()
                 Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
 
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
-
                 mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
                 //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
                 mapViewModel.circleVisibility.value = true
@@ -200,10 +197,11 @@ fun MannOverbord(
 
             LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
                 if (!haveZoomedAtStart){
-                    haveZoomedAtStart = true
-                    delay(300)
+                    mapViewModel.updateLocation()
+                    delay(1000)
                     Log.i("HeiFraLaunchedEffect", "pos: $state.lastKnownLocation")
                     cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 3000)
+                    haveZoomedAtStart = true
                 }
 
 
@@ -293,8 +291,8 @@ fun calculatePosition(
 
 
 fun calculateRadius(minutes: Int): Double {
-    var newRadius: Double = minutes * 5.0
-    return if (newRadius > 200.0) newRadius
+    val newRadius: Double = minutes * 5.0
+    return if (newRadius > 200.0) 200.0
     else if (newRadius < 25.0) 25.0
     else newRadius
 }
