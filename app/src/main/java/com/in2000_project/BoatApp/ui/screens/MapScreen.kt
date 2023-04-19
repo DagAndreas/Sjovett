@@ -56,7 +56,7 @@ const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" 
 fun MannOverbord(
     mapViewModel: MapViewModel
 ) {
-
+    var popupControl by remember { mutableStateOf(false) }
     val state by mapViewModel.state.collectAsState()
     val currentLoc = state.lastKnownLocation
     val mapProperties = MapProperties(
