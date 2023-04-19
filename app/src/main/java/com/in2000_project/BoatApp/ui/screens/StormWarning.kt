@@ -81,8 +81,13 @@ fun StormWarning(
     val mapState by viewModelMap.state.collectAsState()
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
-        isMyLocationEnabled = mapState.lastKnownLocation != null, // denne er null - finner brukerens posisjon dersom den settes til true
+        isMyLocationEnabled = true//mapState.lastKnownLocation != null, // denne er null - finner brukerens posisjon dersom den settes til true
     )
+
+    if (mapState.lastKnownLocation != null) {
+        viewModelMap.updateUserLocation(mapState.lastKnownLocation!!.latitude, mapState.lastKnownLocation!!.longitude)
+    }
+
 
     Log.d("tester", mapState.lastKnownLocation.toString())
 
