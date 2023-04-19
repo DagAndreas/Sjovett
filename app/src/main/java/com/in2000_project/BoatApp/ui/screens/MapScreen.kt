@@ -39,9 +39,7 @@ import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
-import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import kotlinx.coroutines.delay
-import java.sql.Time
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -64,7 +62,7 @@ fun MannOverbord(
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    var cameraZoom: Float = 10.0f
+    var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
@@ -162,16 +160,15 @@ fun MannOverbord(
             onClick = {
 
                 //TODO: Bør garantere at vi bruker telefonens nåværende posisjon
-                mapViewModel.updateLocation()
-                val pos = locationToLatLng(mapViewModel.state.value.lastKnownLocation!!)
+                val pos = locationToLatLng(state.lastKnownLocation)
                 mapViewModel.oceanViewModel.path = "$oceanURL?lat=${pos.latitude}&lon=${pos.longitude}"
                 mapViewModel.oceanViewModel.getOceanForecastResponse()
                 Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
 
-                mapViewModel.circleCenter.value = pos
+                mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
                 //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
                 mapViewModel.circleVisibility.value = true
-                mapViewModel.enabled.value = false
+                mapViewModel.buttonEnabled.value = false
                 mapViewModel.mann_er_overbord.value = true
                 mapViewModel.markersMapScreen.add(pos)
                 mapViewModel.mapUpdateThread.start()
@@ -192,7 +189,7 @@ fun MannOverbord(
                 .align(CenterHorizontally),
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
-            enabled = mapViewModel.enabled.value,
+            enabled = mapViewModel.buttonEnabled.value,
 
 
         ) {
@@ -208,11 +205,11 @@ fun MannOverbord(
                 if (!haveZoomedAtStart){
                     haveZoomedAtStart = true
                     delay(1000)
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 3000)
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
 
 
-                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.counter.value}")
+                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.timePassedInSeconds.value}")
             }
         }
     }
