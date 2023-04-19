@@ -50,6 +50,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
@@ -61,6 +63,7 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
+import com.in2000_project.BoatApp.MenuButton
 import java.util.*
 
 
@@ -75,7 +78,8 @@ fun StormWarning(
     viewModelSearch: SearchViewModel,
     setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
     calculateZoneViewCenter: () -> LatLngBounds,
-    modifier: Modifier
+    modifier: Modifier,
+    openDrawer: () -> Unit
 ){
     // hentet fra MapScreen:
     val mapState by viewModelMap.state.collectAsState()
@@ -175,6 +179,12 @@ fun StormWarning(
                 Log.d("Koordinater", warning.geometry.toString() )
             }
         }
+
+        MenuButton(
+            buttonIcon = Icons.Filled.Menu,
+            onButtonClicked = { openDrawer() }
+        )
+
         Spacer(modifier = Modifier.height(30.dp))
 
         Column(modifier = Modifier,
