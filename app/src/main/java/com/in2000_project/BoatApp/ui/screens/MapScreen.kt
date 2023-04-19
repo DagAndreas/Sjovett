@@ -53,6 +53,8 @@ const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" 
 fun MannOverbord(
     mapViewModel: MapViewModel
 ) {
+    mapViewModel.updateLocation()
+
     var popupControl by remember { mutableStateOf(false) }
     val state by mapViewModel.state.collectAsState()
     val mapProperties = MapProperties(
@@ -160,16 +162,18 @@ fun MannOverbord(
             onClick = {
 
                 //TODO: Bør garantere at vi bruker telefonens nåværende posisjon
-                val pos = locationToLatLng(state.lastKnownLocation)
+                mapViewModel.updateLocation()
+                val pos = locationToLatLng(mapViewModel.state.value.lastKnownLocation!!)
                 mapViewModel.oceanViewModel.path = "$oceanURL?lat=${pos.latitude}&lon=${pos.longitude}"
                 mapViewModel.oceanViewModel.getOceanForecastResponse()
                 Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
 
-                mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
+                mapViewModel.circleCenter.value = pos
                 //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
                 mapViewModel.circleVisibility.value = true
                 mapViewModel.enabled.value = false
                 mapViewModel.mann_er_overbord.value = true
+                mapViewModel.markersMapScreen.add(pos)
                 mapViewModel.mapUpdateThread.start()
 
                 Log.i("MapScreen button", "Hei fra buttonpress")

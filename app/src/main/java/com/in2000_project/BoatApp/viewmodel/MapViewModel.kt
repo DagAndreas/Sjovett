@@ -105,7 +105,6 @@ class MapViewModel @Inject constructor(): ViewModel() {
         counter.value++
         circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
         circleRadius.value = calculateRadius(counter.value)
-
         markersMapScreen.add(circleCenter.value)
         if(markersMapScreen.size>1){
             val lastPosition = mapViewModel.markersMapScreen[mapViewModel.markersMapScreen.size - 2]
@@ -135,6 +134,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
             }
         } catch (e: SecurityException) {
             // Show error or something
+
         }
     }
 
