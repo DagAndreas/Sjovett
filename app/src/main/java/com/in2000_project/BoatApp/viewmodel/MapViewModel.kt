@@ -4,15 +4,12 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.util.Log
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.location.CurrentLocationRequest
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
-import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.compose.calculateNewPosition
 import com.in2000_project.BoatApp.compose.calculateRadius
 import com.in2000_project.BoatApp.compose.oceanURL
@@ -23,7 +20,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
@@ -91,8 +87,6 @@ class MapViewModel @Inject constructor(): ViewModel() {
             val sleep_delay:Long = 3 //sekunder
             while(true){
                 sleep(sleep_delay*1000) // x antall sek
-                mapViewModel.updateMap(sleep_delay)
-                sleep(5000) // x antall sek
                 mapViewModel.updateMarkerAndPolyLines()
                 mapViewModel.updateMap(sleep_delay)
                 Log.i("HIEIHEIEHIE", "HDASDHJKASDKASJHDJAKSD")
