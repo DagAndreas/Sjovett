@@ -168,7 +168,7 @@ fun MannOverbord(
                 mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
                 //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
                 mapViewModel.circleVisibility.value = true
-                mapViewModel.buttonEnabled.value = false
+                mapViewModel.enabled.value = false
                 mapViewModel.mann_er_overbord.value = true
                 mapViewModel.markersMapScreen.add(pos)
                 mapViewModel.mapUpdateThread.start()
@@ -189,7 +189,7 @@ fun MannOverbord(
                 .align(CenterHorizontally),
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
-            enabled = mapViewModel.buttonEnabled.value,
+            enabled = mapViewModel.enabled.value,
 
 
         ) {

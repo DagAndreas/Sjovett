@@ -69,7 +69,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
     var circleRadius = mutableStateOf(200.0)
     var circleVisibility = mutableStateOf(false)
-    var buttonEnabled = mutableStateOf(true)
+    var enabled = mutableStateOf(true)
     var timePassedInSeconds = mutableStateOf( 0 )
 
     var mann_er_overbord = mutableStateOf(false)
