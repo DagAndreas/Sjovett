@@ -72,7 +72,7 @@ class ApiDataSource () {
         //Log.d("API_request", "attempting fetchOceanForecastData.launch")
         val response = try {
             client.get() {
-                url(path)
+                url("https://gw-uio.intark.uh-it.no/in2000/weatherapi/oceanforecast/2.0/complete?lat=60.10&lon=5")//path)
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",//R.string.Proxy_name.toString(),

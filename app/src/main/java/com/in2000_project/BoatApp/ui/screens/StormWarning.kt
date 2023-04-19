@@ -41,9 +41,12 @@ import android.location.Location
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.border
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import com.google.android.gms.maps.model.CameraPosition
+import com.in2000_project.BoatApp.MenuButton
 import java.util.*
 
 
@@ -60,7 +63,8 @@ fun StormWarning(
     viewModelMap: AlertsMapViewModel,
     setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
     calculateZoneViewCenter: () -> LatLngBounds,
-    modifier: Modifier
+    modifier: Modifier,
+    openDrawer: () -> Unit
 ){
     // hentet fra MapScreen:
     val mapState by viewModelMap.state.collectAsState()
@@ -139,6 +143,12 @@ fun StormWarning(
                 Log.d("Koordinater", warning.geometry.toString() )
             }
         }
+
+        MenuButton(
+            buttonIcon = Icons.Filled.Menu,
+            onButtonClicked = { openDrawer() }
+        )
+
         Spacer(modifier = Modifier.height(30.dp))
 
         Column(modifier = Modifier,
