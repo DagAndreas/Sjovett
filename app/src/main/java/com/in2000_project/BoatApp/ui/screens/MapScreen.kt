@@ -291,8 +291,8 @@ fun calculatePosition(
 
 
 fun calculateRadius(minutes: Int): Double {
-    var newRadius: Double = minutes * 5.0
-    return if (newRadius > 200.0) newRadius
+    val newRadius: Double = minutes * 5.0
+    return if (newRadius > 200.0) 200.0
     else if (newRadius < 25.0) 25.0
     else newRadius
 }
