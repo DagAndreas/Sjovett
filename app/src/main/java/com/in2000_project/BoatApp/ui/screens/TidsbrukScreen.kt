@@ -428,7 +428,7 @@ fun TidsbrukScreen(
                                     tint = androidx.compose.ui.graphics.Color.Gray
                                 )
                             }
-                            androidx.compose.material.Text(
+                            Text(
                                 text = "test",
                                 modifier = Modifier
                                     .align(Alignment.CenterHorizontally)
