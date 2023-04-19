@@ -39,9 +39,7 @@ import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
-import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import kotlinx.coroutines.delay
-import java.sql.Time
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
@@ -62,7 +60,7 @@ fun MannOverbord(
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    var cameraZoom: Float = 10.0f
+    var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
@@ -204,11 +202,11 @@ fun MannOverbord(
                 if (!haveZoomedAtStart){
                     haveZoomedAtStart = true
                     delay(1000)
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 3000)
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
 
 
-                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.counter.value}")
+                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.timePassedInSeconds.value}")
             }
         }
     }

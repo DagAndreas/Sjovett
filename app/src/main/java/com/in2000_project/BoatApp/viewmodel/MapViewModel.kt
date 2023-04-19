@@ -4,15 +4,12 @@ import android.annotation.SuppressLint
 import android.location.Location
 import android.util.Log
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.location.CurrentLocationRequest
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
-import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.compose.calculateNewPosition
 import com.in2000_project.BoatApp.compose.calculateRadius
 import com.in2000_project.BoatApp.compose.oceanURL
@@ -68,13 +65,12 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var speedNumber =    mutableStateOf(15f)
     // distance between all of the markers
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
-    val markersMapScreen = mutableListOf<LatLng>()
-    val polyLinesMap = mutableListOf<PolylineOptions>()
+
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
-    var circleRadius = mutableStateOf(200.0)
+    var circleRadius = mutableStateOf(25.0)
     var circleVisibility = mutableStateOf(false)
     var enabled = mutableStateOf(true)
-    var counter = mutableStateOf( 0 )
+    var timePassedInSeconds = mutableStateOf( 0 )
 
     var mann_er_overbord = mutableStateOf(false)
     var currentLat: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.latitude else 56.0646
@@ -89,32 +85,19 @@ class MapViewModel @Inject constructor(): ViewModel() {
     ) : Thread() {
         override fun run() {
             while(true){
-                sleep(5000) // x antall sek
-                mapViewModel.updateMap(mapViewModel)
+                val sleep_delay:Long = 3 //sekunder
+                sleep(sleep_delay*1000) // x antall sek
+                mapViewModel.updateMap(sleep_delay)
                 Log.i("HIEIHEIEHIE", "HDASDHJKASDKASJHDJAKSD")
-
             }
         }
     }
 
 
-    fun updateMap(mapViewModel: MapViewModel){
-        val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
-        Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
-
-        counter.value++
-        circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, time_to_wait_in_minutes.toDouble()*3000)
-        circleRadius.value = calculateRadius(counter.value)
-
-        markersMapScreen.add(circleCenter.value)
-        if(markersMapScreen.size>1){
-            val lastPosition = mapViewModel.markersMapScreen[mapViewModel.markersMapScreen.size - 2]
-            val options = PolylineOptions()
-                .add(lastPosition, mapViewModel.markersMapScreen.last())
-                .color(android.graphics.Color.BLACK)
-            polyLinesMap.add(options)
-        }
-
+    fun updateMap(waittime: Long){
+        timePassedInSeconds.value += waittime.toInt()
+        circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, waittime.toDouble()/60.0)
+        circleRadius.value = calculateRadius(timePassedInSeconds.value/60)
     }
 
 
