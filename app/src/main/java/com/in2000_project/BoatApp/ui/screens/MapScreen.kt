@@ -195,7 +195,7 @@ fun MannOverbord(
                 if (!haveZoomedAtStart){
                     haveZoomedAtStart = true
                     delay(1000)
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 3000)
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1000)
                 }
 
 
