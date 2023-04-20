@@ -352,10 +352,9 @@ fun TidsbrukScreen(
         Box() {
             GoogleMap(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(bottom = 50.dp),
+                    .fillMaxSize(),
                 properties = mapProperties,
-                contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.67f),
+                contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f, start = 0.dp),
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
@@ -407,23 +406,6 @@ fun TidsbrukScreen(
                 }
             }
 
-            MenuButton(
-                buttonIcon = Icons.Filled.Menu,
-                onButtonClicked = { openDrawer() }
-            )
-
-            /*
-            IconButton(
-                onClick = { popupControl = true }
-            ) {
-                Icon(
-                    Icons.Outlined.Info,
-                    contentDescription = "Info",
-                    modifier = Modifier
-                        .size(24.dp),
-                    tint = androidx.compose.ui.graphics.Color.White
-                )
-            }
             if (popupControl) {
                 Popup(
                     alignment = Alignment.Center,
@@ -473,7 +455,32 @@ fun TidsbrukScreen(
                 }
             }
 
-             */
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.16f)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .padding(top = 10.dp)
+
+            ) {
+                MenuButton(
+                    buttonIcon = Icons.Filled.Menu,
+                    onButtonClicked = { openDrawer() }
+                )
+
+                IconButton(
+                    onClick = { popupControl = true },
+                    modifier = Modifier
+                        .padding(start = 0.dp)
+                ) {
+                    Icon(
+                        Icons.Outlined.Info,
+                        contentDescription = "Info",
+                        modifier = Modifier
+                            .size(24.dp),
+                        tint = Color.White
+                    )
+                }
+            }
         }
     }
 }

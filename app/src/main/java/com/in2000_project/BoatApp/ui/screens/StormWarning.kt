@@ -5,12 +5,8 @@ package com.in2000_project.BoatApp.ui.screens
 import android.annotation.SuppressLint
 import android.content.Context
 import android.util.Log
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -41,20 +37,23 @@ import android.location.Location
 import android.os.Build
 import android.view.KeyEvent
 import androidx.annotation.RequiresApi
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 //import androidx.compose.foundation.layout.RowScopeInstance.weight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.*
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import com.google.android.gms.maps.model.CameraPosition
 import com.in2000_project.BoatApp.viewmodel.SearchViewModel
 import kotlinx.coroutines.*
@@ -128,6 +127,9 @@ fun StormWarning(
 
     Log.d("LISTEN", temperatureData.toString())
 
+    //InfoKort
+    var popupControl by remember { mutableStateOf(false) }
+
     // Therese start
 
     // val chosenTime = chooseTime(times)
@@ -180,10 +182,82 @@ fun StormWarning(
             }
         }
 
-        MenuButton(
-            buttonIcon = Icons.Filled.Menu,
-            onButtonClicked = { openDrawer() }
-        )
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.16f)
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .align(Alignment.Start)
+                .padding(top = 10.dp)
+
+        ) {
+            MenuButton(
+                buttonIcon = Icons.Filled.Menu,
+                onButtonClicked = { openDrawer() }
+            )
+
+            IconButton(
+                onClick = { popupControl = true },
+                modifier = Modifier
+                    .padding(start = 0.dp)
+            ) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = "Info",
+                    modifier = Modifier
+                        .size(24.dp),
+                    tint = androidx.compose.ui.graphics.Color.Black
+                )
+            }
+        }
+
+        if (popupControl) {
+            Popup(
+                alignment = Alignment.Center,
+                properties = PopupProperties(
+                    focusable = true
+                )
+
+            ) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .background(
+                            color = androidx.compose.ui.graphics.Color.White,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
+                        .height(LocalConfiguration.current.screenHeightDp.dp * 0.15f)
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        IconButton(
+                            onClick = { popupControl = false },
+                            modifier = Modifier
+                                .align(Alignment.End)
+                        ) {
+                            Icon(
+                                Icons.Outlined.Close,
+                                contentDescription = "Close",
+                                modifier = Modifier
+                                    .size(24.dp),
+                                tint = androidx.compose.ui.graphics.Color.Gray
+                            )
+                        }
+                        //Var bare "text før"
+                        androidx.compose.material.Text(
+                            text = "test",
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                        )
+                    }
+                }
+            }
+        }
 
         Spacer(modifier = Modifier.height(30.dp))
 
