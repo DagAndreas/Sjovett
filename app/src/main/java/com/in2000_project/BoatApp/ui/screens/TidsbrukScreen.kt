@@ -13,13 +13,20 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,6 +47,7 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
 import com.google.android.gms.maps.model.*
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.MenuButton
 
@@ -131,7 +139,6 @@ fun TidsbrukScreen(
             }
             updateDisplayedText()
         }
-        //polyLines[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
     }
 
 
@@ -157,11 +164,17 @@ fun TidsbrukScreen(
         }
         updateDisplayedText()
     }
+    /*
+    val sheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(BottomSheetValue.Expanded)
+    )*/
 
     BottomSheetScaffold(
 
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+        //sheetPeekHeight = 0.dp,
         sheetBackgroundColor = Color.White,
+        //scaffoldState = sheetState,
         sheetContent = {
 
             Column(
@@ -230,18 +243,27 @@ fun TidsbrukScreen(
                             viewModel.usingMyPositionTidsbruk.value = !viewModel.usingMyPositionTidsbruk.value
 
                             if(!viewModel.usingMyPositionTidsbruk.value){
-                                viewModel.markerPositions.clear()
-                                viewModel.coordinatesToFindDistanceBetween.clear()
-                                viewModel.polyLines.clear()
+                                if(viewModel.markerPositions.isNotEmpty()){
+                                    viewModel.markerPositions.removeFirst()
+                                    viewModel.coordinatesToFindDistanceBetween.removeFirst()
+                                    if(viewModel.polyLines.isNotEmpty()){
+                                        viewModel.polyLines.removeFirst()
+                                    }
+                                }
                             }
                             else{
-                                viewModel.markerPositions.clear()
-                                viewModel.coordinatesToFindDistanceBetween.clear()
-                                viewModel.polyLines.clear()
-
-                                viewModel.markerPositions.add(locationToLatLng(state.lastKnownLocation!!))
-                                viewModel.coordinatesToFindDistanceBetween.add(locationToLatLng(state.lastKnownLocation!!))
+                                viewModel.updateLocation()
+                                viewModel.markerPositions.add(0, locationToLatLng(state.lastKnownLocation))
+                                viewModel.coordinatesToFindDistanceBetween.add(0, locationToLatLng(state.lastKnownLocation))
+                                if(viewModel.markerPositions.size>1){
+                                    val line = PolylineOptions()
+                                        .add(viewModel.markerPositions[0], viewModel.markerPositions[1])
+                                        .color(android.graphics.Color.RED)
+                                    viewModel.polyLines.add(0, line)
+                                }
                             }
+                            viewModel.distanceInMeters.value = calculateDistance(viewModel.coordinatesToFindDistanceBetween)
+                            viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
                             updateDisplayedText()
                         },
                         modifier = Modifier
@@ -374,7 +396,7 @@ fun TidsbrukScreen(
                         )
                     }
                     else{
-                        viewModel.displayedText.value = "Du må legge til to markører for å få en rute"
+                        viewModel.displayedText.value = "Du må legge til to markører for å få en rute. Trykk Avslutt og prøv igjen."
                     }
 
                 }
