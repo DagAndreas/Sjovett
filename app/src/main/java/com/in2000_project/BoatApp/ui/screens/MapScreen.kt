@@ -102,28 +102,40 @@ fun MannOverbord(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        MenuButton(
-            buttonIcon = Icons.Filled.Menu,
-            onButtonClicked = { openDrawer() }
-        )
-        /*
-        IconButton(
-            onClick = { popupControl = true }
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.16f)
+                .wrapContentWidth(Alignment.CenterHorizontally)
+                .padding(top = 10.dp)
+
         ) {
-            Icon(
-                Icons.Outlined.Info,
-                contentDescription = "Info",
-                modifier = Modifier
-                    .size(24.dp),
-                tint = Color.White
+            MenuButton(
+                buttonIcon = Icons.Filled.Menu,
+                onButtonClicked = { openDrawer() }
             )
+
+            IconButton(
+                onClick = { popupControl = true },
+                modifier = Modifier
+                    .padding(start = 0.dp)
+            ) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = "Info",
+                    modifier = Modifier
+                        .size(24.dp),
+                    tint = Color.White
+                )
+            }
         }
+
         if (popupControl) {
             Popup(
-                alignment = Center,
+                alignment = Alignment.Center,
                 properties = PopupProperties(
                     focusable = true
                 )
+
             ) {
                 ElevatedCard(
                     modifier = Modifier
@@ -152,19 +164,19 @@ fun MannOverbord(
                                 contentDescription = "Close",
                                 modifier = Modifier
                                     .size(24.dp),
-                                tint = Color.Gray
+                                tint = androidx.compose.ui.graphics.Color.Gray
                             )
                         }
-                        Text(
+                        //Var bare "text før"
+                        androidx.compose.material.Text(
                             text = "test",
                             modifier = Modifier
-                                .align(CenterHorizontally)
+                                .align(Alignment.CenterHorizontally)
                         )
                     }
                 }
             }
         }
-        */
 
         Button(
             onClick = {
@@ -189,7 +201,7 @@ fun MannOverbord(
                 .wrapContentWidth(CenterHorizontally)
                 .padding(
                     /*start = LocalConfiguration.current.screenWidthDp.dp * 0.4f,*/
-                    top = LocalConfiguration.current.screenHeightDp.dp * 0.7f
+                    top = LocalConfiguration.current.screenHeightDp.dp * 0.65f
                 )
                 .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
                 .shadow(

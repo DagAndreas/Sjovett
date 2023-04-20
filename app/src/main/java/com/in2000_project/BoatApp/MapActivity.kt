@@ -231,12 +231,15 @@ fun MenuButton(title: String = "", buttonIcon: ImageVector, onButtonClicked: () 
 
     IconButton(
         onClick = { onButtonClicked() } ,
+        /*
         modifier = Modifier
             .size(LocalConfiguration.current.screenWidthDp.dp * 0.16f)
             .background(
                 color = Color.Unspecified,
                 shape = CircleShape
             )
+
+         */
 
     ) {
         Icon(
@@ -247,8 +250,8 @@ fun MenuButton(title: String = "", buttonIcon: ImageVector, onButtonClicked: () 
                     color = Color.White,
                     shape = CircleShape
                 )
-                .padding(8.dp)
-                .fillMaxWidth(0.5f)
+                .padding(10.dp)
+                .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
         )
     }
 }
