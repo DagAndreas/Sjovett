@@ -77,6 +77,10 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var currentLong: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.longitude else 10.6778
     var followCircle: Boolean = false;
 
+    //InfoKort
+    var mannOverBordInfoPopUp by mutableStateOf(true)
+    var reiseplanleggerInfoPopUp by mutableStateOf(true)
+
     val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
 
     val mapUpdateThread = MapUpdateThread(this)

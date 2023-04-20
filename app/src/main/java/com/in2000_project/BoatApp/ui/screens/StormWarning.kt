@@ -127,9 +127,6 @@ fun StormWarning(
 
     Log.d("LISTEN", temperatureData.toString())
 
-    //InfoKort
-    var popupControl by remember { mutableStateOf(false) }
-
     // Therese start
 
     // val chosenTime = chooseTime(times)
@@ -182,13 +179,10 @@ fun StormWarning(
             }
         }
 
-        Column(
+        Row(
             modifier = Modifier
-                .fillMaxWidth(0.16f)
-                .wrapContentWidth(Alignment.CenterHorizontally)
+                .padding(start = 10.dp, top = 10.dp)
                 .align(Alignment.Start)
-                .padding(top = 10.dp)
-
         ) {
             MenuButton(
                 buttonIcon = Icons.Filled.Menu,
@@ -196,21 +190,21 @@ fun StormWarning(
             )
 
             IconButton(
-                onClick = { popupControl = true },
+                onClick = { viewModelMap.stormvarselInfoPopUp = true },
                 modifier = Modifier
-                    .padding(start = 0.dp)
+                    .padding(start = LocalConfiguration.current.screenWidthDp.dp * 0.3f)
             ) {
                 Icon(
                     Icons.Outlined.Info,
                     contentDescription = "Info",
                     modifier = Modifier
-                        .size(24.dp),
+                        .size(32.dp),
                     tint = androidx.compose.ui.graphics.Color.Black
                 )
             }
         }
 
-        if (popupControl) {
+        if (viewModelMap.stormvarselInfoPopUp) {
             Popup(
                 alignment = Alignment.Center,
                 properties = PopupProperties(
@@ -236,7 +230,7 @@ fun StormWarning(
                             .fillMaxWidth()
                     ) {
                         IconButton(
-                            onClick = { popupControl = false },
+                            onClick = { viewModelMap.stormvarselInfoPopUp = false },
                             modifier = Modifier
                                 .align(Alignment.End)
                         ) {

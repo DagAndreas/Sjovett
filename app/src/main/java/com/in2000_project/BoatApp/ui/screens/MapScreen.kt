@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.CameraPosition
@@ -56,7 +57,6 @@ fun MannOverbord(
 ) {
     mapViewModel.updateLocation()
 
-    var popupControl by remember { mutableStateOf(false) }
     val state by mapViewModel.state.collectAsState()
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
@@ -77,9 +77,8 @@ fun MannOverbord(
         GoogleMap(
             modifier = Modifier
                 .fillMaxSize()
-                //.clip(RoundedCornerShape(20.dp)),
             ,properties = mapProperties,
-            contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f),
+            /* contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f), //flytter knappene */
             cameraPositionState = cameraPositionState
         ) {
             Circle(
@@ -102,12 +101,9 @@ fun MannOverbord(
         modifier = Modifier
             .fillMaxWidth()
     ) {
-        Column(
+        Row(
             modifier = Modifier
-                .fillMaxWidth(0.16f)
-                .wrapContentWidth(Alignment.CenterHorizontally)
-                .padding(top = 10.dp)
-
+                .padding(start = 10.dp, top = 10.dp)
         ) {
             MenuButton(
                 buttonIcon = Icons.Filled.Menu,
@@ -115,21 +111,21 @@ fun MannOverbord(
             )
 
             IconButton(
-                onClick = { popupControl = true },
+                onClick = { mapViewModel.mannOverBordInfoPopUp = true },
                 modifier = Modifier
-                    .padding(start = 0.dp)
+                    .padding(start = LocalConfiguration.current.screenWidthDp.dp * 0.3f)
             ) {
                 Icon(
                     Icons.Outlined.Info,
                     contentDescription = "Info",
                     modifier = Modifier
-                        .size(24.dp),
+                        .size(32.dp),
                     tint = Color.White
                 )
             }
         }
 
-        if (popupControl) {
+        if (mapViewModel.mannOverBordInfoPopUp) {
             Popup(
                 alignment = Alignment.Center,
                 properties = PopupProperties(
@@ -155,7 +151,7 @@ fun MannOverbord(
                             .fillMaxWidth()
                     ) {
                         IconButton(
-                            onClick = { popupControl = false },
+                            onClick = { mapViewModel.mannOverBordInfoPopUp = false },
                             modifier = Modifier
                                 .align(Alignment.End)
                         ) {
@@ -201,7 +197,7 @@ fun MannOverbord(
                 .wrapContentWidth(CenterHorizontally)
                 .padding(
                     /*start = LocalConfiguration.current.screenWidthDp.dp * 0.4f,*/
-                    top = LocalConfiguration.current.screenHeightDp.dp * 0.65f
+                    top = LocalConfiguration.current.screenHeightDp.dp * 0.73f
                 )
                 .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
                 .shadow(

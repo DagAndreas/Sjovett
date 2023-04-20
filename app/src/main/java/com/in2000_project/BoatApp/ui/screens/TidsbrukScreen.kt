@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
+import androidx.compose.material.DrawerState
+import androidx.compose.material.DrawerValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
@@ -24,6 +26,7 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
@@ -47,7 +50,6 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
 import com.google.android.gms.maps.model.*
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.MenuButton
 
@@ -73,7 +75,15 @@ fun TidsbrukScreen(
         isMyLocationEnabled = state.lastKnownLocation != null
     )
 
-    var popupControl by remember { mutableStateOf(false) }
+    /*
+    val bottomSheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(
+            initialValue = BottomSheetValue.Expanded,
+            confirmStateChange = { it != BottomSheetValue.Expanded }
+        )
+    )
+
+     */
 
 
     // Define a function to update the displayed text based on the current state
@@ -139,6 +149,7 @@ fun TidsbrukScreen(
             }
             updateDisplayedText()
         }
+        //polyLines[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
     }
 
 
@@ -164,17 +175,11 @@ fun TidsbrukScreen(
         }
         updateDisplayedText()
     }
-    /*
-    val sheetState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(BottomSheetValue.Expanded)
-    )*/
 
     BottomSheetScaffold(
 
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        //sheetPeekHeight = 0.dp,
         sheetBackgroundColor = Color.White,
-        //scaffoldState = sheetState,
         sheetContent = {
 
             Column(
@@ -192,6 +197,14 @@ fun TidsbrukScreen(
                             color = Color.LightGray,
                             shape = RoundedCornerShape(5.dp)
                         )
+                )
+                Text(
+                    text = "Angi rute:",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 5.dp)
                 )
 
                 Row(
@@ -243,27 +256,18 @@ fun TidsbrukScreen(
                             viewModel.usingMyPositionTidsbruk.value = !viewModel.usingMyPositionTidsbruk.value
 
                             if(!viewModel.usingMyPositionTidsbruk.value){
-                                if(viewModel.markerPositions.isNotEmpty()){
-                                    viewModel.markerPositions.removeFirst()
-                                    viewModel.coordinatesToFindDistanceBetween.removeFirst()
-                                    if(viewModel.polyLines.isNotEmpty()){
-                                        viewModel.polyLines.removeFirst()
-                                    }
-                                }
+                                viewModel.markerPositions.clear()
+                                viewModel.coordinatesToFindDistanceBetween.clear()
+                                viewModel.polyLines.clear()
                             }
                             else{
-                                viewModel.updateLocation()
-                                viewModel.markerPositions.add(0, locationToLatLng(state.lastKnownLocation))
-                                viewModel.coordinatesToFindDistanceBetween.add(0, locationToLatLng(state.lastKnownLocation))
-                                if(viewModel.markerPositions.size>1){
-                                    val line = PolylineOptions()
-                                        .add(viewModel.markerPositions[0], viewModel.markerPositions[1])
-                                        .color(android.graphics.Color.RED)
-                                    viewModel.polyLines.add(0, line)
-                                }
+                                viewModel.markerPositions.clear()
+                                viewModel.coordinatesToFindDistanceBetween.clear()
+                                viewModel.polyLines.clear()
+
+                                viewModel.markerPositions.add(locationToLatLng(state.lastKnownLocation!!))
+                                viewModel.coordinatesToFindDistanceBetween.add(locationToLatLng(state.lastKnownLocation!!))
                             }
-                            viewModel.distanceInMeters.value = calculateDistance(viewModel.coordinatesToFindDistanceBetween)
-                            viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
                             updateDisplayedText()
                         },
                         modifier = Modifier
@@ -354,7 +358,7 @@ fun TidsbrukScreen(
                 modifier = Modifier
                     .fillMaxSize(),
                 properties = mapProperties,
-                contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f, start = 0.dp),
+                /* contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f, start = 0.dp), //flytter knappene */
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
@@ -395,7 +399,7 @@ fun TidsbrukScreen(
                         )
                     }
                     else{
-                        viewModel.displayedText.value = "Du må legge til to markører for å få en rute. Trykk Avslutt og prøv igjen."
+                        viewModel.displayedText.value = "Du må legge til to markører for å få en rute"
                     }
 
                 }
@@ -406,7 +410,7 @@ fun TidsbrukScreen(
                 }
             }
 
-            if (popupControl) {
+            if (viewModel.reiseplanleggerInfoPopUp) {
                 Popup(
                     alignment = Alignment.Center,
                     properties = PopupProperties(
@@ -432,7 +436,7 @@ fun TidsbrukScreen(
                                 .fillMaxWidth()
                         ) {
                             IconButton(
-                                onClick = { popupControl = false },
+                                onClick = { viewModel.reiseplanleggerInfoPopUp = false },
                                 modifier = Modifier
                                     .align(Alignment.End)
                             ) {
@@ -455,12 +459,9 @@ fun TidsbrukScreen(
                 }
             }
 
-            Column(
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.16f)
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-                    .padding(top = 10.dp)
-
+                    .padding(start = 10.dp, top = 10.dp)
             ) {
                 MenuButton(
                     buttonIcon = Icons.Filled.Menu,
@@ -468,19 +469,20 @@ fun TidsbrukScreen(
                 )
 
                 IconButton(
-                    onClick = { popupControl = true },
+                    onClick = { viewModel.reiseplanleggerInfoPopUp = true },
                     modifier = Modifier
-                        .padding(start = 0.dp)
+                        .padding(start = LocalConfiguration.current.screenWidthDp.dp * 0.3f)
                 ) {
                     Icon(
                         Icons.Outlined.Info,
                         contentDescription = "Info",
                         modifier = Modifier
-                            .size(24.dp),
+                            .size(32.dp),
                         tint = Color.White
                     )
                 }
             }
+
         }
     }
 }
