@@ -27,6 +27,7 @@ import androidx.compose.material.icons.rounded.Support
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -131,9 +132,11 @@ class MapActivity : ComponentActivity() {
                                     navController.navigate(route) {
                                         launchSingleTop = true
                                     }
-                                }
+                                },
+                                navController = navController
                             )
-                        }
+                        },
+                        drawerShape = RoundedCornerShape(topEnd = 30.dp, bottomEnd = 30.dp)
                     ) {
                         NavHost(
                             navController = navController,
@@ -180,7 +183,8 @@ class MapActivity : ComponentActivity() {
 @Composable
 fun Drawer(
     modifier: Modifier = Modifier,
-    onDestinationClicked: (route: String) -> Unit
+    onDestinationClicked: (route: String) -> Unit,
+    navController: NavController
 ) {
     val screenMap: Map<DrawerScreens, ImageVector> = mapOf(
         DrawerScreens.MannOverBord to Icons.Outlined.Support,
@@ -191,23 +195,40 @@ fun Drawer(
     Column(
         modifier
             .fillMaxSize()
-            .padding(start = 24.dp, top = 48.dp)
+            .padding(top = 48.dp)
     ) {
         Image(
             painter = painterResource(R.drawable.logo),
             contentDescription = "App icon",
             modifier = Modifier
                 .fillMaxWidth(0.6f)
+                .padding(start = 24.dp)
         )
+
+        Spacer(Modifier.height(24.dp))
+
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+
         screenMap.forEach { screen ->
-            Spacer(Modifier.height(24.dp))
+            val selected = currentRoute == screen.key.route
+            val background = if (selected) Color.LightGray else Color.Unspecified
 
             Row(
-                modifier = Modifier
+                modifier = modifier
+                    .background(
+                        color = background,
+                        shape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp)
+                    )
+                    .height(40.dp)
+                    .fillMaxWidth(0.62f)
+                    .padding(start = 24.dp)
             ) {
                 Icon(
                     imageVector = screen.value,
-                    contentDescription = "drawerIcon"
+                    contentDescription = "drawerIcon",
+                    modifier = Modifier
+                        .align(Alignment.CenterVertically)
                 )
 
                 Text(
