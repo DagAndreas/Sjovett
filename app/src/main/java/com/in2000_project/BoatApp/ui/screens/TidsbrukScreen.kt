@@ -17,6 +17,7 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -40,12 +41,14 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
 import com.google.android.gms.maps.model.*
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.MenuButton
 
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TidsbrukScreen(
-    viewModel: MapViewModel = viewModel()
+    viewModel: MapViewModel = viewModel(),
+    openDrawer: () -> Unit
 ) {
     viewModel.updateLocation()
 
@@ -326,7 +329,9 @@ fun TidsbrukScreen(
     ) {
         Box() {
             GoogleMap(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(bottom = 50.dp),
                 properties = mapProperties,
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
@@ -379,6 +384,12 @@ fun TidsbrukScreen(
                 }
             }
 
+            MenuButton(
+                buttonIcon = Icons.Filled.Menu,
+                onButtonClicked = { openDrawer() }
+            )
+
+            /*
             IconButton(
                 onClick = { popupControl = true }
             ) {
@@ -438,6 +449,8 @@ fun TidsbrukScreen(
                     }
                 }
             }
+
+             */
         }
     }
 }

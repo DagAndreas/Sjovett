@@ -10,6 +10,7 @@ import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.ElevatedCard
@@ -35,6 +36,7 @@ import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import com.in2000_project.BoatApp.MenuButton
 import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
@@ -49,7 +51,8 @@ const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" 
 
 @Composable
 fun MannOverbord(
-    mapViewModel: MapViewModel
+    mapViewModel: MapViewModel,
+    openDrawer: () -> Unit
 ) {
     mapViewModel.updateLocation()
 
@@ -98,6 +101,11 @@ fun MannOverbord(
         modifier = Modifier
             .fillMaxWidth()
     ) {
+        MenuButton(
+            buttonIcon = Icons.Filled.Menu,
+            onButtonClicked = { openDrawer() }
+        )
+        /*
         IconButton(
             onClick = { popupControl = true }
         ) {
@@ -155,6 +163,7 @@ fun MannOverbord(
                 }
             }
         }
+        */
 
         Button(
             onClick = {
