@@ -79,6 +79,7 @@ fun MannOverbord(
                 .fillMaxSize()
                 //.clip(RoundedCornerShape(20.dp)),
             ,properties = mapProperties,
+            contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f),
             cameraPositionState = cameraPositionState
         ) {
             Circle(

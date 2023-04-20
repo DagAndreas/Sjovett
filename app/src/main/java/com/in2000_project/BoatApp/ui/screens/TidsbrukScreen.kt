@@ -333,6 +333,7 @@ fun TidsbrukScreen(
                     .fillMaxSize()
                     .padding(bottom = 50.dp),
                 properties = mapProperties,
+                contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f),
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
