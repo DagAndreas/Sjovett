@@ -13,13 +13,23 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.BottomSheetScaffold
-import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.*
+import androidx.compose.material.DrawerState
+import androidx.compose.material.DrawerValue
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Slider
+import androidx.compose.material3.SliderDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -65,7 +75,15 @@ fun TidsbrukScreen(
         isMyLocationEnabled = state.lastKnownLocation != null
     )
 
-    var popupControl by remember { mutableStateOf(false) }
+    /*
+    val bottomSheetState = rememberBottomSheetScaffoldState(
+        bottomSheetState = BottomSheetState(
+            initialValue = BottomSheetValue.Expanded,
+            confirmStateChange = { it != BottomSheetValue.Expanded }
+        )
+    )
+
+     */
 
 
     // Define a function to update the displayed text based on the current state
@@ -179,6 +197,14 @@ fun TidsbrukScreen(
                             color = Color.LightGray,
                             shape = RoundedCornerShape(5.dp)
                         )
+                )
+                Text(
+                    text = "Angi rute:",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier
+                        .align(Alignment.CenterHorizontally)
+                        .padding(top = 5.dp)
                 )
 
                 Row(
@@ -332,7 +358,7 @@ fun TidsbrukScreen(
                 modifier = Modifier
                     .fillMaxSize(),
                 properties = mapProperties,
-                contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f, start = 0.dp),
+                /* contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f, start = 0.dp), //flytter knappene */
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
@@ -384,7 +410,7 @@ fun TidsbrukScreen(
                 }
             }
 
-            if (popupControl) {
+            if (viewModel.reiseplanleggerInfoPopUp) {
                 Popup(
                     alignment = Alignment.Center,
                     properties = PopupProperties(
@@ -410,7 +436,7 @@ fun TidsbrukScreen(
                                 .fillMaxWidth()
                         ) {
                             IconButton(
-                                onClick = { popupControl = false },
+                                onClick = { viewModel.reiseplanleggerInfoPopUp = false },
                                 modifier = Modifier
                                     .align(Alignment.End)
                             ) {
@@ -433,12 +459,9 @@ fun TidsbrukScreen(
                 }
             }
 
-            Column(
+            Row(
                 modifier = Modifier
-                    .fillMaxWidth(0.16f)
-                    .wrapContentWidth(Alignment.CenterHorizontally)
-                    .padding(top = 10.dp)
-
+                    .padding(start = 10.dp, top = 10.dp)
             ) {
                 MenuButton(
                     buttonIcon = Icons.Filled.Menu,
@@ -446,19 +469,20 @@ fun TidsbrukScreen(
                 )
 
                 IconButton(
-                    onClick = { popupControl = true },
+                    onClick = { viewModel.reiseplanleggerInfoPopUp = true },
                     modifier = Modifier
-                        .padding(start = 0.dp)
+                        .padding(start = LocalConfiguration.current.screenWidthDp.dp * 0.3f)
                 ) {
                     Icon(
                         Icons.Outlined.Info,
                         contentDescription = "Info",
                         modifier = Modifier
-                            .size(24.dp),
+                            .size(32.dp),
                         tint = Color.White
                     )
                 }
             }
+
         }
     }
 }

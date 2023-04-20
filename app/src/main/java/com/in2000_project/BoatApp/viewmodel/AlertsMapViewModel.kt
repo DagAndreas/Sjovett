@@ -2,6 +2,9 @@ package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.in2000_project.BoatApp.maps.*
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -34,6 +37,9 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
             clusterItems = listOfClusters
         )
     )
+
+    //InfoKort
+    var stormvarselInfoPopUp by mutableStateOf(true)
 
     val state: StateFlow<MapStateCluster> = _state.asStateFlow()
 
