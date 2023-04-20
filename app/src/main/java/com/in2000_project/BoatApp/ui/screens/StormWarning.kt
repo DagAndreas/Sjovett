@@ -52,6 +52,7 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.google.android.gms.maps.model.CameraPosition
@@ -404,7 +405,8 @@ fun StormWarning(
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold
             )
-            DisplayWeather(temp = temp, windSpeed = windSpeed, windDirection = windDirection, weatherIcon = weatherIcon, location = location)
+            //DisplayWeather(temp = temp, windSpeed = windSpeed, windDirection = windDirection, weatherIcon = weatherIcon, location = location)
+            VerktoyCard(name = "Værforhold", value = 17, weatherIcon = "cloudy")
             Spacer(modifier = Modifier.height(30.dp))
             if (warnings.isNotEmpty()){
                 GoogleMap(
@@ -447,10 +449,175 @@ fun StormWarning(
 }
 
 @Composable
-fun StormTextCard(area: String) {
-    Text(area)
-}
+fun VerktoyCard(name: String, value: Int, weatherIcon: String) {
 
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val screenWidthSp = configuration.screenWidthDp.sp
+    val screenHeight = configuration.screenHeightDp.dp
+    val icon: Int
+    val icon_desc: String
+
+    val cornerShape = 20
+    val grayColor = androidx.compose.ui.graphics.Color(0xFFF2F2F2)
+
+    val tempColor = when {
+        value >= 0 -> androidx.compose.ui.graphics.Color(0xFFC91C1C)
+        else -> androidx.compose.ui.graphics.Color(0xFF1F39BF)
+    }
+
+    when(weatherIcon){
+        "clearsky_day" -> {icon = R.drawable.clearsky_day; icon_desc = "Clear sky"}
+        "clearsky_night" -> {icon = R.drawable.clearsky_night; icon_desc = "Clear sky"}
+        "clearsky_polartwilight" -> {icon = R.drawable.clearsky_polartwilight; icon_desc = "Clear sky"}
+        "cloudy" -> {icon = R.drawable.cloudy;icon_desc = "Cloudy"}
+        "fair_day" -> {icon = R.drawable.fair_day;icon_desc = "Fair"}
+        "fair_night" -> {icon = R.drawable.fair_night;icon_desc = "Fair"}
+        "fair_polartwilight" -> {icon = R.drawable.fair_polartwilight;icon_desc = "Fair"}
+        "fog" -> {icon = R.drawable.fog ;icon_desc = "Fog"}
+        "heavyrain" -> {icon = R.drawable.heavyrain ;icon_desc = "Heavy rain"}
+        "heavyrainandthunder" -> {icon = R.drawable.heavyrainandthunder ;icon_desc = "Heavy rain and thunder"}
+        "heavyrainshowers_day" -> {icon = R.drawable.heavyrainshowers_day ;icon_desc = "Heavy rain showers"}
+        "heavyrainshowers_night" -> {icon = R.drawable.heavyrainshowers_night ;icon_desc = "Heavy rain showers"}
+        "heavyrainshowers_polartwilight" -> {icon = R.drawable.heavyrainshowers_polartwilight ;icon_desc = "Heavy rain showers"}
+        "heavyrainshowersandthunder_day" -> {icon = R.drawable.heavyrainshowersandthunder_day ;icon_desc = "Heavy rain showers and thunder"}
+        "heavyrainshowersandthunder_night" -> {icon = R.drawable.heavyrainshowersandthunder_night ;icon_desc = "Heavy rain showers and thunder"}
+        "heavyrainshowersandthunder_polartwilight" -> {icon = R.drawable.heavyrainshowersandthunder_polartwilight ;icon_desc = "Heavy rain showers and thunder"}
+        "heavysleet" -> {icon = R.drawable.heavysleet ;icon_desc = "Heavy sleet"}
+        "heavysleetandthunder" -> {icon = R.drawable.heavysleetandthunder ;icon_desc = "Heavy sleet and thunder"}
+        "heavysleetshowers_day" -> {icon = R.drawable.heavysleetshowers_day ;icon_desc = "Heavy sleet showers"}
+        "heavysleetshowers_night" -> {icon = R.drawable.heavysleetshowers_night ;icon_desc = "Heavy sleet showers"}
+        "heavysleetshowers_polartwilight" -> {icon = R.drawable.heavysleetshowers_polartwilight ;icon_desc = "Heavy sleet showers"}
+        "heavysleetshowersandthunder_day" -> {icon = R.drawable.heavysleetshowersandthunder_day ;icon_desc = "Heavy sleet showers and thunder"}
+        "heavysleetshowersandthunder_night" -> {icon = R.drawable.heavysleetshowersandthunder_night ;icon_desc = "Heavy sleet showers and thunder"}
+        "heavysleetshowersandthunder_polartwilight" -> {icon = R.drawable.heavysleetshowersandthunder_polartwilight ;icon_desc = "Heavy sleet showers and thunder"}
+        "heavysnow" -> {icon = R.drawable.heavysnow ;icon_desc = "Heavy snow"}
+        "heavysnowandthunder" -> {icon = R.drawable.heavysnowandthunder ;icon_desc = "Heavy snow and thunder"}
+        "heavysnowshowers_day" -> {icon = R.drawable.heavysnowshowers_day ;icon_desc = "Heavy snow showers"}
+        "heavysnowshowers_night" -> {icon = R.drawable.heavysnowshowers_night ;icon_desc = "Heavy snow showers"}
+        "heavysnowshowers_polartwilight" -> {icon = R.drawable.heavysnowshowers_polartwilight ;icon_desc = "Heavy snow showers"}
+        "heavysnowshowersandthunder_day" -> {icon = R.drawable.heavysnowshowersandthunder_day ;icon_desc = "Heavy snow showers and thunder"}
+        "heavysnowshowersandthunder_night" -> {icon = R.drawable.heavysnowshowersandthunder_day ;icon_desc = "Heavy snow showers and thunder"}
+        "heavysnowshowersandthunder_polartwilight" -> {icon = R.drawable.heavysnowshowersandthunder_day ;icon_desc = "Heavy snow showers and thunder"}
+        "lightrain" -> {icon = R.drawable.lightrain ;icon_desc = "Light rain"}
+        "lightrainandthunder" -> {icon = R.drawable.lightrainandthunder ;icon_desc = "Light rain and thunder"}
+        "lightrainshowers_day" -> {icon = R.drawable.lightrainshowers_day ;icon_desc = "Light rain showers"}
+        "lightrainshowers_night" -> {icon = R.drawable.lightrainshowers_night ;icon_desc = "Light rain showers"}
+        "lightrainshowers_polartwilight" -> {icon = R.drawable.lightrainshowers_polartwilight ;icon_desc = "Light rain showers"}
+        "lightrainshowersandthunder_day" -> {icon = R.drawable.lightrainshowersandthunder_day ;icon_desc = "Light rain showers and thunder"}
+        "lightrainshowersandthunder_night" -> {icon = R.drawable.lightrainshowersandthunder_night ;icon_desc = "Light rain showers and thunder"}
+        "lightrainshowersandthunder_polartwilight" -> {icon = R.drawable.lightrainshowersandthunder_polartwilight ;icon_desc = "Light rain showers and thunder"}
+        "lightsleet" -> {icon = R.drawable.lightsleet ;icon_desc = "Light sleet"}
+        "lightsleetandthunder" -> {icon = R.drawable.lightsleetandthunder ;icon_desc = "Light sleet and thunder"}
+        "lightsleetshowers_day" -> {icon = R.drawable.lightsleetshowers_day ;icon_desc = "Light sleet showers"}
+        "lightsleetshowers_night" -> {icon = R.drawable.lightsleetshowers_night ;icon_desc = "Light sleet showers"}
+        "lightsleetshowers_polartwilight" -> {icon = R.drawable.lightsleetshowers_polartwilight ;icon_desc = "Light sleet showers"}
+        "lightsnow" -> {icon = R.drawable.lightsnow ;icon_desc = "Light snow"}
+        "lightsnowandthunder" -> {icon = R.drawable.lightsnowandthunder ;icon_desc = "Light snow and thunder"}
+        "lightsnowshowers_day" -> {icon = R.drawable.lightsnowshowers_day ;icon_desc = "Light snow showers"}
+        "lightsnowshowers_night" -> {icon = R.drawable.lightsnowshowers_night ;icon_desc = "Light snow showers"}
+        "lightsnowshowers_polartwilight" -> {icon = R.drawable.lightsnowshowers_polartwilight ;icon_desc = "Light snow showers"}
+        "lightssleetshowersandthunder_day" -> {icon = R.drawable.lightssleetshowersandthunder_day ;icon_desc = "Light sleet showers and thunder"}
+        "lightssleetshowersandthunder_night" -> {icon = R.drawable.lightssleetshowersandthunder_night ;icon_desc = "Light sleet showers and thunder"}
+        "lightssleetshowersandthunder_polartwilight" -> {icon = R.drawable.lightssleetshowersandthunder_polartwilight ;icon_desc = "Light sleet showers and thunder"}
+        "lightssnowshowersandthunder_day" -> {icon = R.drawable.lightssnowshowersandthunder_day ;icon_desc = "Light snow showers and thunder"}
+        "lightssnowshowersandthunder_night" -> {icon = R.drawable.lightssnowshowersandthunder_night ;icon_desc = "Light snow showers and thunder"}
+        "lightssnowshowersandthunder_polartwilight" -> {icon = R.drawable.lightssnowshowersandthunder_polartwilight ;icon_desc = "Light snow showers and thunder"}
+        "partlycloudy_day" -> {icon = R.drawable.partlycloudy_day ;icon_desc = "Partly cloudy"}
+        "partlycloudy_night" -> {icon = R.drawable.partlycloudy_night ;icon_desc = "Partly cloudy"}
+        "partlycloudy_polartwilight" -> {icon = R.drawable.partlycloudy_polartwilight ;icon_desc = "Partly cloudy"}
+        "rain" -> {icon = R.drawable.rain ;icon_desc = "Rain"}
+        "rainandthunder" -> {icon = R.drawable.rainandthunder ;icon_desc = "Rain and thunder"}
+        "rainshowers_day" -> {icon = R.drawable.rainshowers_day ;icon_desc = "Rain showers"}
+        "rainshowers_night" -> {icon = R.drawable.rainshowers_night ;icon_desc = "Rain showers"}
+        "rainshowers_polartwilight" -> {icon = R.drawable.rainshowers_polartwilight ;icon_desc = "Rain showers"}
+        "rainshowersandthunder_day" -> {icon = R.drawable.rainshowersandthunder_day ;icon_desc = "Rain showers and thunder"}
+        "rainshowersandthunder_night" -> {icon = R.drawable.rainshowersandthunder_night ;icon_desc = "Rain showers and thunder"}
+        "rainshowersandthunder_polartwilight" -> {icon = R.drawable.rainshowersandthunder_polartwilight ;icon_desc = "Rain showers and thunder"}
+        "sleet" -> {icon = R.drawable.sleet ;icon_desc = "Sleet"}
+        "sleetandthunder" -> {icon = R.drawable.sleetandthunder ;icon_desc = "Sleet and thunder"}
+        "sleetshowers_day" -> {icon = R.drawable.sleetshowers_day ;icon_desc = "Sleet showers"}
+        "sleetshowers_night" -> {icon = R.drawable.sleetshowers_night ;icon_desc = "Sleet showers"}
+        "sleetshowers_polartwilight" -> {icon = R.drawable.sleetshowers_polartwilight ;icon_desc = "Sleet showers"}
+        "sleetshowersandthunder_day" -> {icon = R.drawable.sleetshowersandthunder_day ;icon_desc = "Sleet showers and thunder"}
+        "sleetshowersandthunder_night" -> {icon = R.drawable.sleetshowersandthunder_night ;icon_desc = "Sleet showers and thunder"}
+        "sleetshowersandthunder_polartwilight" -> {icon = R.drawable.sleetshowersandthunder_polartwilight ;icon_desc = "Sleet showers and thunder"}
+        "snow" -> {icon = R.drawable.snow ;icon_desc = "Snow"}
+        "snowandthunder" -> {icon = R.drawable.snowandthunder ;icon_desc = "Snow and thunder"}
+        "snowshowers_day" -> {icon = R.drawable.snowshowers_day ;icon_desc = "Snow showers"}
+        "snowshowers_night" -> {icon = R.drawable.snowshowers_night ;icon_desc = "Snow showers"}
+        "snowshowers_polartwilight" -> {icon = R.drawable.snowshowers_polartwilight ;icon_desc = "Snow showers"}
+        "snowshowersandthunder_day" -> {icon = R.drawable.snowshowersandthunder_day ;icon_desc = "Snow showers and thunder"}
+        "snowshowersandthunder_night" -> {icon = R.drawable.snowshowersandthunder_night ;icon_desc = "Snow showers and thunder"}
+        "snowshowersandthunder_polartwilight" -> {icon = R.drawable.snowshowersandthunder_polartwilight ;icon_desc = "Snow showers and thunder"}
+        else -> {icon = R.drawable.unsure; icon_desc = "0"; Log.e("Ikon", "Could not find drawable: $weatherIcon")}
+    }
+
+    Box( // Hele boksen
+        modifier = Modifier
+            .height(0.35 * screenHeight)
+            .padding(start = 0.1 * screenWidth, end = 0.1 * screenWidth, bottom = 0.1 * screenWidth)
+            .background(
+                color = androidx.compose.ui.graphics.Color.White, // Hvit
+                shape = RoundedCornerShape(cornerShape.dp)
+            )
+    ) {
+        Box( // Hovedboks
+            modifier = Modifier
+                .align(Alignment.BottomCenter)
+                .fillMaxHeight(0.9f)
+                .fillMaxWidth()
+                .background(
+                    color = grayColor, // grayColor
+                    shape = RoundedCornerShape(10.dp)
+                )
+        ) {
+            Row(
+                modifier = Modifier
+                    .align(Alignment.Center),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ){
+                Icon(
+                    painter = painterResource(icon),
+                    contentDescription = icon_desc,
+                    tint = androidx.compose.ui.graphics.Color.Unspecified,
+                    modifier = Modifier
+                        .size(0.15 * screenWidth)
+                )
+                Text(
+                    text = "$value C°",
+                    fontSize = (0.10 * screenWidthSp),
+                    color = tempColor
+                )
+            }
+        } // Hovedboks slutt
+
+        Box( // Overskrift
+            modifier = Modifier
+                .align(Alignment.TopCenter)
+                .wrapContentSize(Alignment.Center)
+                .fillMaxHeight(0.2f)
+                .fillMaxWidth(0.5f)
+                .background(
+                    color = grayColor,
+                    shape = RoundedCornerShape(10.dp)
+                )
+                .border(
+                    border = BorderStroke(1.dp, androidx.compose.ui.graphics.Color.Black),
+                    shape = RoundedCornerShape(10.dp)
+                )
+        ) {
+            Text(
+                text = name,
+                modifier = Modifier
+                    .wrapContentSize(Alignment.Center)
+                    .align(Alignment.Center)
+                    .background(grayColor),
+                fontWeight = FontWeight.Bold
+            )
+        }// Overskrift slutt
+    }
+}
 
 fun checkIfCloseToWarning(
     geometry: Geometry,
