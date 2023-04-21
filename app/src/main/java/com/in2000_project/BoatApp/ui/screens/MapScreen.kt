@@ -221,9 +221,9 @@ fun MannOverbord(
                 textAlign = TextAlign.Center
             )
 
-            LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
+            LaunchedEffect(haveZoomedAtStart) { //oppdaterer posisjon hvert 3. sek
                 delay(200)
-                if (!haveZoomedAtStart && mapViewModel.enabled.value){
+                if (!haveZoomedAtStart){
                     haveZoomedAtStart = true
                     delay(1000)
                     Log.i("MapScreen", "Zoomer inn på pos")
