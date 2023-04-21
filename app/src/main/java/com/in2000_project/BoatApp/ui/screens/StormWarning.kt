@@ -113,7 +113,7 @@ fun StormWarning(
     val stormWarningUiState = viewModelAlerts.stormWarningUiState.collectAsState()
     val temperatureUiState = viewModelForecast.temperatureUiState.collectAsState()
     val geoCodeUiState = viewModelSearch.geoCodeUiState.collectAsState()
-    val locationSearch = viewModelSearch.locationSearch.collectAsState()
+    var locationSearch = viewModelSearch.locationSearch.collectAsState()
     val cities = viewModelSearch.cities.collectAsState()
     val searchInProgress = viewModelSearch.searchInProgress.collectAsState().value
     val warnings = stormWarningUiState.value.warningList
@@ -151,122 +151,119 @@ fun StormWarning(
         Log.d("truls", temperatureData[i].data.instant.details.air_temperature.toString())
     }
 
-
-    // Therese slutt
-    Column(modifier = modifier,
-        //verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ){
-        viewModelMap.resetCluster()
-        for(warning in warnings){
-            Log.d("Lokasjon Warning", "${warning.properties.area} - ${warning.properties.geographicDomain}")
-            if(warning.properties.geographicDomain == "marine" || warning.properties.geographicDomain == "land" /*&& checkIfCloseToWarning(warning.geometry)*/){ // checkIfCloseToWarning viser kun de i nærhetenn av brukeren
-                //StormTextCard(warning.properties.area)
-                Log.d("Lokasjon", warning.properties.area)
-                Log.d("Lokasjon", warning.toString())
-                viewModelMap.addCluster( // her må det endres litt
-                    id = warning.properties.area,
-                    title = warning.properties.area?: "Unknown",
-                    description = warning.properties.instruction?: "Unknown",
-                    polygonOptions = polygonOptions {
-                        for (item in warning.geometry.coordinates) {
-                            for (coordinate in item) {
-                                add(LatLng(coordinate[1], coordinate[0]))
-                            }
+    viewModelMap.resetCluster()
+    for(warning in warnings){
+        Log.d("Lokasjon Warning", "${warning.properties.area} - ${warning.properties.geographicDomain}")
+        if(warning.properties.geographicDomain == "marine" || warning.properties.geographicDomain == "land" /*&& checkIfCloseToWarning(warning.geometry)*/){ // checkIfCloseToWarning viser kun de i nærhetenn av brukeren
+            //StormTextCard(warning.properties.area)
+            Log.d("Lokasjon", warning.properties.area)
+            Log.d("Lokasjon", warning.toString())
+            viewModelMap.addCluster( // her må det endres litt
+                id = warning.properties.area,
+                title = warning.properties.area?: "Unknown",
+                description = warning.properties.instruction?: "Unknown",
+                polygonOptions = polygonOptions {
+                    for (item in warning.geometry.coordinates) {
+                        for (coordinate in item) {
+                            add(LatLng(coordinate[1], coordinate[0]))
                         }
-                        fillColor(Color.parseColor((getColor(warning.properties.awareness_level)))) //endrer farge/density
-                        //fillColor(Color.parseColor("#40F93C3A")) //endrer farge/density
-                        strokeWidth(0.5f) //endrer bredde på kant
                     }
-                )
-                Log.d("Koordinater", warning.geometry.toString() )
-            }
+                    fillColor(Color.parseColor((getColor(warning.properties.awareness_level)))) //endrer farge/density
+                    //fillColor(Color.parseColor("#40F93C3A")) //endrer farge/density
+                    strokeWidth(0.5f) //endrer bredde på kant
+                }
+            )
+            Log.d("Koordinater", warning.geometry.toString() )
         }
-
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(0.16f)
-                .wrapContentWidth(Alignment.CenterHorizontally)
-                .align(Alignment.Start)
-                .padding(top = 10.dp)
-
-        ) {
-            MenuButton(
-                buttonIcon = Icons.Filled.Menu,
-                onButtonClicked = { openDrawer() }
+    }
+    if (popupControl) {
+        Popup(
+            alignment = Alignment.Center,
+            properties = PopupProperties(
+                focusable = true
             )
 
-            IconButton(
-                onClick = { popupControl = true },
+        ) {
+            ElevatedCard(
                 modifier = Modifier
-                    .padding(start = 0.dp)
+                    .background(
+                        color = androidx.compose.ui.graphics.Color.White,
+                        shape = RoundedCornerShape(20.dp)
+                    )
+                    .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
+                    .height(LocalConfiguration.current.screenHeightDp.dp * 0.15f)
+                    .shadow(
+                        elevation = 10.dp,
+                        shape = RoundedCornerShape(20.dp)
+                    )
             ) {
-                Icon(
-                    Icons.Outlined.Info,
-                    contentDescription = "Info",
+                Column(
                     modifier = Modifier
-                        .size(24.dp),
-                    tint = androidx.compose.ui.graphics.Color.Black
-                )
-            }
-        }
-
-        if (popupControl) {
-            Popup(
-                alignment = Alignment.Center,
-                properties = PopupProperties(
-                    focusable = true
-                )
-
-            ) {
-                ElevatedCard(
-                    modifier = Modifier
-                        .background(
-                            color = androidx.compose.ui.graphics.Color.White,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
-                        .height(LocalConfiguration.current.screenHeightDp.dp * 0.15f)
-                        .shadow(
-                            elevation = 10.dp,
-                            shape = RoundedCornerShape(20.dp)
-                        )
+                        .fillMaxWidth()
                 ) {
-                    Column(
+                    IconButton(
+                        onClick = { popupControl = false },
                         modifier = Modifier
-                            .fillMaxWidth()
+                            .align(Alignment.End)
                     ) {
-                        IconButton(
-                            onClick = { popupControl = false },
+                        Icon(
+                            Icons.Outlined.Close,
+                            contentDescription = "Close",
                             modifier = Modifier
-                                .align(Alignment.End)
-                        ) {
-                            Icon(
-                                Icons.Outlined.Close,
-                                contentDescription = "Close",
-                                modifier = Modifier
-                                    .size(24.dp),
-                                tint = androidx.compose.ui.graphics.Color.Gray
-                            )
-                        }
-                        //Var bare "text før"
-                        androidx.compose.material.Text(
-                            text = "test",
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
+                                .size(24.dp),
+                            tint = androidx.compose.ui.graphics.Color.Gray
                         )
                     }
+                    //Var bare "text før"
+                    androidx.compose.material.Text(
+                        text = "test",
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                    )
                 }
             }
         }
+    }
 
-        Spacer(modifier = Modifier.height(30.dp))
+    // Therese slutt
+    Column(
+        modifier = modifier.fillMaxSize()
+        ,
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ){
+        Box(
+            modifier = Modifier
+            .align(Alignment.Start)
+        ){
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(0.16f)
+                    .wrapContentWidth(Alignment.CenterHorizontally)
+                    .padding(top = 10.dp)
 
-        Column(modifier = Modifier,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Spacer(modifier = Modifier.height(16.dp))
-            Row {
+            ) {
+                MenuButton(
+                    buttonIcon = Icons.Filled.Menu,
+                    onButtonClicked = { openDrawer() }
+                )
+
+                IconButton(
+                    onClick = { popupControl = true },
+                    modifier = Modifier
+                        .padding(start = 0.dp)
+                ) {
+                    Icon(
+                        Icons.Outlined.Info,
+                        contentDescription = "Info",
+                        modifier = Modifier
+                            .size(24.dp),
+                        tint = androidx.compose.ui.graphics.Color.Black
+                    )
+                }
+            }
+        }
+            Row { // Denne som gjør at pilen er ved siden av tekstgreia
                 TextField(
                     value = locationSearch.value,
                     // onValueChange = viewModelSearch::onSearchChange,
@@ -294,7 +291,6 @@ fun StormWarning(
                         modifier = Modifier
                             .clickable(
                                 onClick = { openSearch = false; focusManager.clearFocus() }
-
                             )
                     )
                 }
@@ -396,7 +392,7 @@ fun StormWarning(
 
                 }
             }
-        }
+
         Column(){
 
             Spacer(modifier = Modifier.height(20.dp))
@@ -406,46 +402,61 @@ fun StormWarning(
                 fontWeight = FontWeight.Bold
             )
             //DisplayWeather(temp = temp, windSpeed = windSpeed, windDirection = windDirection, weatherIcon = weatherIcon, location = location)
-            VerktoyCard(name = "Værforhold", value = 17, weatherIcon = "cloudy")
+            Box(
+                modifier = Modifier.height(0.4 * configuration.screenHeightDp.dp)
+            ){
+                LazyColumn(
+                    Modifier.fillMaxHeight()
+                ){
+                    item { VerktoyCard(name = "Værforhold", value = 17, weatherIcon = "cloudy") }
+                    item { VerktoyCard(name = "Værforhold", value = -7, weatherIcon = "cloudy") }
+                }
+            }
+
             Spacer(modifier = Modifier.height(30.dp))
-            if (warnings.isNotEmpty()){
-                GoogleMap(
-                    modifier = Modifier
-                        .height(configuration.screenWidthDp.dp)
-                    //.clip(RoundedCornerShape(20.dp)),
-                    ,properties = mapProperties,
-                    cameraPositionState = cameraPositionState
-                ) {
-                    val context = LocalContext.current
-                    val scope = rememberCoroutineScope()
-                    MapEffect(mapState.clusterItems) { map ->
-                        if (mapState.clusterItems.isNotEmpty()) {
-                            val clusterManager = setupClusterManager(context, map)
-                            map.setOnCameraIdleListener(clusterManager)
-                            map.setOnMarkerClickListener(clusterManager)
-                            mapState.clusterItems.forEach { clusterItem ->
-                                map.addPolygon(clusterItem.polygonOptions)
-                            }
-                            map.setOnMapLoadedCallback {
-                                if (mapState.clusterItems.isNotEmpty()) {
-                                    scope.launch {
-                                        cameraPositionState.animate(
-                                            update = CameraUpdateFactory.newLatLngBounds(
-                                                calculateZoneViewCenter(),
-                                                0
-                                            ),
-                                        )
+            Box(
+                modifier = Modifier.height(0.5 * configuration.screenHeightDp.dp)
+            ){
+                if (warnings.isNotEmpty()){
+                    GoogleMap(
+                        modifier = Modifier
+                            .height(configuration.screenWidthDp.dp)
+                        //.clip(RoundedCornerShape(20.dp)),
+                        ,properties = mapProperties,
+                        cameraPositionState = cameraPositionState
+                    ) {
+                        val context = LocalContext.current
+                        val scope = rememberCoroutineScope()
+                        MapEffect(mapState.clusterItems) { map ->
+                            if (mapState.clusterItems.isNotEmpty()) {
+                                val clusterManager = setupClusterManager(context, map)
+                                map.setOnCameraIdleListener(clusterManager)
+                                map.setOnMarkerClickListener(clusterManager)
+                                mapState.clusterItems.forEach { clusterItem ->
+                                    map.addPolygon(clusterItem.polygonOptions)
+                                }
+                                map.setOnMapLoadedCallback {
+                                    if (mapState.clusterItems.isNotEmpty()) {
+                                        scope.launch {
+                                            cameraPositionState.animate(
+                                                update = CameraUpdateFactory.newLatLngBounds(
+                                                    calculateZoneViewCenter(),
+                                                    0
+                                                ),
+                                            )
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
+                }
             }
+
         }
 
-    }// Lazy
+    }
 }
 
 @Composable
@@ -754,6 +765,7 @@ fun getColor(awarenessLevel: String): String {
     return when (color) {
         "green" -> "#803AF93C"
         "yellow" -> "#80F5D062"
+        "orange" -> "#80F78D02"
         "red" -> "#80F93C3A"
         else -> "#40000000"
     }
