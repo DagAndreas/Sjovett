@@ -50,11 +50,13 @@ import kotlin.math.sin
 
 const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
 
+
 @Composable
 fun MannOverbord(
     mapViewModel: MapViewModel,
     openDrawer: () -> Unit
 ) {
+    Log.i("mannoverbord - i ", "${mapViewModel.i++}")
     mapViewModel.updateLocation()
 
     val state by mapViewModel.state.collectAsState()
@@ -67,9 +69,10 @@ fun MannOverbord(
 
     var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
+    //    position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
     var haveZoomedAtStart = false
+    //Log.i("mannoverbord - i ", "${haveZoomedAtStart}")
 
     Box(
 
@@ -220,9 +223,10 @@ fun MannOverbord(
 
             LaunchedEffect(mapViewModel.circleCenter.value) { //oppdaterer posisjon hvert 3. sek
                 delay(200)
-                if (!haveZoomedAtStart){
+                if (!haveZoomedAtStart && mapViewModel.enabled.value){
                     haveZoomedAtStart = true
                     delay(1000)
+                    Log.i("MapScreen", "Zoomer inn på pos")
                     cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
 

@@ -24,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
 
+    var i = 0
 
     //Koordinater settes til default: 59.0373, 10.5883
 
@@ -92,7 +93,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
             while(true){
                 sleep(sleep_delay*1000) // x antall sek
                 mapViewModel.updateMarkerAndPolyLines()
-                mapViewModel.updateMap(sleep_delay)
+                mapViewModel.updateMap(sleep_delay*100)
                 Log.i("HIEIHEIEHIE", "HDASDHJKASDKASJHDJAKSD")
 
             }
