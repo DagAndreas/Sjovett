@@ -94,7 +94,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
                 sleep(sleep_delay*1000) // x antall sek
                 mapViewModel.updateMarkerAndPolyLines()
                 mapViewModel.updateMap(sleep_delay*100)
-                Log.i("HIEIHEIEHIE", "HDASDHJKASDKASJHDJAKSD")
+                Log.i("mapview thread", "updating viewmodel")
 
             }
         }
