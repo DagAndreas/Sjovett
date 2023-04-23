@@ -13,6 +13,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.in2000_project.BoatApp.compose.calculateNewPosition
 import com.in2000_project.BoatApp.compose.calculateRadius
 import com.in2000_project.BoatApp.compose.oceanURL
+import com.in2000_project.BoatApp.compose.seaOrLandUrl
 import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,10 +56,6 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var lockMarkers =  mutableStateOf(false)
     var usingMyPositionTidsbruk = mutableStateOf(false)
 
-    // Convert location to LatLng
-    fun locationToLatLng(location: Location): LatLng {
-        return LatLng(location.latitude, location.longitude)
-    }
 
     var markerPositions =  mutableStateListOf<LatLng>()
     //.apply { myPosition.value?.let { add(it) } }
@@ -82,7 +79,12 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var mannOverBordInfoPopUp by mutableStateOf(true)
     var reiseplanleggerInfoPopUp by mutableStateOf(true)
 
+    var infoTextMannOverBord by mutableStateOf("test")
+
+
+
     val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
+
 
     val mapUpdateThread = MapUpdateThread(this)
     class MapUpdateThread(
@@ -92,8 +94,9 @@ class MapViewModel @Inject constructor(): ViewModel() {
             val sleep_delay:Long = 3 //sekunder
             while(true){
                 sleep(sleep_delay*1000) // x antall sek
-                mapViewModel.updateMarkerAndPolyLines()
                 mapViewModel.updateMap(sleep_delay*100)
+                mapViewModel.updateMarkerAndPolyLines()
+
                 Log.i("mapview thread", "updating viewmodel")
 
             }

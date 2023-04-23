@@ -109,7 +109,19 @@ class ApiDataSource () {
         return response
     }
     suspend fun fetchSeaOrLandResponse(path: String): SeaOrLandResponse {
-        return client.get(path).body()
+        Log.i("Henter SeaOrLand data", "fra $path")
+        val response = try {
+            client.get(path).body<SeaOrLandResponse>()
+        }
+        catch (e: Exception) {
+            // General exception
+            Log.e("API_request xxx", path)
+            Log.e("API_request xxx", e.message.toString())
+            exitProcess(0)
+        }
+        Log.d("API_request", "fetchSeaOrLandResponse.launch success, response: ")
+        Log.i("ApiData_Source_SeaOrLan", "response: $response")
+        return response
     }
 
 

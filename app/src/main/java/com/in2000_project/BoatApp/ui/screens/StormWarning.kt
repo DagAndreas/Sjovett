@@ -88,6 +88,7 @@ fun StormWarning(
     )
 
     if (mapState.lastKnownLocation != null) {
+        // bruke viewModel.updateLocation()???
         viewModelMap.updateUserLocation(mapState.lastKnownLocation!!.latitude, mapState.lastKnownLocation!!.longitude)
     }
 
