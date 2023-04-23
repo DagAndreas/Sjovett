@@ -19,5 +19,4 @@ class SeaOrLandDataSource {
         Log.i("SeaOrLandDataSource ", ans.toString())
         return ans
     }
-
 }
