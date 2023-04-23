@@ -35,6 +35,7 @@ import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import android.graphics.Color
 import android.location.Location
 import android.os.Build
+import android.provider.SyncStateContract.Helpers.update
 import android.view.KeyEvent
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
@@ -48,10 +49,13 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringArrayResource
 import androidx.compose.ui.unit.times
 import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
@@ -60,12 +64,11 @@ import com.in2000_project.BoatApp.viewmodel.SearchViewModel
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.time.Instant
-import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import com.in2000_project.BoatApp.MenuButton
+import com.in2000_project.BoatApp.model.geoCode.City
 import java.util.*
-
 
 
 @RequiresApi(Build.VERSION_CODES.O)
@@ -121,18 +124,17 @@ fun StormWarning(
     var temperatureCoord = temperatureUiState.value.coords
     var cityData = geoCodeUiState.value.cityList
     val configuration = LocalConfiguration.current
-    var location by remember { mutableStateOf("here") }
+    var location by remember { mutableStateOf("Oslo") }
 
     var openSearch by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
-
-    Log.d("LISTEN", temperatureData.toString())
+    //var timeOfDay by remember{ mutableStateOf("Nå")}
+    //var timeOfDay = "Nå"
 
     //InfoKort
     var popupControl by remember { mutableStateOf(false) }
 
-    // Therese start
-
+    var cityName by remember{ mutableStateOf("") }
     // val chosenTime = chooseTime(times)
     var temp by remember { mutableStateOf(0.0) }
     var windSpeed by remember { mutableStateOf(0.0) }
@@ -225,7 +227,6 @@ fun StormWarning(
         }
     }
 
-    // Therese slutt
     Column(
         modifier = modifier.fillMaxSize()
         ,
@@ -234,7 +235,8 @@ fun StormWarning(
     ){
         Box(
             modifier = Modifier
-            .align(Alignment.Start)
+            .align(Alignment.CenterHorizontally)
+
         ){
             Column(
                 modifier = Modifier
@@ -263,7 +265,7 @@ fun StormWarning(
                 }
             }
         }
-            Row { // Denne som gjør at pilen er ved siden av tekstgreia
+           // Row { // Denne som gjør at pilen er ved siden av tekstgreia
                 TextField(
                     value = locationSearch.value,
                     // onValueChange = viewModelSearch::onSearchChange,
@@ -281,22 +283,116 @@ fun StormWarning(
                             focusManager.clearFocus()
                         }
                         true
-                    }
+                    },
 
                 )
-                if (openSearch) {
-                    Image(
-                        painter = painterResource(id = R.drawable.dropdown),
-                        contentDescription = "Drop-down menu arrow",
-                        modifier = Modifier
-                            .clickable(
-                                onClick = { openSearch = false; focusManager.clearFocus() }
-                            )
+
+
+
+
+            //}
+            // Spacer(modifier = Modifier.height(16.dp))
+            //DROPDOWN
+        //timeOfDay = chooseTimeOfDay(viewModelSearch)
+        val a = stringArrayResource(id = R.array.timeOfDayArray)
+        val options = listOf(a[0], a[1], a[2])
+        var expanded by remember { mutableStateOf(false) }
+        var timeOfDay by remember { mutableStateOf(options[0]) }
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = !expanded },
+            Modifier.fillMaxWidth()
+
+        ) {
+            TextField(
+                readOnly = true,
+                value = timeOfDay,
+                onValueChange = {},
+                label = { Text("Label") },
+                trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                colors = ExposedDropdownMenuDefaults.textFieldColors(),
+                modifier = Modifier.menuAnchor()
+            )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+            ) {
+                options.forEach { selectionOption ->
+                    DropdownMenuItem(
+                        text = { Text(selectionOption) },
+                        onClick = {
+                            timeOfDay = selectionOption
+                            expanded = false
+                            //location = CityName.name
+                            cityData = emptyList()
+                            Log.d("temper", location)
+
+                            CoroutineScope(Dispatchers.IO).launch {
+                                viewModelSearch.fetchCityData(location)
+
+                                // Wait for the cityData list to be populated
+                                while (geoCodeUiState.value.cityList.isEmpty()) {
+                                    delay(100) // Wait for 100 milliseconds before checking again
+                                }
+
+                                cityData = geoCodeUiState.value.cityList
+
+
+                                if (cityData.isNotEmpty()) {
+                                    userLat = cityData[0].latitude
+                                    userLng = cityData[0].longitude
+                                    viewModelForecast.updateUserCoord(userLat, userLng)
+
+                                    Log.d("Temp1", cityData[0].name.toString())
+
+                                    // Assuming temperatureData is already updated at this point
+
+                                    temp = when(timeOfDay){
+                                        "1 time" -> temperatureData[0].data.next_1_hours.details.air_temperature
+                                        "6 timer" -> temperatureData[0].data.next_6_hours.details.air_temperature
+                                        else -> temperatureData[0].data.instant.details.air_temperature
+                                    }
+                                    windSpeed = when(timeOfDay){
+                                        "1 time" -> temperatureData[0].data.next_1_hours.details.wind_speed
+                                        "6 timer" -> temperatureData[0].data.next_6_hours.details.wind_speed
+                                        else -> temperatureData[0].data.instant.details.wind_speed
+                                    }
+                                    windDirection = when(timeOfDay){
+                                        "1 time" -> temperatureData[0].data.next_1_hours.details.wind_from_direction
+                                        "6 timer" -> temperatureData[0].data.next_6_hours.details.wind_from_direction
+                                        else -> temperatureData[0].data.instant.details.wind_from_direction
+                                    }
+
+                                    weatherIcon = when(timeOfDay){
+                                        "6 timer" -> temperatureData[0].data.next_6_hours.summary.symbol_code
+                                        else -> temperatureData[0].data.next_1_hours.summary.symbol_code
+                                    }
+
+                                    /*
+                                    temp =
+                                        temperatureData[0].data.instant.details.air_temperature
+                                    windSpeed =
+                                        temperatureData[0].data.instant.details.wind_speed
+                                    windDirection =
+                                        90.0 + temperatureData[0].data.instant.details.wind_from_direction
+                                    weatherIcon =
+                                        temperatureData[0].data.next_1_hours.summary.symbol_code
+
+                                    */
+                                } else {
+                                    Log.e("Temperatur", "Tom liste")
+                                }
+                                viewModelSearch.resetCityData()
+                            }
+                        },
                     )
                 }
             }
-            // Spacer(modifier = Modifier.height(16.dp))
-            if (searchInProgress) {
+        }
+
+
+        if (searchInProgress) {
                 Box(/*modifier = Modifier.fillMaxSize()*/) {
                     CircularProgressIndicator(
                         modifier = Modifier.align(Alignment.Center)
@@ -306,7 +402,12 @@ fun StormWarning(
                 if (openSearch) {
                     LazyColumn(
                         modifier = Modifier
+                            .align(CenterHorizontally)
                             .fillMaxWidth()
+                            .background(
+                                color = androidx.compose.ui.graphics.Color(0xFFF2F2F2),
+                                shape = RoundedCornerShape(20.dp)
+                            )
                         //.weight(1f)
                     ) {
                         items(cities.value) { CityName ->
@@ -314,7 +415,9 @@ fun StormWarning(
                                 text = "${CityName.name}, ${CityName.country}",
                                 modifier = Modifier
                                     .padding(vertical = 16.dp)
+                                    .fillMaxWidth()
                                     .clickable {
+
                                         openSearch = false
                                         focusManager.clearFocus()
 
@@ -332,6 +435,7 @@ fun StormWarning(
 
                                             cityData = geoCodeUiState.value.cityList
 
+
                                             if (cityData.isNotEmpty()) {
                                                 userLat = cityData[0].latitude
                                                 userLng = cityData[0].longitude
@@ -340,6 +444,29 @@ fun StormWarning(
                                                 Log.d("Temp1", cityData[0].name.toString())
 
                                                 // Assuming temperatureData is already updated at this point
+
+                                                temp = when(timeOfDay){
+                                                    "1 time" -> temperatureData[0].data.next_1_hours.details.air_temperature
+                                                    "6 timer" -> temperatureData[0].data.next_6_hours.details.air_temperature
+                                                    else -> temperatureData[0].data.instant.details.air_temperature
+                                                }
+                                                windSpeed = when(timeOfDay){
+                                                    "1 time" -> temperatureData[0].data.next_1_hours.details.wind_speed
+                                                    "6 timer" -> temperatureData[0].data.next_6_hours.details.wind_speed
+                                                    else -> temperatureData[0].data.instant.details.wind_speed
+                                                }
+                                                windDirection = when(timeOfDay){
+                                                    "1 time" -> temperatureData[0].data.next_1_hours.details.wind_from_direction
+                                                    "6 timer" -> temperatureData[0].data.next_6_hours.details.wind_from_direction
+                                                    else -> temperatureData[0].data.instant.details.wind_from_direction
+                                                }
+
+                                                weatherIcon = when(timeOfDay){
+                                                    "6 timer" -> temperatureData[0].data.next_6_hours.summary.symbol_code
+                                                    else -> temperatureData[0].data.next_1_hours.summary.symbol_code
+                                                }
+
+                                                /*
                                                 temp =
                                                     temperatureData[0].data.instant.details.air_temperature
                                                 windSpeed =
@@ -348,6 +475,8 @@ fun StormWarning(
                                                     90.0 + temperatureData[0].data.instant.details.wind_from_direction
                                                 weatherIcon =
                                                     temperatureData[0].data.next_1_hours.summary.symbol_code
+
+                                                */
                                             } else {
                                                 Log.e("Temperatur", "Tom liste")
                                             }
@@ -355,6 +484,7 @@ fun StormWarning(
                                         }
                                     }
                             )
+                            Divider(color = Black, thickness = 0.9.dp)
                             /*Text(
                                 text = "${CityName.name}, ${CityName.country}",
                                 modifier = Modifier
@@ -401,6 +531,7 @@ fun StormWarning(
                 fontSize = 30.sp,
                 fontWeight = FontWeight.Bold
             )
+
             //DisplayWeather(temp = temp, windSpeed = windSpeed, windDirection = windDirection, weatherIcon = weatherIcon, location = location)
             Box(
                 modifier = Modifier.height(0.4 * configuration.screenHeightDp.dp)
@@ -408,8 +539,8 @@ fun StormWarning(
                 LazyColumn(
                     Modifier.fillMaxHeight()
                 ){
-                    item { VerktoyCard(name = "Værforhold", value = 17, weatherIcon = "cloudy") }
-                    item { VerktoyCard(name = "Værforhold", value = -7, weatherIcon = "cloudy") }
+                    item { VerktoyCard(name = "Temperatur", value = "$temp C°", weatherIcon = weatherIcon) }
+                    item { VerktoyCard(name = "Vindforhold", value = windSpeed.toString(), weatherIcon = windDirection.toString()) }
                 }
             }
 
@@ -459,8 +590,57 @@ fun StormWarning(
     }
 }
 
+
+
+@SuppressLint("ResourceType")
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun VerktoyCard(name: String, value: Int, weatherIcon: String) {
+fun chooseTimeOfDay(viewModelSearch: SearchViewModel): String { //Fra Therese oblig 1
+    val a = stringArrayResource(id = R.array.timeOfDayArray)
+    val options = listOf(a[0], a[1], a[2])
+    var expanded by remember { mutableStateOf(false) }
+    var valgtOption by remember { mutableStateOf(options[0]) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = !expanded },
+        Modifier.fillMaxWidth()
+
+    ) {
+        TextField(
+            readOnly = true,
+            value = valgtOption,
+            onValueChange = {},
+            label = { Text("Label") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            colors = ExposedDropdownMenuDefaults.textFieldColors(),
+            modifier = Modifier.menuAnchor()
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+        ) {
+            options.forEach { selectionOption ->
+                DropdownMenuItem(
+                    text = { Text(selectionOption) },
+                    onClick = {
+                        valgtOption = selectionOption
+                        expanded = false
+                        viewModelSearch.resetCityData()
+                    },
+                )
+            }
+        }
+    }
+
+    return valgtOption
+}
+
+
+
+
+@Composable
+fun VerktoyCard(name: String, value: String, weatherIcon: String) {
 
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -473,7 +653,7 @@ fun VerktoyCard(name: String, value: Int, weatherIcon: String) {
     val grayColor = androidx.compose.ui.graphics.Color(0xFFF2F2F2)
 
     val tempColor = when {
-        value >= 0 -> androidx.compose.ui.graphics.Color(0xFFC91C1C)
+        value >= 0.toString() -> androidx.compose.ui.graphics.Color(0xFFC91C1C)
         else -> androidx.compose.ui.graphics.Color(0xFF1F39BF)
     }
 
@@ -596,7 +776,7 @@ fun VerktoyCard(name: String, value: Int, weatherIcon: String) {
                         .size(0.15 * screenWidth)
                 )
                 Text(
-                    text = "$value C°",
+                    text = "$value",
                     fontSize = (0.10 * screenWidthSp),
                     color = tempColor
                 )
