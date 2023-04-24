@@ -59,7 +59,6 @@ fun MannOverbord(
     mapViewModel: MapViewModel,
     openDrawer: () -> Unit
 ) {
-    Log.i("mannoverbord - i ", "${mapViewModel.i++}")
     mapViewModel.updateLocation()
 
     val state by mapViewModel.state.collectAsState()
@@ -68,7 +67,7 @@ fun MannOverbord(
         isMyLocationEnabled = true //state.lastKnownLocation != null
     )
 
-    Log.d("MapScreen", "$state er staten tidlig")
+    //Log.d("MapScreen", "$state er staten tidlig")
 
     var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
@@ -94,8 +93,9 @@ fun MannOverbord(
                 strokeWidth = 2F,
                 visible = mapViewModel.circleVisibility.value
             )
-            mapViewModel.polyLinesMap.forEach { options ->
-                val points = options.getPoints()
+            val polyLinesMapCopy = mapViewModel.polyLinesMap.toList() // Create a copy
+            polyLinesMapCopy.forEach { options ->
+                val points = options.points
                 Polyline(
                     points
                 )
