@@ -103,12 +103,12 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     fun restartButton(){
         mapUpdateThread.isRunning = false
-        circleCenter = mutableStateOf(state.value.circle.coordinates)
-        circleRadius = mutableStateOf(25.0)
-        circleVisibility = mutableStateOf(false)
-        enabled = mutableStateOf(true)
-        timePassedInSeconds = mutableStateOf( 0 )
-        mann_er_overbord = mutableStateOf(false)
+        circleCenter.value = state.value.circle.coordinates
+        circleRadius.value = 25.0
+        circleVisibility.value = false
+        enabled.value = true
+        timePassedInSeconds.value =  0
+        mann_er_overbord.value = false
         polyLinesMap.clear()
     }
 
