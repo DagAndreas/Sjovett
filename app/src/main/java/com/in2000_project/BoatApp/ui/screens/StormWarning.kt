@@ -63,11 +63,13 @@ import java.time.LocalDate
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import com.in2000_project.BoatApp.MenuButton
+import com.in2000_project.BoatApp.compose.getSecondsBetween
+import com.in2000_project.BoatApp.model.oceanforecast.Details
+import java.text.ParseException
 import java.util.*
 
 
 
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun StormWarning(
@@ -501,16 +503,24 @@ fun createInstant(date: String): Instant? {
 }
 
 @SuppressLint("SimpleDateFormat")
-@RequiresApi(Build.VERSION_CODES.O)
 fun indexClosestTime(listOfTime: List<Timesery>): Int {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val time = sdf.format(Date())
-    val currentTime = createInstant(time)!!
+    val currentTime = Date()
+    Log.i("Current time", "$currentTime")
     var i = 0
+
     for (item in listOfTime) {
-        val checkTime = createInstant(item.time)!!
-        val secondsBetween = compareTimes(currentTime, checkTime)
-        if(secondsBetween >= 0) {
+        val checkTime: Date
+        try {
+            checkTime = sdf.parse(item.time) as Date
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            continue
+        }
+
+        val secondsBetween = getSecondsBetween(currentTime, checkTime)
+        if (secondsBetween >= 0) {
+            Log.i("found closest time:", "${listOfTime[i].time}")
             return i
         }
         i++

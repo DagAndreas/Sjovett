@@ -93,7 +93,6 @@ class MapActivity : ComponentActivity() {
 
     private val alertsMapViewModel = AlertsMapViewModel()
 
-    @RequiresApi(Build.VERSION_CODES.O)
     @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
     @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
