@@ -12,8 +12,8 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.in2000_project.BoatApp.compose.calculateNewPosition
 import com.in2000_project.BoatApp.compose.calculateRadius
+import com.in2000_project.BoatApp.compose.locationToLatLng
 import com.in2000_project.BoatApp.compose.oceanURL
-import com.in2000_project.BoatApp.compose.seaOrLandUrl
 import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -69,11 +69,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var circleVisibility = mutableStateOf(false)
     var enabled = mutableStateOf(true)
     var timePassedInSeconds = mutableStateOf( 0 )
-
     var mann_er_overbord = mutableStateOf(false)
-    var currentLat: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.latitude else 56.0646
-    var currentLong: Double = if (state.value.lastKnownLocation != null) state.value.lastKnownLocation!!.longitude else 10.6778
-    var followCircle: Boolean = false;
 
     //InfoKort
     var mannOverBordInfoPopUp by mutableStateOf(true)
@@ -86,21 +82,45 @@ class MapViewModel @Inject constructor(): ViewModel() {
     val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
 
 
-    val mapUpdateThread = MapUpdateThread(this)
+    var mapUpdateThread = MapUpdateThread(this)
     class MapUpdateThread(
         val mapViewModel: MapViewModel
     ) : Thread() {
+        var isRunning = false
         override fun run() {
+            isRunning = true
+            Log.i("Hei", "fra tråd")
             val sleep_delay:Long = 3 //sekunder
-            while(true){
-                sleep(sleep_delay*1000) // x antall sek
+            while(isRunning){
+                Log.i("Hei", "fra trådloop")
                 mapViewModel.updateMap(sleep_delay*100)
                 mapViewModel.updateMarkerAndPolyLines()
-
-                Log.i("mapview thread", "updating viewmodel")
-
+                sleep(sleep_delay*1000) // x antall sek
             }
         }
+    }
+
+
+    fun restartButton(){
+        mapUpdateThread.isRunning = false
+        circleCenter = mutableStateOf(state.value.circle.coordinates)
+        circleRadius = mutableStateOf(25.0)
+        circleVisibility = mutableStateOf(false)
+        enabled = mutableStateOf(true)
+        timePassedInSeconds = mutableStateOf( 0 )
+        mann_er_overbord = mutableStateOf(false)
+        polyLinesMap.clear()
+    }
+
+    fun startButton(state: Location?, pos: LatLng){
+        circleCenter.value = locationToLatLng(state)
+        circleVisibility.value = true
+        enabled.value = true
+        mann_er_overbord.value = true
+        markersMapScreen.add(pos)
+        mapUpdateThread.isRunning = true
+        mapUpdateThread = MapUpdateThread(this)
+        mapUpdateThread.start()
     }
 
 
@@ -142,7 +162,6 @@ class MapViewModel @Inject constructor(): ViewModel() {
         }
     }
 
-
     @SuppressLint("MissingPermission")
     fun getDeviceLocation(
         fusedLocationProviderClient: FusedLocationProviderClient
@@ -164,18 +183,4 @@ class MapViewModel @Inject constructor(): ViewModel() {
             // Show error or something
         }
     }
-
-    fun changeCircleCoordinate(newCoordinate: LatLng) {
-        _state.value = state.value.copy(circle = state.value.circle.copy(coordinates = newCoordinate))
-    }
-
-    fun changeCircleRadius(newRadius: Double) {
-        _state.value = state.value.copy(circle = state.value.circle.copy(radius = newRadius))
-    }
-
-    @JvmName("getState1")
-    fun getState(): MapState {
-        return _state.value
-    }
-
 }

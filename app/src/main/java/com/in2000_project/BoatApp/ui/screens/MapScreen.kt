@@ -186,8 +186,6 @@ fun MannOverbord(
                 //TODO: Bør garantere at vi bruker telefonens nåværende posisjon
                 mapViewModel.updateLocation()
                 val pos = locationToLatLng(state.lastKnownLocation)
-
-
                 val seaOrLandViewModel = SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
 
                 // launch a coroutine to get the response from the API
@@ -207,13 +205,11 @@ fun MannOverbord(
 
                         Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
 
-                        mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
-                        //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
-                        mapViewModel.circleVisibility.value = true
-                        mapViewModel.enabled.value = false
-                        mapViewModel.mann_er_overbord.value = true
-                        mapViewModel.markersMapScreen.add(pos)
-                        mapViewModel.mapUpdateThread.start()
+                        if (!mapViewModel.mapUpdateThread.isRunning) {
+                            mapViewModel.startButton(state.lastKnownLocation, pos)
+                        } else (
+                                mapViewModel.restartButton()
+                        )
 
                     } else if (seaOrLandResponse?.water == false) {
                         // the coordinate is on land
@@ -225,42 +221,6 @@ fun MannOverbord(
                         mapViewModel.infoTextMannOverBord = "Vi fikk ikke hentet dataene. Prøv igjen!"
                     }
                 }
-                //checking if coordinate is on land
-
-                //val urlPath = "https://isitwater-com.p.rapidapi.com/?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key="
-                //val apiKey = "fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff"
-
-                //val isThisLandURL = "$urlPath$apiKey"
-                /*val seaOrLandViewModel = SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
-                //mapViewModel.seaOrLandViewModel.path = "$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff"
-                seaOrLandViewModel.viewModelScope.launch{
-                    var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-                }
-
-
-                // check if the coordinate is on land or water. We start the projection if the first coordinate is on water.
-
-
-                if (!seaOrLandResponse.water){
-                    mapViewModel.mannOverBordInfoPopUp = true
-                    mapViewModel.infoTextMannOverBord = "Vi kan ikke ta inn bølgedata når du er på land.  "
-                }
-                else{
-                    mapViewModel.oceanViewModel.path = "$oceanURL?lat=${pos.latitude}&lon=${pos.longitude}"
-                    mapViewModel.oceanViewModel.getOceanForecastResponse()
-
-                    Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
-
-                    mapViewModel.circleCenter.value = locationToLatLng(state.lastKnownLocation)
-                    //viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //crasher knappen
-                    mapViewModel.circleVisibility.value = true
-                    mapViewModel.enabled.value = false
-                    mapViewModel.mann_er_overbord.value = true
-                    mapViewModel.markersMapScreen.add(pos)
-                    mapViewModel.mapUpdateThread.start()
-
-
-                }*/
                 Log.i("MapScreen button", "Hei fra buttonpress")
 
             },
