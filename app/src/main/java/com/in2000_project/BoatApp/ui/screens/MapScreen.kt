@@ -42,6 +42,7 @@ import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
+import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.ParseException
@@ -202,6 +203,7 @@ fun MannOverbord(
                     // wait for the response to be returned
                     while (seaOrLandResponse == null) {
                         delay(100) // wait for 100 milliseconds before checking again
+                        Log.i("MapScreen seaorland", "waiting for seaorlandresponse")
                         seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
                     }
 
@@ -269,108 +271,3 @@ fun MannOverbord(
         }
     }
 }
-/** Når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
- * på nytt. */
-fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
-    Log.i("MapScreen", "New Pos fra $personCoordinate")
-    val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
-    val dataLatLng: LatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
-
-    if (personHarDriftetTilNesteGrid(dataLatLng, personCoordinate)){
-        ovm.setPath(personCoordinate)
-        ovm.getOceanForecastResponse()
-    }
-    //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
-    val forecastDetails = findClosestDataToTimestamp(ovm.oceanForecastResponseObject.properties.timeseries)
-
-    Log.i("MapScreen Bølge", "seawaterspeed: ${forecastDetails.sea_water_speed}, seawaterdirection: ${forecastDetails.sea_water_to_direction}")
-    return calculatePosition(listOf(personCoordinate.latitude, personCoordinate.longitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
-}
-
-/** henter den listen med bølgedata som er nærmest nåværende klokkeslett */
-@SuppressLint("SimpleDateFormat")
-fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val currentTime = Date()
-    Log.i("Current time", "$currentTime")
-    var i = 0
-
-    for (item in listOfTime) {
-        val checkTime: Date
-        try {
-            checkTime = sdf.parse(item.time) as Date
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            continue
-        }
-
-        val secondsBetween = getSecondsBetween(currentTime, checkTime)
-        if (secondsBetween >= 0) {
-            Log.i("found closest time:", "${listOfTime[i].time}")
-            return listOfTime[i].data.instant.details
-        }
-        i++
-    }
-    return listOfTime[0].data.instant.details
-}
-fun getSecondsBetween(date1: Date, date2: Date): Long {
-    val diffInMilliseconds = date1.time - date2.time
-    return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
-}
-
-
-/** brukes for å hente posisjonen fra state. default hvis null*/
-fun locationToLatLng(loc: Location?): LatLng {
-    if (loc != null){ return LatLng(loc.latitude, loc.longitude)}
-    Log.i("locationToLatLng","Fant ingen location. Returnerer default LatLng(59.0, 11.0)")
-    return LatLng(59.0, 11.0) //default val i oslofjorden
-}
-
-// should find a way to know when it changes grid
-// take into account that I assume timeCheckingFor is given in minutes
-fun calculatePosition(
-        coordinatesStart:List<Double>,
-        seaSurfaceWaveToDegrees: Double,
-        seaWaterSpeedInMeters: Double,
-        timeCheckingFor: Double
-    ): LatLng {
-
-    // Convert degrees to radians
-    val waveFromInRadians = Math.toRadians(seaSurfaceWaveToDegrees)
-    val earthRadiusInKm = 6371
-    val startLatInRadians = Math.toRadians(coordinatesStart[0])
-    val startLngInRadians = Math.toRadians(coordinatesStart[1])
-
-    // Convert meters per second to kilometers per hour
-    val waterSpeedInKmPerHour = seaWaterSpeedInMeters * 3.6
-
-    // Convert the time interval to hours
-    val timeIntervalInHours = timeCheckingFor / 60.0
-
-    // Calculate the distance traveled by the object in the given time interval
-    val distanceInKm = waterSpeedInKmPerHour * timeIntervalInHours
-
-    // Calculate the new latitude and longitude
-    val newLatInRadians = asin(sin(startLatInRadians) * cos(distanceInKm / earthRadiusInKm) + cos(startLatInRadians) * sin(distanceInKm / earthRadiusInKm) * cos(waveFromInRadians))
-    val newLngInRadians = startLngInRadians + atan2(sin(waveFromInRadians) * sin(distanceInKm / earthRadiusInKm) * cos(startLatInRadians), cos(distanceInKm / earthRadiusInKm) - sin(startLatInRadians) * sin(newLatInRadians))
-
-    // Convert the new latitude and longitude back to degrees
-    val newLat = Math.toDegrees(newLatInRadians)
-    val newLng = Math.toDegrees(newLngInRadians)
-
-    return LatLng(newLat, newLng)
-}
-
-
-fun calculateRadius(minutes: Int): Double {
-    val newRadius: Double = minutes * 5.0
-    return if (newRadius > 200.0) 200.0
-    else if (newRadius < 25.0) 25.0
-    else newRadius
-}
-
-
-
-
-
-
