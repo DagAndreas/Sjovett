@@ -32,7 +32,6 @@ import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
-import android.graphics.Color
 import android.location.Location
 import android.os.Build
 import android.provider.SyncStateContract.Helpers.update
@@ -70,6 +69,7 @@ import java.time.Instant
 import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import com.in2000_project.BoatApp.MenuButton
+import android.graphics.Color
 import com.in2000_project.BoatApp.model.geoCode.City
 import java.util.*
 
@@ -258,7 +258,7 @@ fun StormWarning(
         horizontalAlignment = Alignment.CenterHorizontally
     ){
         IconButton(
-            onClick = { popupControl = true },
+            onClick = { mapViewModel.storm = true },
             modifier = Modifier
                 .padding(start = 0.dp)
         ) {
