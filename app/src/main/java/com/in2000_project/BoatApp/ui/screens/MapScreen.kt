@@ -258,7 +258,7 @@ fun MannOverbord(
                 delay(200)
                 if (!haveZoomedAtStart.value){
                     haveZoomedAtStart.value = true
-                    delay(1000)
+                    delay(1500)
                     Log.i("MapScreen", "Zoomer inn på pos")
                     cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
@@ -269,8 +269,8 @@ fun MannOverbord(
         if (showDialog.value) {
             AlertDialog(
                 onDismissRequest = { showDialog.value = false },
-                title = { Text("Are you sure?") },
-                text = { Text("You are about to restart the search. Do you want to continue?") },
+                title = { Text("Er du sikker?") },
+                text = { Text("Du er nå i ferd med å stoppe søking. Vil  du avslutte?") },
                 confirmButton = {
                     Button(
                         onClick = {
@@ -279,14 +279,14 @@ fun MannOverbord(
                             mapViewModel.buttonText = "start søk"
                         }
                     ) {
-                        Text("Yes")
+                        Text("Ja")
                     }
                 },
                 dismissButton = {
                     Button(
                         onClick = { showDialog.value = false }
                     ) {
-                        Text("No")
+                        Text("Nei")
 
                     }
                 }
