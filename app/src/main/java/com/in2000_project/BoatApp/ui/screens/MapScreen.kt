@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
@@ -14,7 +15,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -71,8 +71,10 @@ fun MannOverbord(
         isMyLocationEnabled = true //state.lastKnownLocation != null
     )
 
+    val locationObtained = remember { mutableStateOf(false) }
+    mapViewModel.updateLocation()
+    locationObtained.value = true
 
-    val showDialog = remember { mutableStateOf(false) }
 
     var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
@@ -254,13 +256,12 @@ fun MannOverbord(
                 textAlign = TextAlign.Center
             )
 
-            LaunchedEffect(haveZoomedAtStart.value) {
-                delay(200)
-                if (!haveZoomedAtStart.value){
-                    haveZoomedAtStart.value = true
-                    delay(1500)
-                    Log.i("MapScreen", "Zoomer inn på pos")
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
+            LaunchedEffect(locationObtained.value) {
+                delay(1500)
+                if (locationObtained.value) {
+                    Log.i("MapScreen", "Zoomer inn på brukeren")
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation),cameraZoom),1500)
                 }
             }
         }
@@ -269,25 +270,30 @@ fun MannOverbord(
         if (showDialog.value) {
             AlertDialog(
                 onDismissRequest = { showDialog.value = false },
-                title = { Text("Er du sikker?") },
-                text = { Text("Du er nå i ferd med å stoppe søking. Vil  du avslutte?") },
-                confirmButton = {
-                    Button(
-                        onClick = {
-                            showDialog.value = false
-                            mapViewModel.restartButton()
-                            mapViewModel.buttonText = "start søk"
+                title = { Text("Er du sikker? ") },
+                text = { Text("Du er nå i ferd med å stoppe søking. \nVil  du avslutte?") }, //kan legges som String resource
+                buttons = {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp, start = 8.dp, end = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = { showDialog.value = false }
+                        ) {
+                            Text("Nei")
                         }
-                    ) {
-                        Text("Ja")
-                    }
-                },
-                dismissButton = {
-                    Button(
-                        onClick = { showDialog.value = false }
-                    ) {
-                        Text("Nei")
 
+                        Button(
+                            onClick = {
+                                showDialog.value = false
+                                mapViewModel.restartButton()
+                                mapViewModel.buttonText = "start søk"
+                            }
+                        ) {
+                            Text("Ja")
+                        }
                     }
                 }
             )
