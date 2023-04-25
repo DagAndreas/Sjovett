@@ -2,16 +2,18 @@ package com.in2000_project.BoatApp.viewmodel
 
 import android.annotation.SuppressLint
 import android.location.Location
+import android.util.Log
 import androidx.compose.runtime.*
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
-import com.google.android.gms.location.CurrentLocationRequest
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
-import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.compose.calculateNewPosition
+import com.in2000_project.BoatApp.compose.calculateRadius
+import com.in2000_project.BoatApp.compose.locationToLatLng
+import com.in2000_project.BoatApp.compose.oceanURL
 import com.in2000_project.BoatApp.maps.CircleInfo
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -19,11 +21,11 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
-import kotlin.coroutines.cancellation.CancellationException
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
 
+    var i = 0
 
     //Koordinater settes til default: 59.0373, 10.5883
 
@@ -50,21 +52,94 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     var distanceInMeters = mutableStateOf(0.0)
     var lengthInMinutes = mutableStateOf(0.0)
-    var speedUnitSelected = mutableStateOf("knop")
     var polyLines =  mutableStateListOf<PolylineOptions>()
     var lockMarkers =  mutableStateOf(false)
-    // Convert location to LatLng
-    fun locationToLatLng(location: Location): LatLng {
-        return LatLng(location.latitude, location.longitude)
-    }
+    var usingMyPositionTidsbruk = mutableStateOf(false)
+
 
     var markerPositions =  mutableStateListOf<LatLng>()
     //.apply { myPosition.value?.let { add(it) } }
     var speedNumber =    mutableStateOf(15f)
     // distance between all of the markers
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
+    val markersMapScreen = mutableListOf<LatLng>()
+    val polyLinesMap = mutableListOf<PolylineOptions>()
+    var circleCenter = mutableStateOf(state.value.circle.coordinates)
+    var circleRadius = mutableStateOf(25.0)
+    var circleVisibility = mutableStateOf(false)
+    var enabled = mutableStateOf(true)
+    var timePassedInSeconds = mutableStateOf( 0 )
+    var mann_er_overbord = mutableStateOf(false)
+
+    //InfoKort
+    var mannOverBordInfoPopUp by mutableStateOf(true)
+    var reiseplanleggerInfoPopUp by mutableStateOf(true)
+
+    var infoTextMannOverBord by mutableStateOf("test")
 
 
+
+    val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
+
+
+    var mapUpdateThread = MapUpdateThread(this)
+    class MapUpdateThread(
+        val mapViewModel: MapViewModel
+    ) : Thread() {
+        var isRunning = false
+        override fun run() {
+            isRunning = true
+            Log.i("Hei", "fra tråd")
+            val sleep_delay:Long = 3 //sekunder
+            while(isRunning){
+                Log.i("Hei", "fra trådloop")
+                mapViewModel.updateMap(sleep_delay*100)
+                mapViewModel.updateMarkerAndPolyLines()
+                sleep(sleep_delay*1000) // x antall sek
+            }
+        }
+    }
+
+
+    fun restartButton(){
+        mapUpdateThread.isRunning = false
+        circleCenter.value = state.value.circle.coordinates
+        circleRadius.value = 25.0
+        circleVisibility.value = false
+        enabled.value = true
+        timePassedInSeconds.value =  0
+        mann_er_overbord.value = false
+        polyLinesMap.clear()
+    }
+
+    fun startButton(state: Location?, pos: LatLng){
+        circleCenter.value = locationToLatLng(state)
+        circleVisibility.value = true
+        enabled.value = true
+        mann_er_overbord.value = true
+        markersMapScreen.add(pos)
+        mapUpdateThread.isRunning = true
+        mapUpdateThread = MapUpdateThread(this)
+        mapUpdateThread.start()
+    }
+
+
+
+    fun updateMap(waittime: Long){
+        timePassedInSeconds.value += waittime.toInt()
+        circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, waittime.toDouble()/60.0)
+        circleRadius.value = calculateRadius(timePassedInSeconds.value/60)
+    }
+    fun updateMarkerAndPolyLines(){
+        markersMapScreen.add(circleCenter.value)
+        if(markersMapScreen.size>1){
+            val lastPosition = markersMapScreen[markersMapScreen.size - 2]
+            val options = PolylineOptions()
+                .add(lastPosition, markersMapScreen.last())
+                .color(android.graphics.Color.BLACK)
+            polyLinesMap.add(options)
+        }
+    }
 
 
     fun updateLocation() {
@@ -86,6 +161,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
             // Show error or something
         }
     }
+
     @SuppressLint("MissingPermission")
     fun getDeviceLocation(
         fusedLocationProviderClient: FusedLocationProviderClient
@@ -107,18 +183,4 @@ class MapViewModel @Inject constructor(): ViewModel() {
             // Show error or something
         }
     }
-
-    fun changeCircleCoordinate(newCoordinate: LatLng) {
-        _state.value = state.value.copy(circle = state.value.circle.copy(coordinates = newCoordinate))
-    }
-
-    fun changeCircleRadius(newRadius: Double) {
-        _state.value = state.value.copy(circle = state.value.circle.copy(radius = newRadius))
-    }
-
-    @JvmName("getState1")
-    fun getState(): MapState {
-        return _state.value
-    }
-
 }

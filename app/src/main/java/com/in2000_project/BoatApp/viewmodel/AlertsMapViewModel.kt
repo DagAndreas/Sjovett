@@ -3,6 +3,9 @@ package com.in2000_project.BoatApp.viewmodel
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import com.in2000_project.BoatApp.maps.*
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -14,6 +17,8 @@ import com.google.android.gms.maps.model.PolygonOptions
 import com.in2000_project.BoatApp.ZoneClusterItem
 import com.in2000_project.BoatApp.data.MapStateCluster
 import com.in2000_project.BoatApp.ZoneClusterManager
+import com.in2000_project.BoatApp.data.AlertsMapUiState
+import com.in2000_project.BoatApp.data.StormWarningUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -25,6 +30,9 @@ import javax.inject.Inject
 class AlertsMapViewModel @Inject constructor(): ViewModel() {
     private val listOfClusters = mutableListOf<ZoneClusterItem>()
 
+    private val _alertsMapUiState = MutableStateFlow(AlertsMapUiState())
+    val alertsMapUiState = _alertsMapUiState.asStateFlow()
+
     private val _state = MutableStateFlow(
         MapStateCluster(
             lastKnownLocation = null,
@@ -32,7 +40,17 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
         )
     )
 
+    //InfoKort
+    var stormvarselInfoPopUp by mutableStateOf(true)
+
     val state: StateFlow<MapStateCluster> = _state.asStateFlow()
+
+    fun updateUserLocation(lat: Double, lng: Double) {
+        _alertsMapUiState.update {
+            // setter warningList til å være en MetAlertsResponse
+            (it.copy(longitude = lng, latitude = lat))
+        }
+    }
 
     fun addCluster(
         id: String,
@@ -64,10 +82,6 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
     fun getDeviceLocation(
         fusedLocationProviderClient: FusedLocationProviderClient
     ) {
-        /*
-         * Get the best and most recent location of the device, which may be null in rare
-         * cases when a location is not available.
-         */
         try {
             val locationResult = fusedLocationProviderClient.lastLocation
             locationResult.addOnCompleteListener { task ->

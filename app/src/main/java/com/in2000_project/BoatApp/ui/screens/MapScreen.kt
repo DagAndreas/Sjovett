@@ -2,135 +2,264 @@ package com.in2000_project.BoatApp.compose
 
 import android.location.Location
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.Close
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Popup
+import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
+import com.in2000_project.BoatApp.MenuButton
 import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
+import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
 const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
+const val seaOrLandUrl = "https://isitwater-com.p.rapidapi.com/"
 
 @Composable
-fun MapScreen(
-    viewModel: MapViewModel
+fun MannOverbord(
+    mapViewModel: MapViewModel,
+    openDrawer: () -> Unit
 ) {
+    Log.i("mannoverbord - i ", "${mapViewModel.i++}")
+    mapViewModel.updateLocation()
 
-    val state by viewModel.state.collectAsState()
-
+    val state by mapViewModel.state.collectAsState()
     val mapProperties = MapProperties(
         // Only enable if user has accepted location permissions.
-        //isMyLocationEnabled = state.lastKnownLocation != null,
-        isMyLocationEnabled = true
+        isMyLocationEnabled = true //state.lastKnownLocation != null
     )
 
     Log.d("MapScreen", "$state er staten tidlig")
 
-    var cameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), 4f)
+    var cameraZoom: Float = 15f
+    val cameraPositionState = rememberCameraPositionState{
+    //    position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
-    var circleCenter by remember { mutableStateOf(state.circle.coordinates) }
-    var circleRadius by remember { mutableStateOf(200.0) }
-    var circleVisibility by remember { mutableStateOf(false) }
-    var enabled by remember { mutableStateOf(true) }
-    var counter by remember { mutableStateOf( 0 ) }
-
-    var mann_er_overbord by remember { mutableStateOf(false)}
-    var currentLat: Double
-    var currentLong: Double
-
-    if (state.lastKnownLocation != null) {
-        currentLat = state.lastKnownLocation!!.latitude
-        currentLong = state.lastKnownLocation!!.longitude
-    }else{
-        Log.i("MapScreen", state.toString())
-        currentLat = 59.0646
-        currentLong = 10.6778
-    }
-    val oceanViewModel = OceanViewModel("${oceanURL}?lat=${currentLat}&lon=${currentLong}")
-
-
+    var haveZoomedAtStart = false
+    //Log.i("mannoverbord - i ", "${haveZoomedAtStart}")
 
     Box(
-        /*
-        modifier = Modifier
-            //.clip(RoundedCornerShape(20.dp))
-            .fillMaxSize()
-            .padding(bottom = 60.dp /*, start = 20.dp, end = 20.dp, top = 20.dp */)
-         */
+
     ) {
         GoogleMap(
             modifier = Modifier
                 .fillMaxSize()
-                //.clip(RoundedCornerShape(20.dp)),
             ,properties = mapProperties,
+            /* contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f), //flytter knappene */
             cameraPositionState = cameraPositionState
         ) {
             Circle(
-                center = circleCenter,
-                radius = circleRadius,
+                center = mapViewModel.circleCenter.value,
+                radius = mapViewModel.circleRadius.value,
                 fillColor = Color("#ABF44336".toColorInt()),
                 strokeWidth = 2F,
-                visible = circleVisibility
+                visible = mapViewModel.circleVisibility.value
             )
+            mapViewModel.polyLinesMap.forEach { options ->
+                val points = options.getPoints()
+                Polyline(
+                    points
+                )
+            }
+
         }
     }
-    Column() {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(start = 10.dp, top = 10.dp)
+        ) {
+            MenuButton(
+                buttonIcon = Icons.Filled.Menu,
+                onButtonClicked = { openDrawer() }
+            )
+
+            IconButton(
+                onClick = { mapViewModel.mannOverBordInfoPopUp = true },
+                modifier = Modifier
+                    .padding(start = LocalConfiguration.current.screenWidthDp.dp * 0.3f)
+            ) {
+                Icon(
+                    Icons.Outlined.Info,
+                    contentDescription = "Info",
+                    modifier = Modifier
+                        .size(32.dp),
+                    tint = Color.White
+                )
+            }
+        }
+
+        if (mapViewModel.mannOverBordInfoPopUp) {
+            Popup(
+                alignment = Alignment.Center,
+                properties = PopupProperties(
+                    focusable = true
+                )
+
+            ) {
+                ElevatedCard(
+                    modifier = Modifier
+                        .background(
+                            color = Color.White,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                        .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
+                        .height(LocalConfiguration.current.screenHeightDp.dp * 0.15f)
+                        .shadow(
+                            elevation = 10.dp,
+                            shape = RoundedCornerShape(20.dp)
+                        )
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                    ) {
+                        IconButton(
+                            onClick = { mapViewModel.mannOverBordInfoPopUp = false },
+                            modifier = Modifier
+                                .align(Alignment.End)
+                        ) {
+                            Icon(
+                                Icons.Outlined.Close,
+                                contentDescription = "Close",
+                                modifier = Modifier
+                                    .size(24.dp),
+                                tint = androidx.compose.ui.graphics.Color.Gray
+                            )
+                        }
+                        //Var bare "text før"
+                        androidx.compose.material.Text(
+                            text = mapViewModel.infoTextMannOverBord,
+                            modifier = Modifier
+                                .align(Alignment.CenterHorizontally)
+                        )
+                    }
+                }
+            }
+        }
+
         Button(
             onClick = {
-                cameraPositionState.position = CameraPosition.fromLatLngZoom(locationToLatLng(state.lastKnownLocation), 13f)
 
-                circleCenter = locationToLatLng(state.lastKnownLocation)
-                viewModel.changeCircleCoordinate(locationToLatLng(state.lastKnownLocation)) //unødvendig?
-                circleVisibility = true
-                enabled = false
-                mann_er_overbord = true
+                //TODO: Bør garantere at vi bruker telefonens nåværende posisjon
+                mapViewModel.updateLocation()
+                val pos = locationToLatLng(state.lastKnownLocation)
+                val seaOrLandViewModel = SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
+
+                // launch a coroutine to get the response from the API
+                mapViewModel.viewModelScope.launch {
+                    var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
+                    // wait for the response to be returned
+                    while (seaOrLandResponse == null) {
+                        delay(100) // wait for 100 milliseconds before checking again
+                        seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
+                    }
+
+                    // process the response
+                    if (seaOrLandResponse?.water == true) {
+                        // the coordinate is on water
+                        mapViewModel.oceanViewModel.path = "$oceanURL?lat=${pos.latitude}&lon=${pos.longitude}"
+                        mapViewModel.oceanViewModel.getOceanForecastResponse()
+
+                        Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
+
+                        if (!mapViewModel.mapUpdateThread.isRunning) {
+                            mapViewModel.startButton(state.lastKnownLocation, pos)
+                        } else (
+                                mapViewModel.restartButton()
+                        )
+
+                    } else if (seaOrLandResponse?.water == false) {
+                        // the coordinate is on land
+                        mapViewModel.mannOverBordInfoPopUp = true
+                        mapViewModel.infoTextMannOverBord = "Vi kan ikke ta inn bølgedata når du er på land."
+                    } else {
+                        // there was an error getting the response
+                        mapViewModel.mannOverBordInfoPopUp = true
+                        mapViewModel.infoTextMannOverBord = "Vi fikk ikke hentet dataene. Prøv igjen!"
+                    }
+                }
+                Log.i("MapScreen button", "Hei fra buttonpress")
+
             },
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
-                .padding(start = 160.dp, top = 450.dp)
-                .size(90.dp),
+                .padding(
+                    /*start = LocalConfiguration.current.screenWidthDp.dp * 0.4f,*/
+                    top = LocalConfiguration.current.screenHeightDp.dp * 0.73f
+                )
+                .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
+                .shadow(
+                    elevation = 5.dp,
+                    shape = CircleShape
+                )
+                .align(CenterHorizontally),
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
-            border= BorderStroke(1.dp, Color.Red),
-            enabled = enabled
+            enabled = mapViewModel.enabled.value,
+
 
         ) {
             Text(
-                text = "SOS",
+                text = "Start søk",
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
+                fontSize = 16.sp,
+                textAlign = TextAlign.Center
             )
-            LaunchedEffect(circleCenter) { //oppdaterer posisjon hvert 3. sek
-                while (mann_er_overbord){
-                    val time_to_wait_in_minutes: Float = 0.025f //1.0f er 1 minutt. 0.1 = 6sek
-                    delay((time_to_wait_in_minutes * 60_000).toLong())
-                    //Log.i("MapScreen", "$time_to_wait_in_minutes minutter")
-                    counter++
-                    circleCenter = calculateNewPosition(circleCenter, oceanViewModel, time_to_wait_in_minutes.toDouble()*2000)
-                    circleRadius = calculateRadius(counter)
+
+            LaunchedEffect(haveZoomedAtStart) { //oppdaterer posisjon hvert 3. sek
+                delay(200)
+                if (!haveZoomedAtStart){
+                    haveZoomedAtStart = true
+                    delay(1000)
+                    Log.i("MapScreen", "Zoomer inn på pos")
+                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
+
+
+                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.timePassedInSeconds.value}")
             }
         }
     }
@@ -156,13 +285,14 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
 
     //TODO: hente riktig dato, finne nærmeste / runde opp til nærmeste tid i listen med timesieries
 
+    if (timeseries == null){
+        Log.d("MapScreen findClosestD", "timeseries listen er null. Fant ikke data, og setter 0 verdier for mann overbord.")
+        return (Details(0.0, 0.0, 0.0, 0.0, 0.0))}
+
     //val currentTime = Time.now()
     var closest = timeseries[0]
-    //loop through timeseries and find closes time to current timestamp.
-
-    Log.i("MapScreen new details", "${timeseries[0].data.instant.details}")
-
-    //return
+    //loop through timeseries and find closes time to current timestamp
+    Log.i("MapScreen new details", "${closest.data.instant.details}")
     return timeseries[0].data.instant.details
 
 }
@@ -170,6 +300,7 @@ fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
 /** brukes for å hente posisjonen fra state. default hvis null*/
 fun locationToLatLng(loc: Location?): LatLng {
     if (loc != null){ return LatLng(loc.latitude, loc.longitude)}
+    Log.i("locationToLatLng","Fant ingen location. Returnerer default LatLng(59.0, 11.0)")
     return LatLng(59.0, 11.0) //default val i oslofjorden
 }
 
@@ -210,8 +341,8 @@ fun calculatePosition(
 
 
 fun calculateRadius(minutes: Int): Double {
-    var newRadius: Double = minutes * 5.0
-    return if (newRadius > 200.0) newRadius
+    val newRadius: Double = minutes * 5.0
+    return if (newRadius > 200.0) 200.0
     else if (newRadius < 25.0) 25.0
     else newRadius
 }

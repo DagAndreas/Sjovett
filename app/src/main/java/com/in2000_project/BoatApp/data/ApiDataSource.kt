@@ -3,7 +3,9 @@ package com.in2000_project.BoatApp.data
 import android.util.Log
 import com.example.gruppe_16.model.locationforecast.LocationForecastResponse
 import com.example.gruppe_16.model.metalerts.MetAlertsResponse
+import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.seaOrLand.SeaOrLandResponse
 
 
 import io.ktor.client.*
@@ -68,10 +70,10 @@ class ApiDataSource () {
     }
 
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
-        Log.d("API_request", "attempting fetchOceanForecastData.launch")
+        //Log.d("API_request", "attempting fetchOceanForecastData.launch")
         val response = try {
             client.get() {
-                url(path)
+                url("https://gw-uio.intark.uh-it.no/in2000/weatherapi/oceanforecast/2.0/complete?lat=60.10&lon=5")//path)
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",//R.string.Proxy_name.toString(),
@@ -87,7 +89,40 @@ class ApiDataSource () {
         }
 
         Log.d("API_request", "fetchOceanForecastData.launch success, response: ")
-        Log.i("API_request", response.toString())
+        Log.i("ApiData_Source_Ocean", "response: $response")
         return response
     }
+    suspend fun fetchGeoCodeData(path: String): List<City> {
+        Log.i("Henter geodata", "fra $path")
+        val response = client.get {
+            url(path)
+            headers {
+                append(
+                    name = "X-Api-Key",
+                    value = "Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
+                )
+            }
+        }.body<List<City>>()
+        Log.d("Henter", response.toString())
+
+        Log.d("API_request", "fetchGeoCodeData.launch success, response: $response")
+        return response
+    }
+    suspend fun fetchSeaOrLandResponse(path: String): SeaOrLandResponse {
+        Log.i("Henter SeaOrLand data", "fra $path")
+        val response = try {
+            client.get(path).body<SeaOrLandResponse>()
+        }
+        catch (e: Exception) {
+            // General exception
+            Log.e("API_request xxx", path)
+            Log.e("API_request xxx", e.message.toString())
+            exitProcess(0)
+        }
+        Log.d("API_request", "fetchSeaOrLandResponse.launch success, response: ")
+        Log.i("ApiData_Source_SeaOrLan", "response: $response")
+        return response
+    }
+
+
 }

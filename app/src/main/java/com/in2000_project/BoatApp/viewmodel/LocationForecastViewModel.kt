@@ -1,8 +1,10 @@
 package com.in2000_project.BoatApp.viewmodel
 
+import android.annotation.SuppressLint
+import android.location.Location
 import android.util.Log
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.tasks.Task
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.TemperatureUiState
 import kotlinx.coroutines.CoroutineScope
@@ -14,9 +16,7 @@ import kotlinx.coroutines.launch
 
 // disse skal endres til brukerens faktiske lokasjon
 // latitude = north-south
-var userLat = 59.911 // disse skal endres til brukerens faktiske lokasjon
 // longitude = east-west
-var userLng = 10.757
 
 // url: https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=57.3&lon=7.0
 
@@ -24,10 +24,10 @@ class LocationForecastViewModel {
     val _dataSource = ApiDataSource()
     private val _temperatureUiState = MutableStateFlow(TemperatureUiState())
     val temperatureUiState = _temperatureUiState.asStateFlow()
-    init {
-        fetchLocationForecastData(0.0,0.0)
-    }
 
+    init{
+        fetchLocationForecastData(0.0, 0.0)
+    }
     fun fetchLocationForecastData(lat: Double, lng: Double) { // Henter data fra APIet
         Log.d("Fetch", "LocationForecast")
         CoroutineScope(Dispatchers.IO).launch {
@@ -38,5 +38,9 @@ class LocationForecastViewModel {
                 (it.copy(timeList = _dataSource.fetchLocationForecastData(url).properties.timeseries))
             }
         }
+    }
+
+    fun updateUserCoord(lat: Double, lng: Double){
+        fetchLocationForecastData(lat, lng)
     }
 }
