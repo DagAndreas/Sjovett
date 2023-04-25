@@ -77,7 +77,13 @@ fun MannOverbord(
     }
     var haveZoomedAtStart = false
     //Log.i("mannoverbord - i ", "${haveZoomedAtStart}")
-
+    Log.i("Circlecenter:", "${mapViewModel.circleCenter.value}")
+    if (mapViewModel.oceanViewModel.oceanForecastResponseObject != null) {
+        Log.i(
+            "MapviewModel data cent:",
+            "${mapViewModel.oceanViewModel.oceanForecastResponseObject.geometry.coordinates}"
+        )
+    }
     Box(
 
     ) {
@@ -259,14 +265,11 @@ fun MannOverbord(
                     Log.i("MapScreen", "Zoomer inn på pos")
                     cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
-
-
-                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.timePassedInSeconds.value}")
             }
         }
     }
 }
-/** når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
+/** Når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
  * på nytt. */
 fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
     Log.i("MapScreen", "New Pos fra $personCoordinate")
@@ -282,6 +285,7 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
 
     return calculatePosition(listOf(personCoordinate.latitude, personCoordinate.longitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
 }
+
 /** henter den listen med bølgedata som er nærmest nåværende klokkeslett */
 @SuppressLint("SimpleDateFormat")
 fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
