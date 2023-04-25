@@ -736,6 +736,7 @@ fun WeatherCard(
     }
 }
 
+//todo: unused function
 fun checkIfCloseToWarning(
     geometry: Geometry,
     userLat: Double,
@@ -825,6 +826,53 @@ fun compareTimes(currentInstant: Instant, checkTimeInstant: Instant): Long {
     val diffSeconds = ChronoUnit.SECONDS.between(currentInstant, checkTimeInstant)
     return diffSeconds
 }
+
+//TODO: kan bruke denne for å sleppe minimum sdk 26.
+/*
+fun createCalendar(date: String): Calendar? {
+    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+    sdf.timeZone = TimeZone.getTimeZone("UTC")
+    val parsedDate = sdf.parse(date) ?: return null
+    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    calendar.time = parsedDate
+    return calendar
+}
+
+@SuppressLint("SimpleDateFormat")
+fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Calendar> {
+    val returnMap = mutableMapOf<Int, Calendar>()
+    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+    sdf.timeZone = TimeZone.getTimeZone("UTC")
+    val time = sdf.format(Date())
+    val currentTime = createCalendar(time)!!
+    var wantedBetween = 0L
+    var found = 0
+    var i = 0
+    for (item in listOfTime) {
+        val checkTime = createCalendar(item.time)!!
+        val secondsBetween = compareTimes(currentTime, checkTime)
+        if (secondsBetween >= wantedBetween) {
+            found++
+            if (wantedBetween == 0L) {
+                wantedBetween = 60 * 60 * 3
+            } else {
+                wantedBetween += 60 * 60 * 3
+            }
+            returnMap[i] = checkTime
+            if (found >= 8) {
+                return returnMap
+            }
+        }
+        i++
+    }
+    return returnMap
+}
+
+fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
+    val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
+    return diffMillis / 1000
+}*/
+
 
 fun findBorders(
     listOfCoordinates: Geometry,
