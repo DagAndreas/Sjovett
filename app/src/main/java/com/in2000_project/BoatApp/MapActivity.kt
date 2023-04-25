@@ -103,6 +103,7 @@ class MapActivity : ComponentActivity() {
             BottomNavWithBadgesTheme {
                 val navController = rememberNavController()
 
+                //todo: rename metalerts eller stormwarning til å henge sammen? storm = met og temp = loc?
                 val stormWarningViewModels = MetAlertsViewModel()
                 val temperatureViewModel = LocationForecastViewModel()
                 val searchViewModel = SearchViewModel()
