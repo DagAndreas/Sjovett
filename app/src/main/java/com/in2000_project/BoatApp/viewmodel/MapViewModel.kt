@@ -71,6 +71,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var enabled = mutableStateOf(true) //shift-f6 til "sosButtonVisible
     var timePassedInSeconds = mutableStateOf( 0 )
     var mann_er_overbord = mutableStateOf(false)
+    var buttonText = "start søk"
 
     //InfoKort
     var mannOverBordInfoPopUp by mutableStateOf(true)

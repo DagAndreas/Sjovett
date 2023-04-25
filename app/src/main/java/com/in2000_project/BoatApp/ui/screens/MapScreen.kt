@@ -14,6 +14,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Close
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -70,13 +71,14 @@ fun MannOverbord(
         isMyLocationEnabled = true //state.lastKnownLocation != null
     )
 
-    //Log.d("MapScreen", "$state er staten tidlig")
+
+    val showDialog = remember { mutableStateOf(false) }
 
     var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
     //    position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
-    var haveZoomedAtStart = false
+    val haveZoomedAtStart = remember { mutableStateOf( false )}
     //Log.i("mannoverbord - i ", "${haveZoomedAtStart}")
     Log.i("Circlecenter:", "${mapViewModel.circleCenter.value}")
     if (mapViewModel.oceanViewModel.oceanForecastResponseObject != null) {
@@ -189,27 +191,24 @@ fun MannOverbord(
             }
         }
 
+        // Add this state variable
+        val showDialog = remember { mutableStateOf(false) }
+
         Button(
             onClick = {
-
-                //TODO: Bør garantere at vi bruker telefonens nåværende posisjon
                 mapViewModel.updateLocation()
                 val pos = locationToLatLng(state.lastKnownLocation)
                 val seaOrLandViewModel = SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
 
-                // launch a coroutine to get the response from the API
                 mapViewModel.viewModelScope.launch {
                     var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-                    // wait for the response to be returned
                     while (seaOrLandResponse == null) {
-                        delay(100) // wait for 100 milliseconds before checking again
+                        delay(100)
                         Log.i("MapScreen seaorland", "waiting for seaorlandresponse")
                         seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
                     }
 
-                    // process the response
                     if (seaOrLandResponse?.water == true) {
-                        // the coordinate is on water
                         mapViewModel.oceanViewModel.setPath(pos)
                         mapViewModel.oceanViewModel.getOceanForecastResponse()
 
@@ -217,16 +216,15 @@ fun MannOverbord(
 
                         if (!mapViewModel.mapUpdateThread.isRunning) {
                             mapViewModel.startButton(state.lastKnownLocation, pos)
-                        } else (
-                                mapViewModel.restartButton()
-                        )
+                            mapViewModel.buttonText = "avslutt søk"
+                        } else {
+                            showDialog.value = true
+                        }
 
                     } else if (seaOrLandResponse?.water == false) {
-                        // the coordinate is on land
                         mapViewModel.mannOverBordInfoPopUp = true
                         mapViewModel.infoTextMannOverBord = "Vi kan ikke ta inn bølgedata når du er på land."
                     } else {
-                        // there was an error getting the response
                         mapViewModel.mannOverBordInfoPopUp = true
                         mapViewModel.infoTextMannOverBord = "Vi fikk ikke hentet dataene. Prøv igjen!"
                     }
@@ -237,7 +235,6 @@ fun MannOverbord(
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
                 .padding(
-                    /*start = LocalConfiguration.current.screenWidthDp.dp * 0.4f,*/
                     top = LocalConfiguration.current.screenHeightDp.dp * 0.73f
                 )
                 .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
@@ -249,25 +246,51 @@ fun MannOverbord(
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
             enabled = mapViewModel.enabled.value,
-
-
         ) {
             Text(
-                text = "Start søk",
+                text = mapViewModel.buttonText,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
 
-            LaunchedEffect(haveZoomedAtStart) { //oppdaterer posisjon hvert 3. sek
+            LaunchedEffect(haveZoomedAtStart.value) {
                 delay(200)
-                if (!haveZoomedAtStart){
-                    haveZoomedAtStart = true
+                if (!haveZoomedAtStart.value){
+                    haveZoomedAtStart.value = true
                     delay(1000)
                     Log.i("MapScreen", "Zoomer inn på pos")
                     cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
             }
+        }
+
+// Add the AlertDialog
+        if (showDialog.value) {
+            AlertDialog(
+                onDismissRequest = { showDialog.value = false },
+                title = { Text("Are you sure?") },
+                text = { Text("You are about to restart the search. Do you want to continue?") },
+                confirmButton = {
+                    Button(
+                        onClick = {
+                            showDialog.value = false
+                            mapViewModel.restartButton()
+                            mapViewModel.buttonText = "start søk"
+                        }
+                    ) {
+                        Text("Yes")
+                    }
+                },
+                dismissButton = {
+                    Button(
+                        onClick = { showDialog.value = false }
+                    ) {
+                        Text("No")
+
+                    }
+                }
+            )
         }
     }
 }
