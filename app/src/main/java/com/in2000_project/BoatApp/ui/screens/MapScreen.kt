@@ -53,7 +53,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
+//?lat=60.10&lon=5
 const val seaOrLandUrl = "https://isitwater-com.p.rapidapi.com/"
 
 @Composable
@@ -208,7 +208,7 @@ fun MannOverbord(
                     // process the response
                     if (seaOrLandResponse?.water == true) {
                         // the coordinate is on water
-                        mapViewModel.oceanViewModel.path = "$oceanURL?lat=${pos.latitude}&lon=${pos.longitude}"
+                        mapViewModel.oceanViewModel.setPath(pos)
                         mapViewModel.oceanViewModel.getOceanForecastResponse()
 
                         Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
@@ -277,7 +277,7 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
     val dataLatLng: LatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
 
     if (personHarDriftetTilNesteGrid(dataLatLng, personCoordinate)){
-        ovm.path = "${oceanURL}?lat=${personCoordinate.latitude}&lon=${personCoordinate.longitude}"
+        ovm.setPath(personCoordinate)
         ovm.getOceanForecastResponse()
     }
     //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
