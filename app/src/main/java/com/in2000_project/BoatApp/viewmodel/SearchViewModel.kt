@@ -75,7 +75,7 @@ class SearchViewModel: ViewModel() {
 }
 
 
-
+//todo: Legge byene i string resources
 val norwegianCities = listOf(
     "Reine",
     "Bergsida",
