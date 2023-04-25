@@ -85,7 +85,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
             sleep(100) //sov litt for å ha tid til å hente oceanforecastobject
             isRunning = true
             Log.i("Hei", "fra tråd")
-            val sleep_delay:Long = 3 //sekunder
+            val sleep_delay:Long = 2 //sekunder
             while(isRunning){
                 Log.i("Hei", "fra trådloop")
                 mapViewModel.updateMap(sleep_delay)
