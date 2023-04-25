@@ -239,37 +239,11 @@ fun StormWarning(
         }
 
     Column(
-        modifier = Modifier
-            .fillMaxWidth(0.16f)
-            .wrapContentWidth(Alignment.CenterHorizontally)
-            .padding(top = 10.dp)
-
-    ) {
-        MenuButton(
-            buttonIcon = Icons.Filled.Menu,
-            onButtonClicked = { openDrawer() }
-        )
-    }
-
-    Column(
         modifier = modifier.fillMaxSize()
         ,
         verticalArrangement = Arrangement.Top,
         horizontalAlignment = Alignment.CenterHorizontally
     ){
-        IconButton(
-            onClick = { mapViewModel.storm = true },
-            modifier = Modifier
-                .padding(start = 0.dp)
-        ) {
-            Icon(
-                Icons.Outlined.Info,
-                contentDescription = "Info",
-                modifier = Modifier
-                    .size(24.dp),
-                tint = androidx.compose.ui.graphics.Color.Black
-            )
-        }
            // Row { // Denne som gjør at pilen er ved siden av tekstgreia
         TextField(
             value = locationSearch.value,
@@ -456,6 +430,7 @@ fun StormWarning(
         }
 
     }
+}
 }
 
 
@@ -898,9 +873,7 @@ fun findBorders(
     Log.d("StromWarningBorders", "N: ${northernPoint[0]}:${northernPoint[1]}, S: ${southernPoint[0]}:${southernPoint[1]}, E: ${easternPoint[0]}:${easternPoint[1]}, W: ${westernPoint[0]}:${westernPoint[1]}")
     return listOf(northernBorder, southernBorder, easternBorder, westernBorder)
 }
-private fun locationToLatLng(loc: Location?): LatLng {
-    return LatLng(loc!!.latitude, loc.longitude)
-}
+
 fun getColor(awarenessLevel: String): String {
     val color = awarenessLevel.split("; ")[1]
     Log.d("Farge", color)
