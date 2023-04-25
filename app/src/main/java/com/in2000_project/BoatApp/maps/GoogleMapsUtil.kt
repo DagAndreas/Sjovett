@@ -87,8 +87,8 @@ private fun List<LatLng>.findMaxMins(): CameraViewCoord {
 fun personHarDriftetTilNesteGrid(dataCoordinate: LatLng, personCoordinate: LatLng): Boolean {
     val jordaRadiusMeter = 6371000.0 // approximate radius of the Earth in meters
 
-    val deltaLengdegrad = abs(dataCoordinate.longitude - personCoordinate.longitude)
-    val deltaBreddegrad = abs(dataCoordinate.latitude - personCoordinate.latitude)
+    val deltaLengdegrad = abs(dataCoordinate.longitude - personCoordinate.longitude) * PI / 180
+    val deltaBreddegrad = abs(dataCoordinate.latitude - personCoordinate.latitude) * PI / 180
 
     val avstandLengdegrad = 2 * PI * jordaRadiusMeter * cos(personCoordinate.latitude * PI / 180) * deltaLengdegrad / 360
     val avstandBreddegrad = 2 * PI * jordaRadiusMeter * deltaBreddegrad / 360
@@ -97,5 +97,4 @@ fun personHarDriftetTilNesteGrid(dataCoordinate: LatLng, personCoordinate: LatLn
     Log.i("Driftsjekk:", "person: $personCoordinate, data: $dataCoordinate. Har byttet? = $svar")
     return svar
 }
-
 
