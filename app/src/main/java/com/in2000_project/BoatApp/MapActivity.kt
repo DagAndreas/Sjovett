@@ -93,9 +93,6 @@ class MapActivity : ComponentActivity() {
 
     private val alertsMapViewModel = AlertsMapViewModel()
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    @SuppressLint("UnusedMaterialScaffoldPaddingParameter")
-    @OptIn(ExperimentalMaterialApi::class)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -106,6 +103,7 @@ class MapActivity : ComponentActivity() {
             BottomNavWithBadgesTheme {
                 val navController = rememberNavController()
 
+                //todo: rename metalerts eller stormwarning til å henge sammen? storm = met og temp = loc?
                 val stormWarningViewModels = MetAlertsViewModel()
                 val temperatureViewModel = LocationForecastViewModel()
                 val searchViewModel = SearchViewModel()

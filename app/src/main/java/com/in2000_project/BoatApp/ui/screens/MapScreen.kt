@@ -1,5 +1,6 @@
 package com.in2000_project.BoatApp.compose
 
+import android.annotation.SuppressLint
 import android.location.Location
 import android.util.Log
 import androidx.compose.foundation.background
@@ -18,7 +19,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.Center
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -32,10 +32,8 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.MenuButton
@@ -46,12 +44,16 @@ import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.*
+import java.util.concurrent.TimeUnit
 import kotlin.math.asin
 import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.sin
 
-const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete" //?lat=60.10&lon=5
+//?lat=60.10&lon=5
 const val seaOrLandUrl = "https://isitwater-com.p.rapidapi.com/"
 
 @Composable
@@ -59,7 +61,6 @@ fun MannOverbord(
     mapViewModel: MapViewModel,
     openDrawer: () -> Unit
 ) {
-    Log.i("mannoverbord - i ", "${mapViewModel.i++}")
     mapViewModel.updateLocation()
 
     val state by mapViewModel.state.collectAsState()
@@ -68,7 +69,7 @@ fun MannOverbord(
         isMyLocationEnabled = true //state.lastKnownLocation != null
     )
 
-    Log.d("MapScreen", "$state er staten tidlig")
+    //Log.d("MapScreen", "$state er staten tidlig")
 
     var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
@@ -76,7 +77,13 @@ fun MannOverbord(
     }
     var haveZoomedAtStart = false
     //Log.i("mannoverbord - i ", "${haveZoomedAtStart}")
-
+    Log.i("Circlecenter:", "${mapViewModel.circleCenter.value}")
+    if (mapViewModel.oceanViewModel.oceanForecastResponseObject != null) {
+        Log.i(
+            "MapviewModel data cent:",
+            "${mapViewModel.oceanViewModel.oceanForecastResponseObject.geometry.coordinates}"
+        )
+    }
     Box(
 
     ) {
@@ -94,8 +101,9 @@ fun MannOverbord(
                 strokeWidth = 2F,
                 visible = mapViewModel.circleVisibility.value
             )
-            mapViewModel.polyLinesMap.forEach { options ->
-                val points = options.getPoints()
+            val polyLinesMapCopy = mapViewModel.polyLinesMap.toList() // Create a copy
+            polyLinesMapCopy.forEach { options ->
+                val points = options.points
                 Polyline(
                     points
                 )
@@ -200,7 +208,7 @@ fun MannOverbord(
                     // process the response
                     if (seaOrLandResponse?.water == true) {
                         // the coordinate is on water
-                        mapViewModel.oceanViewModel.path = "$oceanURL?lat=${pos.latitude}&lon=${pos.longitude}"
+                        mapViewModel.oceanViewModel.setPath(pos)
                         mapViewModel.oceanViewModel.getOceanForecastResponse()
 
                         Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
@@ -257,14 +265,11 @@ fun MannOverbord(
                     Log.i("MapScreen", "Zoomer inn på pos")
                     cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
                 }
-
-
-                Log.i("MapScreen launchedff", "${mapViewModel.mann_er_overbord.value} and in launched effect. Counter is ${mapViewModel.timePassedInSeconds.value}")
             }
         }
     }
 }
-/** når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
+/** Når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
  * på nytt. */
 fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
     Log.i("MapScreen", "New Pos fra $personCoordinate")
@@ -272,7 +277,7 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
     val dataLatLng: LatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
 
     if (personHarDriftetTilNesteGrid(dataLatLng, personCoordinate)){
-        ovm.path = "${oceanURL}?lat=${personCoordinate.latitude}&lon=${personCoordinate.longitude}"
+        ovm.setPath(personCoordinate)
         ovm.getOceanForecastResponse()
     }
     //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
@@ -280,22 +285,38 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
 
     return calculatePosition(listOf(personCoordinate.latitude, personCoordinate.longitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
 }
+
 /** henter den listen med bølgedata som er nærmest nåværende klokkeslett */
-fun findClosestDataToTimestamp(timeseries: List<Timesery>): Details {
+@SuppressLint("SimpleDateFormat")
+fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
+    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    val currentTime = Date()
+    Log.i("Current time", "$currentTime")
+    var i = 0
 
-    //TODO: hente riktig dato, finne nærmeste / runde opp til nærmeste tid i listen med timesieries
+    for (item in listOfTime) {
+        val checkTime: Date
+        try {
+            checkTime = sdf.parse(item.time) as Date
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            continue
+        }
 
-    if (timeseries == null){
-        Log.d("MapScreen findClosestD", "timeseries listen er null. Fant ikke data, og setter 0 verdier for mann overbord.")
-        return (Details(0.0, 0.0, 0.0, 0.0, 0.0))}
-
-    //val currentTime = Time.now()
-    var closest = timeseries[0]
-    //loop through timeseries and find closes time to current timestamp
-    Log.i("MapScreen new details", "${closest.data.instant.details}")
-    return timeseries[0].data.instant.details
-
+        val secondsBetween = getSecondsBetween(currentTime, checkTime)
+        if (secondsBetween >= 0) {
+            Log.i("found closest time:", "${listOfTime[i].time}")
+            return listOfTime[i].data.instant.details
+        }
+        i++
+    }
+    return listOfTime[0].data.instant.details
 }
+fun getSecondsBetween(date1: Date, date2: Date): Long {
+    val diffInMilliseconds = date1.time - date2.time
+    return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
+}
+
 
 /** brukes for å hente posisjonen fra state. default hvis null*/
 fun locationToLatLng(loc: Location?): LatLng {
