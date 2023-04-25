@@ -18,4 +18,9 @@
             </string-array>
         </item>
     </array>
+    <string-array name="timeOfDayArray">
+        <item>Nå</item>
+        <item>1 time</item>
+        <item>6 timer</item>
+    </string-array>
 </resources>

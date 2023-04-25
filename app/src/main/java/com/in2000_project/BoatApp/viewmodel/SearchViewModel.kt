@@ -45,12 +45,15 @@ class SearchViewModel: ViewModel() {
         _locationSearch.value = text.replace("\n", "")
     }
 
-    fun onEnterKey(){
-        _locationSearch.value.replace("\n", "")
-    }
-
 
     suspend fun fetchCityData(cityName: String) {
+        _locationSearch.update{
+            if (cityName != null){
+                cityName
+            } else {
+                ""
+            }
+        }
         CoroutineScope(Dispatchers.IO).launch {
             val url = "https://api.api-ninjas.com/v1/geocoding?city=$cityName&country=Norway"
             _geoCodeUiState.update {
