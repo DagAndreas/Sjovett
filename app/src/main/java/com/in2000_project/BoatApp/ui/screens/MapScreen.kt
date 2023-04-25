@@ -7,6 +7,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
 import androidx.compose.material.Text
@@ -42,6 +43,7 @@ import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
+import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.ParseException
@@ -69,13 +71,16 @@ fun MannOverbord(
         isMyLocationEnabled = true //state.lastKnownLocation != null
     )
 
-    //Log.d("MapScreen", "$state er staten tidlig")
+    val locationObtained = remember { mutableStateOf(false) }
+    mapViewModel.updateLocation()
+    locationObtained.value = true
+
 
     var cameraZoom: Float = 15f
     val cameraPositionState = rememberCameraPositionState{
     //    position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
     }
-    var haveZoomedAtStart = false
+    val haveZoomedAtStart = remember { mutableStateOf( false )}
     //Log.i("mannoverbord - i ", "${haveZoomedAtStart}")
     Log.i("Circlecenter:", "${mapViewModel.circleCenter.value}")
     if (mapViewModel.oceanViewModel.oceanForecastResponseObject != null) {
@@ -188,26 +193,24 @@ fun MannOverbord(
             }
         }
 
+        // Add this state variable
+        val showDialog = remember { mutableStateOf(false) }
+
         Button(
             onClick = {
-
-                //TODO: Bør garantere at vi bruker telefonens nåværende posisjon
                 mapViewModel.updateLocation()
                 val pos = locationToLatLng(state.lastKnownLocation)
                 val seaOrLandViewModel = SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
 
-                // launch a coroutine to get the response from the API
                 mapViewModel.viewModelScope.launch {
                     var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-                    // wait for the response to be returned
                     while (seaOrLandResponse == null) {
-                        delay(100) // wait for 100 milliseconds before checking again
+                        delay(100)
+                        Log.i("MapScreen seaorland", "waiting for seaorlandresponse")
                         seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
                     }
 
-                    // process the response
                     if (seaOrLandResponse?.water == true) {
-                        // the coordinate is on water
                         mapViewModel.oceanViewModel.setPath(pos)
                         mapViewModel.oceanViewModel.getOceanForecastResponse()
 
@@ -215,16 +218,15 @@ fun MannOverbord(
 
                         if (!mapViewModel.mapUpdateThread.isRunning) {
                             mapViewModel.startButton(state.lastKnownLocation, pos)
-                        } else (
-                                mapViewModel.restartButton()
-                        )
+                            mapViewModel.buttonText = "avslutt søk"
+                        } else {
+                            showDialog.value = true
+                        }
 
                     } else if (seaOrLandResponse?.water == false) {
-                        // the coordinate is on land
                         mapViewModel.mannOverBordInfoPopUp = true
                         mapViewModel.infoTextMannOverBord = "Vi kan ikke ta inn bølgedata når du er på land."
                     } else {
-                        // there was an error getting the response
                         mapViewModel.mannOverBordInfoPopUp = true
                         mapViewModel.infoTextMannOverBord = "Vi fikk ikke hentet dataene. Prøv igjen!"
                     }
@@ -235,7 +237,6 @@ fun MannOverbord(
             modifier = Modifier
                 .wrapContentWidth(CenterHorizontally)
                 .padding(
-                    /*start = LocalConfiguration.current.screenWidthDp.dp * 0.4f,*/
                     top = LocalConfiguration.current.screenHeightDp.dp * 0.73f
                 )
                 .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
@@ -247,130 +248,55 @@ fun MannOverbord(
             shape = CircleShape,
             colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
             enabled = mapViewModel.enabled.value,
-
-
         ) {
             Text(
-                text = "Start søk",
+                text = mapViewModel.buttonText,
                 fontWeight = FontWeight.Bold,
                 fontSize = 16.sp,
                 textAlign = TextAlign.Center
             )
 
-            LaunchedEffect(haveZoomedAtStart) { //oppdaterer posisjon hvert 3. sek
-                delay(200)
-                if (!haveZoomedAtStart){
-                    haveZoomedAtStart = true
-                    delay(1000)
-                    Log.i("MapScreen", "Zoomer inn på pos")
-                    cameraPositionState.animate(CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom), 1500)
+            LaunchedEffect(locationObtained.value) {
+                delay(1500)
+                if (locationObtained.value) {
+                    Log.i("MapScreen", "Zoomer inn på brukeren")
+                    cameraPositionState.animate(
+                        CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation),cameraZoom),1500)
                 }
             }
         }
-    }
-}
-/** Når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
- * på nytt. */
-fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
-    Log.i("MapScreen", "New Pos fra $personCoordinate")
-    val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
-    val dataLatLng: LatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
 
-    if (personHarDriftetTilNesteGrid(dataLatLng, personCoordinate)){
-        ovm.setPath(personCoordinate)
-        ovm.getOceanForecastResponse()
-    }
-    //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
-    val forecastDetails = findClosestDataToTimestamp(ovm.oceanForecastResponseObject.properties.timeseries)
+// Add the AlertDialog
+        if (showDialog.value) {
+            AlertDialog(
+                onDismissRequest = { showDialog.value = false },
+                title = { Text("Er du sikker? ") },
+                text = { Text("Du er nå i ferd med å stoppe søking. \nVil  du avslutte?") }, //kan legges som String resource
+                buttons = {
+                    Row(
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp, start = 8.dp, end = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Button(
+                            onClick = { showDialog.value = false }
+                        ) {
+                            Text("Nei")
+                        }
 
-    Log.i("MapScreen Bølge", "seawaterspeed: ${forecastDetails.sea_water_speed}, seawaterdirection: ${forecastDetails.sea_water_to_direction}")
-    return calculatePosition(listOf(personCoordinate.latitude, personCoordinate.longitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
-}
-
-/** henter den listen med bølgedata som er nærmest nåværende klokkeslett */
-@SuppressLint("SimpleDateFormat")
-fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val currentTime = Date()
-    Log.i("Current time", "$currentTime")
-    var i = 0
-
-    for (item in listOfTime) {
-        val checkTime: Date
-        try {
-            checkTime = sdf.parse(item.time) as Date
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            continue
+                        Button(
+                            onClick = {
+                                showDialog.value = false
+                                mapViewModel.restartButton()
+                                mapViewModel.buttonText = "start søk"
+                            }
+                        ) {
+                            Text("Ja")
+                        }
+                    }
+                }
+            )
         }
-
-        val secondsBetween = getSecondsBetween(currentTime, checkTime)
-        if (secondsBetween >= 0) {
-            Log.i("found closest time:", "${listOfTime[i].time}")
-            return listOfTime[i].data.instant.details
-        }
-        i++
     }
-    return listOfTime[0].data.instant.details
 }
-fun getSecondsBetween(date1: Date, date2: Date): Long {
-    val diffInMilliseconds = date1.time - date2.time
-    return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
-}
-
-
-/** brukes for å hente posisjonen fra state. default hvis null*/
-fun locationToLatLng(loc: Location?): LatLng {
-    if (loc != null){ return LatLng(loc.latitude, loc.longitude)}
-    Log.i("locationToLatLng","Fant ingen location. Returnerer default LatLng(59.0, 11.0)")
-    return LatLng(59.0, 11.0) //default val i oslofjorden
-}
-
-// should find a way to know when it changes grid
-// take into account that I assume timeCheckingFor is given in minutes
-fun calculatePosition(
-        coordinatesStart:List<Double>,
-        seaSurfaceWaveToDegrees: Double,
-        seaWaterSpeedInMeters: Double,
-        timeCheckingFor: Double
-    ): LatLng {
-
-    // Convert degrees to radians
-    val waveFromInRadians = Math.toRadians(seaSurfaceWaveToDegrees)
-    val earthRadiusInKm = 6371
-    val startLatInRadians = Math.toRadians(coordinatesStart[0])
-    val startLngInRadians = Math.toRadians(coordinatesStart[1])
-
-    // Convert meters per second to kilometers per hour
-    val waterSpeedInKmPerHour = seaWaterSpeedInMeters * 3.6
-
-    // Convert the time interval to hours
-    val timeIntervalInHours = timeCheckingFor / 60.0
-
-    // Calculate the distance traveled by the object in the given time interval
-    val distanceInKm = waterSpeedInKmPerHour * timeIntervalInHours
-
-    // Calculate the new latitude and longitude
-    val newLatInRadians = asin(sin(startLatInRadians) * cos(distanceInKm / earthRadiusInKm) + cos(startLatInRadians) * sin(distanceInKm / earthRadiusInKm) * cos(waveFromInRadians))
-    val newLngInRadians = startLngInRadians + atan2(sin(waveFromInRadians) * sin(distanceInKm / earthRadiusInKm) * cos(startLatInRadians), cos(distanceInKm / earthRadiusInKm) - sin(startLatInRadians) * sin(newLatInRadians))
-
-    // Convert the new latitude and longitude back to degrees
-    val newLat = Math.toDegrees(newLatInRadians)
-    val newLng = Math.toDegrees(newLngInRadians)
-
-    return LatLng(newLat, newLng)
-}
-
-
-fun calculateRadius(minutes: Int): Double {
-    val newRadius: Double = minutes * 5.0
-    return if (newRadius > 200.0) 200.0
-    else if (newRadius < 25.0) 25.0
-    else newRadius
-}
-
-
-
-
-
-

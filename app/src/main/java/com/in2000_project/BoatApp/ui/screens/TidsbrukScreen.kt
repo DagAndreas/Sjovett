@@ -53,6 +53,7 @@ import androidx.core.graphics.toColorInt
 import com.google.android.gms.maps.model.*
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.MenuButton
+import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 
 
 @OptIn(ExperimentalMaterialApi::class)
