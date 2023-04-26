@@ -8,7 +8,7 @@ import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import kotlinx.coroutines.launch
 
-const val oceanURL = "https://api.met.no/weatherapi/oceanforecast/2.0/complete"
+const val oceanURL = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/oceanforecast/2.0/complete"
 
 class OceanViewModel(urlPath: String): ViewModel() {
     val _dataSource = ApiDataSource()
