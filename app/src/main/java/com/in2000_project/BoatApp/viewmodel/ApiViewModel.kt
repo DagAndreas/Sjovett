@@ -10,6 +10,7 @@ import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import com.in2000_project.BoatApp.model.seaOrLand.SeaOrLandResponse
 import kotlinx.coroutines.launch
 
+// TODO: Hele greia er ikke i bruk? Den er grå og vi får warning -> Kanskje flytte hver funksjon inn i viewmodelet de brukes og slette denne filen?
 class ApiViewModel: ViewModel() {
     val dataSource = ApiDataSource()
     var metAlertsResponse: MetAlertsResponse
@@ -18,6 +19,7 @@ class ApiViewModel: ViewModel() {
     var seaOrLandResponse: SeaOrLandResponse
 
     init {
+        // TODO: Er det nødvendig å gjøre disse kallene?
         metAlertsResponse = getMetAlertsResponse("https://gw-uio.intark.uh-it.no/in2000/weatherapi/metalerts/1.1/.json")
         oceanForecastResponse = getOceanForecastResponse("https://gw-uio.intark.uh-it.no/in2000/weatherapi/oceanforecast/2.0/complete?lat=60.10&lon=5")
         locationForecastResponse = getLocationForecastResponse("https://gw-uio.intark.uh-it.no/in2000/weatherapi/locationforecast/2.0/compact?lat=60.10&lon=9.58")
@@ -51,7 +53,7 @@ class ApiViewModel: ViewModel() {
         return locationForecastResponse
     }
 
-    fun getSeaOrLandResponse(path: String): SeaOrLandResponse {
+    fun getSeaOrLandResponse(path: String): SeaOrLandResponse { // TODO: Slett om den ikke skal brukes
         Log.d("API_request", "attempting getSeaOrLandResponse.launch")
         viewModelScope.launch {
             seaOrLandResponse = dataSource.fetchSeaOrLandResponse(path)

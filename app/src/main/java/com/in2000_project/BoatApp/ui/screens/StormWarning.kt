@@ -42,22 +42,18 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Feature
-//import com.example.gruppe_16.model.metalerts.Geometry
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.*
 import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.MenuButton
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
-import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
-import com.in2000_project.BoatApp.viewmodel.LocationForecastViewModel
-import com.in2000_project.BoatApp.viewmodel.MetAlertsViewModel
-import com.in2000_project.BoatApp.viewmodel.SearchViewModel
+import com.in2000_project.BoatApp.viewmodel.*
+import io.ktor.util.*
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.time.Instant
@@ -76,7 +72,7 @@ fun StormWarning(
     viewModelMap: AlertsMapViewModel,
     viewModelSearch: SearchViewModel,
     setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
-    calculateZoneViewCenter: () -> LatLngBounds,
+    //calculateZoneViewCenter: () -> LatLngBounds,
     modifier: Modifier,
     openDrawer: () -> Unit
 ){
@@ -107,7 +103,6 @@ fun StormWarning(
 
     viewModelForecast.updateUserCoord(userLat, userLng)
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
-
 
     Column(modifier = modifier,
         horizontalAlignment = CenterHorizontally
@@ -142,7 +137,6 @@ fun StormWarning(
                 properties = PopupProperties(
                     focusable = true
                 )
-
             ) {
                 ElevatedCard(
                     modifier = Modifier
@@ -198,6 +192,7 @@ fun StormWarning(
                 },
                 placeholder = { Text(text = "Søk på sted") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                //localeList = LocaleList(Locale("no")),
                 singleLine = true,
                 modifier = Modifier.onKeyEvent{
                     if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
@@ -306,7 +301,7 @@ fun StormWarning(
                             modifier = Modifier
                                 .height(configuration.screenWidthDp.dp),
                             properties = mapProperties,
-                            cameraPositionState = cameraPositionState
+                            cameraPositionState = cameraPositionState,
                         ) {
                             val context = LocalContext.current
                             val scope = rememberCoroutineScope()
@@ -322,10 +317,10 @@ fun StormWarning(
                                         if (mapState.clusterItems.isNotEmpty()) {
                                             scope.launch {
                                                 cameraPositionState.animate(
-                                                    update = CameraUpdateFactory.newLatLngBounds(
-                                                        calculateZoneViewCenter(),
-                                                        0
-                                                    ),
+                                                    CameraUpdateFactory.newLatLngZoom(
+                                                        LatLng(myPosition.value.latitude, myPosition.value.longitude),
+                                                        7f
+                                                    ),1500
                                                 )
                                             }
                                         }
@@ -340,52 +335,6 @@ fun StormWarning(
     }
 }
 
-
-/*
-@SuppressLint("ResourceType")
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun chooseTimeOfDay(viewModelSearch: SearchViewModel): String { //Fra Therese oblig 1
-    val a = stringArrayResource(id = R.array.timeOfDayArray)
-    val options = listOf(a[0], a[1], a[2])
-    var expanded by remember { mutableStateOf(false) }
-    var valgtOption by remember { mutableStateOf(options[0]) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded },
-        Modifier.fillMaxWidth()
-
-    ) {
-        TextField(
-            readOnly = true,
-            value = valgtOption,
-            onValueChange = {},
-            label = { Text("Label") },
-            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-            colors = ExposedDropdownMenuDefaults.textFieldColors(),
-            modifier = Modifier.menuAnchor()
-        )
-        ExposedDropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false },
-        ) {
-            options.forEach { selectionOption ->
-                DropdownMenuItem(
-                    text = { Text(selectionOption) },
-                    onClick = {
-                        valgtOption = selectionOption
-                        expanded = false
-                        viewModelSearch.resetCityData()
-                    },
-                )
-            }
-        }
-    }
-
-    return valgtOption
-}*/
-
 @Composable
 fun WeatherCard(
     time: String,
@@ -398,14 +347,12 @@ fun WeatherCard(
     //lightningProbability: Double, /* TODO: Remove if not used! */
     weatherIcon: String
 ) {
-
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
     val screenWidthSp = configuration.screenWidthDp.sp
     val screenHeight = configuration.screenHeightDp.dp
-    val icon: Int
-    val iconDesc: String
-
+    var icon = 0
+    var iconDesc = ""
     val cornerShape = 20
     val grayColor = androidx.compose.ui.graphics.Color(0xFFF2F2F2)
     val blackColor = androidx.compose.ui.graphics.Color(0xFF000000)
@@ -413,95 +360,14 @@ fun WeatherCard(
         temperature >= 0 -> androidx.compose.ui.graphics.Color(0xFFC91C1C)
         else -> androidx.compose.ui.graphics.Color(0xFF1F39BF)
     }
+    val weatherMap = getWeatherIcon(weatherIcon)
 
-    when(weatherIcon){
-        "clearsky_day" -> {icon = R.drawable.clearsky_day; iconDesc = "Clear sky"}
-        "clearsky_night" -> {icon = R.drawable.clearsky_night; iconDesc = "Clear sky"}
-        "clearsky_polartwilight" -> {icon = R.drawable.clearsky_polartwilight; iconDesc = "Clear sky"}
-        "cloudy" -> {icon = R.drawable.cloudy;iconDesc = "Cloudy"}
-        "fair_day" -> {icon = R.drawable.fair_day;iconDesc = "Fair"}
-        "fair_night" -> {icon = R.drawable.fair_night;iconDesc = "Fair"}
-        "fair_polartwilight" -> {icon = R.drawable.fair_polartwilight;iconDesc = "Fair"}
-        "fog" -> {icon = R.drawable.fog ;iconDesc = "Fog"}
-        "heavyrain" -> {icon = R.drawable.heavyrain ;iconDesc = "Heavy rain"}
-        "heavyrainandthunder" -> {icon = R.drawable.heavyrainandthunder ;iconDesc = "Heavy rain and thunder"}
-        "heavyrainshowers_day" -> {icon = R.drawable.heavyrainshowers_day ;iconDesc = "Heavy rain showers"}
-        "heavyrainshowers_night" -> {icon = R.drawable.heavyrainshowers_night ;iconDesc = "Heavy rain showers"}
-        "heavyrainshowers_polartwilight" -> {icon = R.drawable.heavyrainshowers_polartwilight ;iconDesc = "Heavy rain showers"}
-        "heavyrainshowersandthunder_day" -> {icon = R.drawable.heavyrainshowersandthunder_day ;iconDesc = "Heavy rain showers and thunder"}
-        "heavyrainshowersandthunder_night" -> {icon = R.drawable.heavyrainshowersandthunder_night ;iconDesc = "Heavy rain showers and thunder"}
-        "heavyrainshowersandthunder_polartwilight" -> {icon = R.drawable.heavyrainshowersandthunder_polartwilight ;iconDesc = "Heavy rain showers and thunder"}
-        "heavysleet" -> {icon = R.drawable.heavysleet ;iconDesc = "Heavy sleet"}
-        "heavysleetandthunder" -> {icon = R.drawable.heavysleetandthunder ;iconDesc = "Heavy sleet and thunder"}
-        "heavysleetshowers_day" -> {icon = R.drawable.heavysleetshowers_day ;iconDesc = "Heavy sleet showers"}
-        "heavysleetshowers_night" -> {icon = R.drawable.heavysleetshowers_night ;iconDesc = "Heavy sleet showers"}
-        "heavysleetshowers_polartwilight" -> {icon = R.drawable.heavysleetshowers_polartwilight ;iconDesc = "Heavy sleet showers"}
-        "heavysleetshowersandthunder_day" -> {icon = R.drawable.heavysleetshowersandthunder_day ;iconDesc = "Heavy sleet showers and thunder"}
-        "heavysleetshowersandthunder_night" -> {icon = R.drawable.heavysleetshowersandthunder_night ;iconDesc = "Heavy sleet showers and thunder"}
-        "heavysleetshowersandthunder_polartwilight" -> {icon = R.drawable.heavysleetshowersandthunder_polartwilight ;iconDesc = "Heavy sleet showers and thunder"}
-        "heavysnow" -> {icon = R.drawable.heavysnow ;iconDesc = "Heavy snow"}
-        "heavysnowandthunder" -> {icon = R.drawable.heavysnowandthunder ;iconDesc = "Heavy snow and thunder"}
-        "heavysnowshowers_day" -> {icon = R.drawable.heavysnowshowers_day ;iconDesc = "Heavy snow showers"}
-        "heavysnowshowers_night" -> {icon = R.drawable.heavysnowshowers_night ;iconDesc = "Heavy snow showers"}
-        "heavysnowshowers_polartwilight" -> {icon = R.drawable.heavysnowshowers_polartwilight ;iconDesc = "Heavy snow showers"}
-        "heavysnowshowersandthunder_day" -> {icon = R.drawable.heavysnowshowersandthunder_day ;iconDesc = "Heavy snow showers and thunder"}
-        "heavysnowshowersandthunder_night" -> {icon = R.drawable.heavysnowshowersandthunder_day ;iconDesc = "Heavy snow showers and thunder"}
-        "heavysnowshowersandthunder_polartwilight" -> {icon = R.drawable.heavysnowshowersandthunder_day ;iconDesc = "Heavy snow showers and thunder"}
-        "lightrain" -> {icon = R.drawable.lightrain ;iconDesc = "Light rain"}
-        "lightrainandthunder" -> {icon = R.drawable.lightrainandthunder ;iconDesc = "Light rain and thunder"}
-        "lightrainshowers_day" -> {icon = R.drawable.lightrainshowers_day ;iconDesc = "Light rain showers"}
-        "lightrainshowers_night" -> {icon = R.drawable.lightrainshowers_night ;iconDesc = "Light rain showers"}
-        "lightrainshowers_polartwilight" -> {icon = R.drawable.lightrainshowers_polartwilight ;iconDesc = "Light rain showers"}
-        "lightrainshowersandthunder_day" -> {icon = R.drawable.lightrainshowersandthunder_day ;iconDesc = "Light rain showers and thunder"}
-        "lightrainshowersandthunder_night" -> {icon = R.drawable.lightrainshowersandthunder_night ;iconDesc = "Light rain showers and thunder"}
-        "lightrainshowersandthunder_polartwilight" -> {icon = R.drawable.lightrainshowersandthunder_polartwilight ;iconDesc = "Light rain showers and thunder"}
-        "lightsleet" -> {icon = R.drawable.lightsleet ;iconDesc = "Light sleet"}
-        "lightsleetandthunder" -> {icon = R.drawable.lightsleetandthunder ;iconDesc = "Light sleet and thunder"}
-        "lightsleetshowers_day" -> {icon = R.drawable.lightsleetshowers_day ;iconDesc = "Light sleet showers"}
-        "lightsleetshowers_night" -> {icon = R.drawable.lightsleetshowers_night ;iconDesc = "Light sleet showers"}
-        "lightsleetshowers_polartwilight" -> {icon = R.drawable.lightsleetshowers_polartwilight ;iconDesc = "Light sleet showers"}
-        "lightsnow" -> {icon = R.drawable.lightsnow ;iconDesc = "Light snow"}
-        "lightsnowandthunder" -> {icon = R.drawable.lightsnowandthunder ;iconDesc = "Light snow and thunder"}
-        "lightsnowshowers_day" -> {icon = R.drawable.lightsnowshowers_day ;iconDesc = "Light snow showers"}
-        "lightsnowshowers_night" -> {icon = R.drawable.lightsnowshowers_night ;iconDesc = "Light snow showers"}
-        "lightsnowshowers_polartwilight" -> {icon = R.drawable.lightsnowshowers_polartwilight ;iconDesc = "Light snow showers"}
-        "lightssleetshowersandthunder_day" -> {icon = R.drawable.lightssleetshowersandthunder_day ;iconDesc = "Light sleet showers and thunder"}
-        "lightssleetshowersandthunder_night" -> {icon = R.drawable.lightssleetshowersandthunder_night ;iconDesc = "Light sleet showers and thunder"}
-        "lightssleetshowersandthunder_polartwilight" -> {icon = R.drawable.lightssleetshowersandthunder_polartwilight ;iconDesc = "Light sleet showers and thunder"}
-        "lightssnowshowersandthunder_day" -> {icon = R.drawable.lightssnowshowersandthunder_day ;iconDesc = "Light snow showers and thunder"}
-        "lightssnowshowersandthunder_night" -> {icon = R.drawable.lightssnowshowersandthunder_night ;iconDesc = "Light snow showers and thunder"}
-        "lightssnowshowersandthunder_polartwilight" -> {icon = R.drawable.lightssnowshowersandthunder_polartwilight ;iconDesc = "Light snow showers and thunder"}
-        "partlycloudy_day" -> {icon = R.drawable.partlycloudy_day ;iconDesc = "Partly cloudy"}
-        "partlycloudy_night" -> {icon = R.drawable.partlycloudy_night ;iconDesc = "Partly cloudy"}
-        "partlycloudy_polartwilight" -> {icon = R.drawable.partlycloudy_polartwilight ;iconDesc = "Partly cloudy"}
-        "rain" -> {icon = R.drawable.rain ;iconDesc = "Rain"}
-        "rainandthunder" -> {icon = R.drawable.rainandthunder ;iconDesc = "Rain and thunder"}
-        "rainshowers_day" -> {icon = R.drawable.rainshowers_day ;iconDesc = "Rain showers"}
-        "rainshowers_night" -> {icon = R.drawable.rainshowers_night ;iconDesc = "Rain showers"}
-        "rainshowers_polartwilight" -> {icon = R.drawable.rainshowers_polartwilight ;iconDesc = "Rain showers"}
-        "rainshowersandthunder_day" -> {icon = R.drawable.rainshowersandthunder_day ;iconDesc = "Rain showers and thunder"}
-        "rainshowersandthunder_night" -> {icon = R.drawable.rainshowersandthunder_night ;iconDesc = "Rain showers and thunder"}
-        "rainshowersandthunder_polartwilight" -> {icon = R.drawable.rainshowersandthunder_polartwilight ;iconDesc = "Rain showers and thunder"}
-        "sleet" -> {icon = R.drawable.sleet ;iconDesc = "Sleet"}
-        "sleetandthunder" -> {icon = R.drawable.sleetandthunder ;iconDesc = "Sleet and thunder"}
-        "sleetshowers_day" -> {icon = R.drawable.sleetshowers_day ;iconDesc = "Sleet showers"}
-        "sleetshowers_night" -> {icon = R.drawable.sleetshowers_night ;iconDesc = "Sleet showers"}
-        "sleetshowers_polartwilight" -> {icon = R.drawable.sleetshowers_polartwilight ;iconDesc = "Sleet showers"}
-        "sleetshowersandthunder_day" -> {icon = R.drawable.sleetshowersandthunder_day ;iconDesc = "Sleet showers and thunder"}
-        "sleetshowersandthunder_night" -> {icon = R.drawable.sleetshowersandthunder_night ;iconDesc = "Sleet showers and thunder"}
-        "sleetshowersandthunder_polartwilight" -> {icon = R.drawable.sleetshowersandthunder_polartwilight ;iconDesc = "Sleet showers and thunder"}
-        "snow" -> {icon = R.drawable.snow ;iconDesc = "Snow"}
-        "snowandthunder" -> {icon = R.drawable.snowandthunder ;iconDesc = "Snow and thunder"}
-        "snowshowers_day" -> {icon = R.drawable.snowshowers_day ;iconDesc = "Snow showers"}
-        "snowshowers_night" -> {icon = R.drawable.snowshowers_night ;iconDesc = "Snow showers"}
-        "snowshowers_polartwilight" -> {icon = R.drawable.snowshowers_polartwilight ;iconDesc = "Snow showers"}
-        "snowshowersandthunder_day" -> {icon = R.drawable.snowshowersandthunder_day ;iconDesc = "Snow showers and thunder"}
-        "snowshowersandthunder_night" -> {icon = R.drawable.snowshowersandthunder_night ;iconDesc = "Snow showers and thunder"}
-        "snowshowersandthunder_polartwilight" -> {icon = R.drawable.snowshowersandthunder_polartwilight ;iconDesc = "Snow showers and thunder"}
-        else -> {icon = R.drawable.round_cloud_sync_24; iconDesc = "Searching for weather"; Log.e("Ikon", "Could not find drawable: $weatherIcon")}
+    for (key in weatherMap.keys) {
+        icon = key
+        iconDesc = weatherMap[key].toString()
     }
 
-    Box( // Hele boksen
+    Box(
         modifier = Modifier
             .height(0.35 * screenHeight)
             .width(0.8 * screenWidth)
@@ -511,24 +377,24 @@ fun WeatherCard(
                 bottom = 0.05 * screenWidth
             )
             .background(
-                color = androidx.compose.ui.graphics.Color.White, // Hvit
+                color = androidx.compose.ui.graphics.Color.White,
                 shape = RoundedCornerShape(cornerShape.dp)
             )
     ) {
-        Box( // Hovedboks
+        Box(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxHeight(0.9f)
                 .fillMaxWidth()
                 .background(
-                    color = grayColor, // grayColor
+                    color = grayColor,
                     shape = RoundedCornerShape(10.dp)
                 )
         ) {
             Column(
                 modifier = Modifier.align(Alignment.Center)
             ){
-                Row( // Top row
+                Row(
                     horizontalArrangement = Arrangement.SpaceEvenly
                 ){
                     Icon(
@@ -543,10 +409,10 @@ fun WeatherCard(
                         fontSize = (0.10 * screenWidthSp),
                         color = tempColor
                     )
-                } // End of "Top row"
+                }
 
-                Row { // Bottom row
-                    Row( // Wind row
+                Row {
+                    Row(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -583,8 +449,8 @@ fun WeatherCard(
                             )
                         }
 
-                    } // End of "Wind row"
-                    Row( // Rain row
+                    }
+                    Row(
                         horizontalArrangement = Arrangement.SpaceEvenly,
                         verticalAlignment = Alignment.CenterVertically
                     ) {
@@ -608,10 +474,10 @@ fun WeatherCard(
                             modifier = Modifier.align(Bottom)
                         )
 
-                    } // End of "Rain row"
-                } // End of "Bottom row"
+                    }
+                }
             }
-        } // Hovedboks slutt
+        }
 
         val hour = time.removeSuffix("Z").split("T")[1].split(":")
         val useTime = "${hour[0]}:${hour[1]}"
@@ -710,6 +576,99 @@ fun getColor(awarenessLevel: String): String {
     }
 }
 
+fun getWeatherIcon(weatherIcon: String): MutableMap<Int, String> {
+    val returnMap = mutableMapOf<Int, String>()
+    val icon: Int
+    val iconDesc: String
+    when(weatherIcon){
+        "clearsky_day" -> {icon = R.drawable.clearsky_day; iconDesc = "Clear sky"}
+        "clearsky_night" -> {icon = R.drawable.clearsky_night; iconDesc = "Clear sky"}
+        "clearsky_polartwilight" -> {icon = R.drawable.clearsky_polartwilight; iconDesc = "Clear sky"}
+        "cloudy" -> {icon = R.drawable.cloudy;iconDesc = "Cloudy"}
+        "fair_day" -> {icon = R.drawable.fair_day;iconDesc = "Fair"}
+        "fair_night" -> {icon = R.drawable.fair_night;iconDesc = "Fair"}
+        "fair_polartwilight" -> {icon = R.drawable.fair_polartwilight;iconDesc = "Fair"}
+        "fog" -> {icon = R.drawable.fog ;iconDesc = "Fog"}
+        "heavyrain" -> {icon = R.drawable.heavyrain ;iconDesc = "Heavy rain"}
+        "heavyrainandthunder" -> {icon = R.drawable.heavyrainandthunder ;iconDesc = "Heavy rain and thunder"}
+        "heavyrainshowers_day" -> {icon = R.drawable.heavyrainshowers_day ;iconDesc = "Heavy rain showers"}
+        "heavyrainshowers_night" -> {icon = R.drawable.heavyrainshowers_night ;iconDesc = "Heavy rain showers"}
+        "heavyrainshowers_polartwilight" -> {icon = R.drawable.heavyrainshowers_polartwilight ;iconDesc = "Heavy rain showers"}
+        "heavyrainshowersandthunder_day" -> {icon = R.drawable.heavyrainshowersandthunder_day ;iconDesc = "Heavy rain showers and thunder"}
+        "heavyrainshowersandthunder_night" -> {icon = R.drawable.heavyrainshowersandthunder_night ;iconDesc = "Heavy rain showers and thunder"}
+        "heavyrainshowersandthunder_polartwilight" -> {icon = R.drawable.heavyrainshowersandthunder_polartwilight ;iconDesc = "Heavy rain showers and thunder"}
+        "heavysleet" -> {icon = R.drawable.heavysleet ;iconDesc = "Heavy sleet"}
+        "heavysleetandthunder" -> {icon = R.drawable.heavysleetandthunder ;iconDesc = "Heavy sleet and thunder"}
+        "heavysleetshowers_day" -> {icon = R.drawable.heavysleetshowers_day ;iconDesc = "Heavy sleet showers"}
+        "heavysleetshowers_night" -> {icon = R.drawable.heavysleetshowers_night ;iconDesc = "Heavy sleet showers"}
+        "heavysleetshowers_polartwilight" -> {icon = R.drawable.heavysleetshowers_polartwilight ;iconDesc = "Heavy sleet showers"}
+        "heavysleetshowersandthunder_day" -> {icon = R.drawable.heavysleetshowersandthunder_day ;iconDesc = "Heavy sleet showers and thunder"}
+        "heavysleetshowersandthunder_night" -> {icon = R.drawable.heavysleetshowersandthunder_night ;iconDesc = "Heavy sleet showers and thunder"}
+        "heavysleetshowersandthunder_polartwilight" -> {icon = R.drawable.heavysleetshowersandthunder_polartwilight ;iconDesc = "Heavy sleet showers and thunder"}
+        "heavysnow" -> {icon = R.drawable.heavysnow ;iconDesc = "Heavy snow"}
+        "heavysnowandthunder" -> {icon = R.drawable.heavysnowandthunder ;iconDesc = "Heavy snow and thunder"}
+        "heavysnowshowers_day" -> {icon = R.drawable.heavysnowshowers_day ;iconDesc = "Heavy snow showers"}
+        "heavysnowshowers_night" -> {icon = R.drawable.heavysnowshowers_night ;iconDesc = "Heavy snow showers"}
+        "heavysnowshowers_polartwilight" -> {icon = R.drawable.heavysnowshowers_polartwilight ;iconDesc = "Heavy snow showers"}
+        "heavysnowshowersandthunder_day" -> {icon = R.drawable.heavysnowshowersandthunder_day ;iconDesc = "Heavy snow showers and thunder"}
+        "heavysnowshowersandthunder_night" -> {icon = R.drawable.heavysnowshowersandthunder_day ;iconDesc = "Heavy snow showers and thunder"}
+        "heavysnowshowersandthunder_polartwilight" -> {icon = R.drawable.heavysnowshowersandthunder_day ;iconDesc = "Heavy snow showers and thunder"}
+        "lightrain" -> {icon = R.drawable.lightrain ;iconDesc = "Light rain"}
+        "lightrainandthunder" -> {icon = R.drawable.lightrainandthunder ;iconDesc = "Light rain and thunder"}
+        "lightrainshowers_day" -> {icon = R.drawable.lightrainshowers_day ;iconDesc = "Light rain showers"}
+        "lightrainshowers_night" -> {icon = R.drawable.lightrainshowers_night ;iconDesc = "Light rain showers"}
+        "lightrainshowers_polartwilight" -> {icon = R.drawable.lightrainshowers_polartwilight ;iconDesc = "Light rain showers"}
+        "lightrainshowersandthunder_day" -> {icon = R.drawable.lightrainshowersandthunder_day ;iconDesc = "Light rain showers and thunder"}
+        "lightrainshowersandthunder_night" -> {icon = R.drawable.lightrainshowersandthunder_night ;iconDesc = "Light rain showers and thunder"}
+        "lightrainshowersandthunder_polartwilight" -> {icon = R.drawable.lightrainshowersandthunder_polartwilight ;iconDesc = "Light rain showers and thunder"}
+        "lightsleet" -> {icon = R.drawable.lightsleet ;iconDesc = "Light sleet"}
+        "lightsleetandthunder" -> {icon = R.drawable.lightsleetandthunder ;iconDesc = "Light sleet and thunder"}
+        "lightsleetshowers_day" -> {icon = R.drawable.lightsleetshowers_day ;iconDesc = "Light sleet showers"}
+        "lightsleetshowers_night" -> {icon = R.drawable.lightsleetshowers_night ;iconDesc = "Light sleet showers"}
+        "lightsleetshowers_polartwilight" -> {icon = R.drawable.lightsleetshowers_polartwilight ;iconDesc = "Light sleet showers"}
+        "lightsnow" -> {icon = R.drawable.lightsnow ;iconDesc = "Light snow"}
+        "lightsnowandthunder" -> {icon = R.drawable.lightsnowandthunder ;iconDesc = "Light snow and thunder"}
+        "lightsnowshowers_day" -> {icon = R.drawable.lightsnowshowers_day ;iconDesc = "Light snow showers"}
+        "lightsnowshowers_night" -> {icon = R.drawable.lightsnowshowers_night ;iconDesc = "Light snow showers"}
+        "lightsnowshowers_polartwilight" -> {icon = R.drawable.lightsnowshowers_polartwilight ;iconDesc = "Light snow showers"}
+        "lightssleetshowersandthunder_day" -> {icon = R.drawable.lightssleetshowersandthunder_day ;iconDesc = "Light sleet showers and thunder"}
+        "lightssleetshowersandthunder_night" -> {icon = R.drawable.lightssleetshowersandthunder_night ;iconDesc = "Light sleet showers and thunder"}
+        "lightssleetshowersandthunder_polartwilight" -> {icon = R.drawable.lightssleetshowersandthunder_polartwilight ;iconDesc = "Light sleet showers and thunder"}
+        "lightssnowshowersandthunder_day" -> {icon = R.drawable.lightssnowshowersandthunder_day ;iconDesc = "Light snow showers and thunder"}
+        "lightssnowshowersandthunder_night" -> {icon = R.drawable.lightssnowshowersandthunder_night ;iconDesc = "Light snow showers and thunder"}
+        "lightssnowshowersandthunder_polartwilight" -> {icon = R.drawable.lightssnowshowersandthunder_polartwilight ;iconDesc = "Light snow showers and thunder"}
+        "partlycloudy_day" -> {icon = R.drawable.partlycloudy_day ;iconDesc = "Partly cloudy"}
+        "partlycloudy_night" -> {icon = R.drawable.partlycloudy_night ;iconDesc = "Partly cloudy"}
+        "partlycloudy_polartwilight" -> {icon = R.drawable.partlycloudy_polartwilight ;iconDesc = "Partly cloudy"}
+        "rain" -> {icon = R.drawable.rain ;iconDesc = "Rain"}
+        "rainandthunder" -> {icon = R.drawable.rainandthunder ;iconDesc = "Rain and thunder"}
+        "rainshowers_day" -> {icon = R.drawable.rainshowers_day ;iconDesc = "Rain showers"}
+        "rainshowers_night" -> {icon = R.drawable.rainshowers_night ;iconDesc = "Rain showers"}
+        "rainshowers_polartwilight" -> {icon = R.drawable.rainshowers_polartwilight ;iconDesc = "Rain showers"}
+        "rainshowersandthunder_day" -> {icon = R.drawable.rainshowersandthunder_day ;iconDesc = "Rain showers and thunder"}
+        "rainshowersandthunder_night" -> {icon = R.drawable.rainshowersandthunder_night ;iconDesc = "Rain showers and thunder"}
+        "rainshowersandthunder_polartwilight" -> {icon = R.drawable.rainshowersandthunder_polartwilight ;iconDesc = "Rain showers and thunder"}
+        "sleet" -> {icon = R.drawable.sleet ;iconDesc = "Sleet"}
+        "sleetandthunder" -> {icon = R.drawable.sleetandthunder ;iconDesc = "Sleet and thunder"}
+        "sleetshowers_day" -> {icon = R.drawable.sleetshowers_day ;iconDesc = "Sleet showers"}
+        "sleetshowers_night" -> {icon = R.drawable.sleetshowers_night ;iconDesc = "Sleet showers"}
+        "sleetshowers_polartwilight" -> {icon = R.drawable.sleetshowers_polartwilight ;iconDesc = "Sleet showers"}
+        "sleetshowersandthunder_day" -> {icon = R.drawable.sleetshowersandthunder_day ;iconDesc = "Sleet showers and thunder"}
+        "sleetshowersandthunder_night" -> {icon = R.drawable.sleetshowersandthunder_night ;iconDesc = "Sleet showers and thunder"}
+        "sleetshowersandthunder_polartwilight" -> {icon = R.drawable.sleetshowersandthunder_polartwilight ;iconDesc = "Sleet showers and thunder"}
+        "snow" -> {icon = R.drawable.snow ;iconDesc = "Snow"}
+        "snowandthunder" -> {icon = R.drawable.snowandthunder ;iconDesc = "Snow and thunder"}
+        "snowshowers_day" -> {icon = R.drawable.snowshowers_day ;iconDesc = "Snow showers"}
+        "snowshowers_night" -> {icon = R.drawable.snowshowers_night ;iconDesc = "Snow showers"}
+        "snowshowers_polartwilight" -> {icon = R.drawable.snowshowers_polartwilight ;iconDesc = "Snow showers"}
+        "snowshowersandthunder_day" -> {icon = R.drawable.snowshowersandthunder_day ;iconDesc = "Snow showers and thunder"}
+        "snowshowersandthunder_night" -> {icon = R.drawable.snowshowersandthunder_night ;iconDesc = "Snow showers and thunder"}
+        "snowshowersandthunder_polartwilight" -> {icon = R.drawable.snowshowersandthunder_polartwilight ;iconDesc = "Snow showers and thunder"}
+        else -> {icon = R.drawable.round_cloud_sync_24; iconDesc = "Searching for weather"; Log.e("Ikon", "Could not find drawable: $weatherIcon")}
+    }
+    returnMap[icon] = iconDesc
+    return returnMap
+}
 fun addStormClusters(
     viewModelMap: AlertsMapViewModel,
     warnings: List<Feature>
@@ -717,7 +676,7 @@ fun addStormClusters(
     viewModelMap.resetCluster()
     for(warning in warnings){
         Log.i("Warning at location", "${warning.properties.area} - ${warning.properties.geographicDomain}")
-        if(warning.properties.geographicDomain == "marine" || warning.properties.geographicDomain == "land" /*&& checkIfCloseToWarning(warning.geometry)*/){ // checkIfCloseToWarning viser kun de i nærhetenn av brukeren
+        if(warning.properties.geographicDomain == "marine") {// || warning.properties.geographicDomain == "land" /*&& checkIfCloseToWarning(warning.geometry)*/){ // checkIfCloseToWarning viser kun de i nærhetenn av brukeren
             viewModelMap.addCluster(
                 id = warning.properties.area,
                 title = warning.properties.area,

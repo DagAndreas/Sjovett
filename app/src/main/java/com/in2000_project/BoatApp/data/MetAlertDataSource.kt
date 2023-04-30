@@ -8,8 +8,7 @@ import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.gson.*
 
-/** */
-
+// TODO: Tror denne kan slettes -> ApiDataSource gjør dette
 class MetAlertsDataSource (val path: String){
     private val client = HttpClient{
         install(ContentNegotiation) {

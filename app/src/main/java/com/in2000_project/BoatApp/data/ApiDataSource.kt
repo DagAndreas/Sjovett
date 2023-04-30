@@ -6,18 +6,15 @@ import com.example.gruppe_16.model.metalerts.MetAlertsResponse
 import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import com.in2000_project.BoatApp.model.seaOrLand.SeaOrLandResponse
-
-
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
-
 import io.ktor.client.request.*
 import io.ktor.serialization.gson.*
 import kotlin.system.exitProcess
 
 
-class ApiDataSource () {
+class ApiDataSource {
     private val client = HttpClient{
         install(ContentNegotiation) {
             gson()
@@ -42,7 +39,7 @@ class ApiDataSource () {
             Log.e("API_request xxx", e.message.toString())
             exitProcess(0)
         }
-        Log.d("API_request", "fetchLocationForecastData.launch success, response: ${response}")
+        Log.d("API_request", "fetchLocationForecastData.launch success, response: $response")
         return response
     }
 
@@ -65,7 +62,7 @@ class ApiDataSource () {
             Log.e("API_request xxx", e.message.toString())
             exitProcess(0) // Avslutter appen?
         }
-        Log.d("API_request", "fetchMetAlertsData.launch success, response: ${response}")
+        Log.d("API_request", "fetchMetAlertsData.launch success, response: $response")
         return response
     }
 
