@@ -42,7 +42,6 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Feature
-//import com.example.gruppe_16.model.metalerts.Geometry
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
@@ -193,6 +192,7 @@ fun StormWarning(
                 },
                 placeholder = { Text(text = "Søk på sted") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                //localeList = LocaleList(Locale("no")),
                 singleLine = true,
                 modifier = Modifier.onKeyEvent{
                     if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
@@ -578,8 +578,8 @@ fun getColor(awarenessLevel: String): String {
 
 fun getWeatherIcon(weatherIcon: String): MutableMap<Int, String> {
     val returnMap = mutableMapOf<Int, String>()
-    var icon: Int
-    var iconDesc: String
+    val icon: Int
+    val iconDesc: String
     when(weatherIcon){
         "clearsky_day" -> {icon = R.drawable.clearsky_day; iconDesc = "Clear sky"}
         "clearsky_night" -> {icon = R.drawable.clearsky_night; iconDesc = "Clear sky"}
