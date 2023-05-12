@@ -1,5 +1,7 @@
 package com.in2000_project.BoatApp.compose
 
+import InfoButton
+import NavigationMenuButton
 import android.R.attr.*
 import android.content.Context
 import android.graphics.Bitmap
@@ -52,7 +54,7 @@ import androidx.compose.ui.window.PopupProperties
 import androidx.core.graphics.toColorInt
 import com.google.android.gms.maps.model.*
 import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.MenuButton
+import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 
 
@@ -78,16 +80,6 @@ fun TidsbrukScreen(
     )
 
     /*
-    val bottomSheetState = rememberBottomSheetScaffoldState(
-        bottomSheetState = BottomSheetState(
-            initialValue = BottomSheetValue.Expanded,
-            confirmStateChange = { it != BottomSheetValue.Expanded }
-        )
-    )
-
-     */
-
-
     // Define a function to update the displayed text based on the current state
     fun updateDisplayedText() {
         if (viewModel.speedNumber.value == 0f) {
@@ -102,11 +94,13 @@ fun TidsbrukScreen(
         }
     }
 
+     */
+
 // Define a function to handle changes to the speed slider
     val onSpeedChanged: (Float) -> Unit = { value ->
         viewModel.speedNumber.value = value.roundToInt().toFloat()
         viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
-        updateDisplayedText()
+        viewModel.updateDisplayedText()
         viewModel.updateLocation()
     }
 
@@ -149,12 +143,12 @@ fun TidsbrukScreen(
                     viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
                 }
             }
-            updateDisplayedText()
+            viewModel.updateDisplayedText()
         }
         //polyLines[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
     }
 
-
+    /*
     fun removeLastMarker() {
         if (viewModel.markerPositions.size >= 2) {
             // Remove the last marker position
@@ -177,6 +171,8 @@ fun TidsbrukScreen(
         }
         updateDisplayedText()
     }
+
+     */
 
     BottomSheetScaffold(
 
@@ -270,7 +266,7 @@ fun TidsbrukScreen(
                                 viewModel.markerPositions.add(locationToLatLng(state.lastKnownLocation!!))
                                 viewModel.coordinatesToFindDistanceBetween.add(locationToLatLng(state.lastKnownLocation!!))
                             }
-                            updateDisplayedText()
+                            viewModel.updateDisplayedText()
                         },
                         modifier = Modifier
                             .align(Alignment.CenterVertically),
@@ -307,7 +303,7 @@ fun TidsbrukScreen(
                         }
 
                         Button(
-                            onClick = { if(!viewModel.lockMarkers.value) { removeLastMarker() } },
+                            onClick = { if(!viewModel.lockMarkers.value) { viewModel.removeLastMarker() } },
                             enabled = !viewModel.markerPositions.isEmpty() && !(viewModel.usingMyPositionTidsbruk.value && viewModel.markerPositions.size == 1),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Color("#FF6464".toColorInt()),
@@ -360,7 +356,7 @@ fun TidsbrukScreen(
                 modifier = Modifier
                     .fillMaxSize(),
                 properties = mapProperties,
-                /* contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f, start = 0.dp), //flytter knappene */
+                contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.08f, start = 0.dp), //flytter knappene
                 cameraPositionState = cameraPositionState,
                 onMapLongClick = onLongPress
             ) {
@@ -413,76 +409,25 @@ fun TidsbrukScreen(
             }
 
             if (viewModel.reiseplanleggerInfoPopUp) {
-                Popup(
-                    alignment = Alignment.Center,
-                    properties = PopupProperties(
-                        focusable = true
-                    )
-
-                ) {
-                    ElevatedCard(
-                        modifier = Modifier
-                            .background(
-                                color = Color.White,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                            .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
-                            .height(LocalConfiguration.current.screenHeightDp.dp * 0.15f)
-                            .shadow(
-                                elevation = 10.dp,
-                                shape = RoundedCornerShape(20.dp)
-                            )
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            IconButton(
-                                onClick = { viewModel.reiseplanleggerInfoPopUp = false },
-                                modifier = Modifier
-                                    .align(Alignment.End)
-                            ) {
-                                Icon(
-                                    Icons.Outlined.Close,
-                                    contentDescription = "Close",
-                                    modifier = Modifier
-                                        .size(24.dp),
-                                    tint = androidx.compose.ui.graphics.Color.Gray
-                                )
-                            }
-                            //Var bare "text før"
-                            androidx.compose.material.Text(
-                                text = "test",
-                                modifier = Modifier
-                                    .align(Alignment.CenterHorizontally)
-                            )
-                        }
-                    }
-                }
+                InfoPopup(
+                    mapViewModel = viewModel,
+                    screen = "Reiseplanlegger"
+                )
             }
 
             Row(
                 modifier = Modifier
                     .padding(start = 10.dp, top = 10.dp)
             ) {
-                MenuButton(
+                NavigationMenuButton(
                     buttonIcon = Icons.Filled.Menu,
                     onButtonClicked = { openDrawer() }
                 )
 
-                IconButton(
-                    onClick = { viewModel.reiseplanleggerInfoPopUp = true },
-                    modifier = Modifier
-                        .padding(start = LocalConfiguration.current.screenWidthDp.dp * 0.3f)
-                ) {
-                    Icon(
-                        Icons.Outlined.Info,
-                        contentDescription = "Info",
-                        modifier = Modifier
-                            .size(32.dp),
-                        tint = Color.White
-                    )
-                }
+                InfoButton(
+                    mapViewModel = viewModel,
+                    screen = "Reiseplanlegger"
+                )
             }
 
         }

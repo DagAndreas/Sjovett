@@ -1075,7 +1075,8 @@ val norwegianCities = listOf(
     "Tyssedal",
     "Kautokeino",
     "Sponvika",
-    "Bomansvik"
+    "Bomansvik",
+    "Bærum"
 )
 
 fun getAllCities(cities: List<String>): MutableList<CityName>{

@@ -1,5 +1,6 @@
 package com.in2000_project.BoatApp
 
+import Drawer
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
@@ -93,6 +94,7 @@ class MapActivity : ComponentActivity() {
 
     private val alertsMapViewModel = AlertsMapViewModel()
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -178,102 +180,6 @@ class MapActivity : ComponentActivity() {
     }
 }
 
-@Composable
-fun Drawer(
-    modifier: Modifier = Modifier,
-    onDestinationClicked: (route: String) -> Unit,
-    navController: NavController
-) {
-    val screenMap: Map<DrawerScreens, ImageVector> = mapOf(
-        DrawerScreens.MannOverBord to Icons.Outlined.Support,
-        DrawerScreens.StormWarning to Icons.Outlined.WbSunny,
-        DrawerScreens.TidsbrukScreen to Icons.Rounded.Timer
-    )
-
-    Column(
-        modifier
-            .fillMaxSize()
-            .padding(top = 48.dp)
-    ) {
-        Image(
-            painter = painterResource(R.drawable.logo),
-            contentDescription = "App icon",
-            modifier = Modifier
-                .fillMaxWidth(0.6f)
-                .padding(start = 24.dp)
-        )
-
-        Spacer(Modifier.height(24.dp))
-
-        val navBackStackEntry by navController.currentBackStackEntryAsState()
-        val currentRoute = navBackStackEntry?.destination?.route
-
-        screenMap.forEach { screen ->
-            val selected = currentRoute == screen.key.route
-            val background = if (selected) Color.LightGray else Color.Unspecified
-
-            Row(
-                modifier = modifier
-                    .background(
-                        color = background,
-                        shape = RoundedCornerShape(topEnd = 20.dp, bottomEnd = 20.dp)
-                    )
-                    .height(40.dp)
-                    .fillMaxWidth(0.62f)
-                    .padding(start = 24.dp)
-            ) {
-                Icon(
-                    imageVector = screen.value,
-                    contentDescription = "drawerIcon",
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                )
-
-                Text(
-                    text = screen.key.title,
-                    style = MaterialTheme.typography.h4,
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
-                        .padding(start = 8.dp)
-                        .clickable {
-                            onDestinationClicked(screen.key.route)
-                        },
-                    fontSize = 16.sp
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun MenuButton(title: String = "", buttonIcon: ImageVector, onButtonClicked: () -> Unit) {
-
-    IconButton(
-        onClick = { onButtonClicked() } ,
-        /*
-        modifier = Modifier
-            .size(LocalConfiguration.current.screenWidthDp.dp * 0.16f)
-            .background(
-                color = Color.Unspecified,
-                shape = CircleShape
-            )
-
-         */
-
-    ) {
-        Icon(
-            imageVector = buttonIcon,
-            contentDescription = "",
-            modifier = Modifier
-                .background(
-                    color = Color.White,
-                    shape = CircleShape
-                )
-                .padding(10.dp)
-                .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
-        )
-    }
-}
 
 sealed class DrawerScreens(val title: String, val route: String) {
     object MannOverBord : DrawerScreens("Mann over bord", "mannoverbord")

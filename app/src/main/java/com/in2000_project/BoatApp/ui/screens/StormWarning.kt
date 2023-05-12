@@ -1,5 +1,8 @@
 package com.in2000_project.BoatApp.ui.screens
 
+import InfoButtonStorm
+import NavigationMenuButton
+import WeatherCard
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -42,16 +45,24 @@ import androidx.compose.ui.window.Popup
 import androidx.compose.ui.window.PopupProperties
 import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Feature
+//import com.example.gruppe_16.model.metalerts.Geometry
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.*
 import com.google.maps.android.ktx.model.polygonOptions
-import com.in2000_project.BoatApp.MenuButton
 import com.in2000_project.BoatApp.R
+
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
+import com.in2000_project.BoatApp.ui.components.InfoPopup
+import com.in2000_project.BoatApp.ui.components.InfoPopupStorm
+import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
+import com.in2000_project.BoatApp.viewmodel.LocationForecastViewModel
+import com.in2000_project.BoatApp.viewmodel.MetAlertsViewModel
+import com.in2000_project.BoatApp.viewmodel.SearchViewModel
 import com.in2000_project.BoatApp.viewmodel.*
 import io.ktor.util.*
 import kotlinx.coroutines.*
@@ -112,72 +123,22 @@ fun StormWarning(
                 .padding(start = 10.dp, top = 10.dp)
                 .align(Alignment.Start)
         ) {
-            MenuButton(
+            NavigationMenuButton(
                 buttonIcon = Icons.Filled.Menu,
                 onButtonClicked = { openDrawer() }
             )
-            IconButton(
-                onClick = { viewModelMap.stormvarselInfoPopUp = true },
-                modifier = Modifier
-                    .padding(start = LocalConfiguration.current.screenWidthDp.dp * 0.3f)
-            ) {
-                Icon(
-                    Icons.Outlined.Info,
-                    contentDescription = "Info",
-                    modifier = Modifier
-                        .size(32.dp),
-                    tint = Black
-                )
-            }
+
+            InfoButtonStorm(
+                alertsMapViewModel = viewModelMap
+            )
         }
 
         if (viewModelMap.stormvarselInfoPopUp) {
-            Popup(
-                alignment = Alignment.Center,
-                properties = PopupProperties(
-                    focusable = true
-                )
-            ) {
-                ElevatedCard(
-                    modifier = Modifier
-                        .background(
-                            color = androidx.compose.ui.graphics.Color.White,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
-                        .height(LocalConfiguration.current.screenHeightDp.dp * 0.15f)
-                        .shadow(
-                            elevation = 10.dp,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        IconButton(
-                            onClick = { viewModelMap.stormvarselInfoPopUp = false },
-                            modifier = Modifier
-                                .align(Alignment.End)
-                        ) {
-                            Icon(
-                                Icons.Outlined.Close,
-                                contentDescription = "Close",
-                                modifier = Modifier
-                                    .size(24.dp),
-                                tint = androidx.compose.ui.graphics.Color.Gray
-                            )
-                        }
-                        //Var bare "text før"
-                        androidx.compose.material.Text(
-                            text = "test",
-                            modifier = Modifier
-                                .align(CenterHorizontally)
-                        )
-                    }
-                }
-            }
+            InfoPopupStorm(
+                alertsMapViewModel = viewModelMap
+            )
         }
+
         Column(
             modifier = modifier.fillMaxSize()
             ,
@@ -192,7 +153,6 @@ fun StormWarning(
                 },
                 placeholder = { Text(text = "Søk på sted") },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                //localeList = LocaleList(Locale("no")),
                 singleLine = true,
                 modifier = Modifier.onKeyEvent{
                     if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
@@ -242,7 +202,10 @@ fun StormWarning(
                                                 if (cityData.isNotEmpty()) {
                                                     userLat = cityData[0].latitude
                                                     userLng = cityData[0].longitude
-                                                    viewModelForecast.updateUserCoord(userLat, userLng)
+                                                    viewModelForecast.updateUserCoord(
+                                                        userLat,
+                                                        userLng
+                                                    )
 
 
                                                 }
@@ -301,7 +264,7 @@ fun StormWarning(
                             modifier = Modifier
                                 .height(configuration.screenWidthDp.dp),
                             properties = mapProperties,
-                            cameraPositionState = cameraPositionState,
+                            cameraPositionState = cameraPositionState
                         ) {
                             val context = LocalContext.current
                             val scope = rememberCoroutineScope()
@@ -335,179 +298,6 @@ fun StormWarning(
     }
 }
 
-@Composable
-fun WeatherCard(
-    time: String,
-    temperature: Double,
-    windSpeed: Double,
-    windDirection: Double,
-    gustSpeed: Double,
-    rainAmount: Double,
-    //rainProbability: Double, /* TODO: Remove if not used! */
-    //lightningProbability: Double, /* TODO: Remove if not used! */
-    weatherIcon: String
-) {
-    val configuration = LocalConfiguration.current
-    val screenWidth = configuration.screenWidthDp.dp
-    val screenWidthSp = configuration.screenWidthDp.sp
-    val screenHeight = configuration.screenHeightDp.dp
-    var icon = 0
-    var iconDesc = ""
-    val cornerShape = 20
-    val grayColor = androidx.compose.ui.graphics.Color(0xFFF2F2F2)
-    val blackColor = androidx.compose.ui.graphics.Color(0xFF000000)
-    val tempColor = when {
-        temperature >= 0 -> androidx.compose.ui.graphics.Color(0xFFC91C1C)
-        else -> androidx.compose.ui.graphics.Color(0xFF1F39BF)
-    }
-    val weatherMap = getWeatherIcon(weatherIcon)
-
-    for (key in weatherMap.keys) {
-        icon = key
-        iconDesc = weatherMap[key].toString()
-    }
-
-    Box(
-        modifier = Modifier
-            .height(0.35 * screenHeight)
-            .width(0.8 * screenWidth)
-            .padding(
-                start = 0.05 * screenWidth,
-                end = 0.05 * screenWidth,
-                bottom = 0.05 * screenWidth
-            )
-            .background(
-                color = androidx.compose.ui.graphics.Color.White,
-                shape = RoundedCornerShape(cornerShape.dp)
-            )
-    ) {
-        Box(
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .fillMaxHeight(0.9f)
-                .fillMaxWidth()
-                .background(
-                    color = grayColor,
-                    shape = RoundedCornerShape(10.dp)
-                )
-        ) {
-            Column(
-                modifier = Modifier.align(Alignment.Center)
-            ){
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ){
-                    Icon(
-                        painter = painterResource(icon),
-                        contentDescription = iconDesc,
-                        tint = androidx.compose.ui.graphics.Color.Unspecified,
-                        modifier = Modifier
-                            .size(0.15 * screenWidth)
-                    )
-                    Text(
-                        text = "$temperature C°",
-                        fontSize = (0.10 * screenWidthSp),
-                        color = tempColor
-                    )
-                }
-
-                Row {
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.baseline_air_24),
-                            contentDescription = "Wind icon",
-                            tint = androidx.compose.ui.graphics.Color.Unspecified,
-                            modifier = Modifier
-                                .size(0.06 * screenWidth)
-                        )
-                        Text(
-                            text = "$windSpeed",
-                            fontSize = (0.07 * screenWidthSp),
-                            color = blackColor
-                        )
-                        Column(
-                            modifier = Modifier
-                                .align(Top)
-                        ){
-                            Image(
-                                painter = painterResource(id = R.drawable.baseline_arrow_right_alt_24),
-                                contentDescription = "Wind arrow",
-                                modifier = Modifier
-                                    .wrapContentSize()
-                                    .size(0.05 * screenWidth)
-                                    .graphicsLayer(
-                                        rotationZ = windDirection.toFloat()
-                                    )
-                            )
-                            Text(
-                                text = "($gustSpeed)",
-                                fontSize = (0.03 * screenWidthSp),
-                                color = blackColor
-                            )
-                        }
-
-                    }
-                    Row(
-                        horizontalArrangement = Arrangement.SpaceEvenly,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.water_drop_24),
-                            contentDescription = "Rain icon",
-                            tint = androidx.compose.ui.graphics.Color.Unspecified,
-                            modifier = Modifier
-                                .size(0.07 * screenWidth)
-                        )
-                        Text(
-                            text = "$rainAmount",
-                            fontSize = (0.07 * screenWidthSp),
-                            color = blackColor,
-                            modifier = Modifier.align(Bottom)
-                        )
-                        Text(
-                            text = "mm",
-                            fontSize = (0.03 * screenWidthSp),
-                            color = blackColor,
-                            modifier = Modifier.align(Bottom)
-                        )
-
-                    }
-                }
-            }
-        }
-
-        val hour = time.removeSuffix("Z").split("T")[1].split(":")
-        val useTime = "${hour[0]}:${hour[1]}"
-
-        Box( // Overskrift
-            modifier = Modifier
-                .align(Alignment.TopCenter)
-                .wrapContentSize(Alignment.Center)
-                .fillMaxHeight(0.2f)
-                .fillMaxWidth(0.5f)
-                .background(
-                    color = grayColor,
-                    shape = RoundedCornerShape(10.dp)
-                )
-                .border(
-                    border = BorderStroke(1.dp, Black),
-                    shape = RoundedCornerShape(10.dp)
-                )
-        ) {
-            Text(
-                text = useTime,
-                modifier = Modifier
-                    .wrapContentSize(Alignment.Center)
-                    .align(Alignment.Center)
-                    .background(grayColor),
-                fontWeight = FontWeight.Bold
-            )
-        }// Overskrift slutt
-    }
-}
 @RequiresApi(Build.VERSION_CODES.O)
 fun createInstant(date: String): Instant? {
     val currentTimeData = date.removeSuffix("Z").split("T")

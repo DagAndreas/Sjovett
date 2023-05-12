@@ -25,19 +25,26 @@ import javax.inject.Inject
 @HiltViewModel
 class AlertsMapViewModel @Inject constructor(): ViewModel() {
     private val listOfClusters = mutableListOf<ZoneClusterItem>()
+
     private val _alertsMapUiState = MutableStateFlow(AlertsMapUiState())
     val alertsMapUiState = _alertsMapUiState.asStateFlow()
+
     private val _state = MutableStateFlow(
         MapStateCluster(
             lastKnownLocation = null,
             clusterItems = listOfClusters
         )
     )
+
+    //InfoKort
     var stormvarselInfoPopUp by mutableStateOf(true)
+    var infoTextStormvarsel by mutableStateOf("StormvarselMutableText")
+
     val state: StateFlow<MapStateCluster> = _state.asStateFlow()
 
     fun updateUserLocation(lat: Double, lng: Double) {
         _alertsMapUiState.update {
+            // setter warningList til å være en MetAlertsResponse
             (it.copy(longitude = lng, latitude = lat))
         }
     }
@@ -55,6 +62,7 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
                 clusterItems = listOfClusters
             )
         }
+        //Oppdatere state?
     }
 
     fun resetCluster() {
