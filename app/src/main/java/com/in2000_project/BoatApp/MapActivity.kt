@@ -157,7 +157,7 @@ class MapActivity : ComponentActivity() {
                                     viewModelMap = alertsMapViewModel,
                                     viewModelSearch = searchViewModel,
                                     setupClusterManager = alertsMapViewModel::setupClusterManager,
-                                    calculateZoneViewCenter = alertsMapViewModel::calculateZoneLatLngBounds,
+                                    //calculateZoneViewCenter = alertsMapViewModel::calculateZoneLatLngBounds,
                                     modifier = Modifier,
                                     openDrawer = {
                                         openDrawer()

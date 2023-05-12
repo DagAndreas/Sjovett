@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class MetAlertsViewModel: ViewModel() {
-    val _dataSource = ApiDataSource()
+    private val _dataSource = ApiDataSource()
     private val _stormWarningUiState = MutableStateFlow(StormWarningUiState())
     val stormWarningUiState = _stormWarningUiState.asStateFlow()
 
@@ -20,11 +20,11 @@ class MetAlertsViewModel: ViewModel() {
         fetchMetAlerts()
     }
 
-    fun fetchMetAlerts() { // Henter data fra APIet
+    private fun fetchMetAlerts() { // Henter data fra APIet
         Log.d("Fetch", "MetAlerts")
         Log.d("API_request", "attempting fetchMetAlerts.launch")
         CoroutineScope(Dispatchers.IO).launch {
-            //val url = "https://api.met.no/weatherapi/metalerts/1.1/.json"
+            // https://api.met.no/weatherapi/metalerts/1.1/.json
             val url = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/metalerts/1.1/.json"
             _stormWarningUiState.update {
                 // setter warningList til å være en MetAlertsResponse
@@ -33,27 +33,5 @@ class MetAlertsViewModel: ViewModel() {
         }
         Log.d("API_request", "fetchMetAlerts.launch success")
     }
-/*
-
-curl --header "X-Gravitee-Api-Key: dc1732ae-a8a0-4dd5-8052-26094bfbca11" \
-     https://gw-uio.intark.uh-it.no/in2000
-
-    //val metAlertDataSource =
-    var metAlertsResponse: MetAlertsResponse;
-
-    fun getMetAlertsDataSource(): MetAlertsResponse{
-        var metResponse: MetAlertsResponse = MetAlertsResponse(emptyList(), "", "", "")
-
-        viewModelScope.launch {
-            metResponse = metAlertDataSource.fetchMetData()
-        }
-        return metResponse
-    }
-
-    init {
-        metAlertsResponse = getMetAlertsDataSource()
-    }
-
- */
 }
 

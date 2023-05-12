@@ -7,7 +7,7 @@ import io.ktor.client.call.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.request.*
 import io.ktor.serialization.gson.*
-
+// TODO: Tror denne kan slettes -> ApiDataSource gjør dette
 class OceanForecastDataSource (val path: String){
     private val client = HttpClient{
         install(ContentNegotiation) {
