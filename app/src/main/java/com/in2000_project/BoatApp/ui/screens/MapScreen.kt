@@ -1,5 +1,9 @@
 package com.in2000_project.BoatApp.compose
 
+import AvsluttSok
+import AvsluttSokPopup
+import InfoButton
+import NavigationMenuButton
 import android.annotation.SuppressLint
 import android.location.Location
 import android.util.Log
@@ -37,10 +41,10 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.in2000_project.BoatApp.MenuButton
 import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
+import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.OceanViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
@@ -89,6 +93,7 @@ fun MannOverbord(
             "${mapViewModel.oceanViewModel.oceanForecastResponseObject.geometry.coordinates}"
         )
     }
+
     Box(
 
     ) {
@@ -124,118 +129,32 @@ fun MannOverbord(
             modifier = Modifier
                 .padding(start = 10.dp, top = 10.dp)
         ) {
-            MenuButton(
+
+            NavigationMenuButton(
                 buttonIcon = Icons.Filled.Menu,
                 onButtonClicked = { openDrawer() }
             )
 
-            IconButton(
-                onClick = { mapViewModel.mannOverBordInfoPopUp = true },
-                modifier = Modifier
-                    .padding(start = LocalConfiguration.current.screenWidthDp.dp * 0.3f)
-            ) {
-                Icon(
-                    Icons.Outlined.Info,
-                    contentDescription = "Info",
-                    modifier = Modifier
-                        .size(32.dp),
-                    tint = Color.White
-                )
-            }
+            InfoButton(
+                mapViewModel = mapViewModel,
+                screen = "Mann-over-bord"
+            )
         }
 
         if (mapViewModel.mannOverBordInfoPopUp) {
-            Popup(
-                alignment = Alignment.Center,
-                properties = PopupProperties(
-                    focusable = true
-                )
-
-            ) {
-                ElevatedCard(
-                    modifier = Modifier
-                        .background(
-                            color = Color.White,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                        .width(LocalConfiguration.current.screenWidthDp.dp * 0.6f)
-                        .height(LocalConfiguration.current.screenHeightDp.dp * 0.15f)
-                        .shadow(
-                            elevation = 10.dp,
-                            shape = RoundedCornerShape(20.dp)
-                        )
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        IconButton(
-                            onClick = { mapViewModel.mannOverBordInfoPopUp = false },
-                            modifier = Modifier
-                                .align(Alignment.End)
-                        ) {
-                            Icon(
-                                Icons.Outlined.Close,
-                                contentDescription = "Close",
-                                modifier = Modifier
-                                    .size(24.dp),
-                                tint = androidx.compose.ui.graphics.Color.Gray
-                            )
-                        }
-                        //Var bare "text før"
-                        androidx.compose.material.Text(
-                            text = mapViewModel.infoTextMannOverBord,
-                            modifier = Modifier
-                                .align(Alignment.CenterHorizontally)
-                        )
-                    }
-                }
-            }
+            InfoPopup(
+                mapViewModel = mapViewModel,
+                screen = "Mann-over-bord"
+            )
         }
 
-        // Add this state variable
-        val showDialog = remember { mutableStateOf(false) }
 
-        Button(
-            onClick = {
-                mapViewModel.updateLocation()
-                val pos = locationToLatLng(state.lastKnownLocation)
-                val seaOrLandViewModel = SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
-
-                mapViewModel.viewModelScope.launch {
-                    var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-                    while (seaOrLandResponse == null) {
-                        delay(100)
-                        Log.i("MapScreen seaorland", "waiting for seaorlandresponse")
-                        seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-                    }
-
-                    if (seaOrLandResponse?.water == true) {
-                        mapViewModel.oceanViewModel.setPath(pos)
-                        mapViewModel.oceanViewModel.getOceanForecastResponse()
-
-                        Log.i("sender den", "${mapViewModel.oceanViewModel.oceanForecastResponseObject}")
-
-                        if (!mapViewModel.mapUpdateThread.isRunning) {
-                            mapViewModel.startButton(state.lastKnownLocation, pos)
-                            mapViewModel.buttonText = "avslutt søk"
-                        } else {
-                            showDialog.value = true
-                        }
-
-                    } else if (seaOrLandResponse?.water == false) {
-                        mapViewModel.mannOverBordInfoPopUp = true
-                        mapViewModel.infoTextMannOverBord = "Vi kan ikke ta inn bølgedata når du er på land."
-                    } else {
-                        mapViewModel.mannOverBordInfoPopUp = true
-                        mapViewModel.infoTextMannOverBord = "Vi fikk ikke hentet dataene. Prøv igjen!"
-                    }
-                }
-                Log.i("MapScreen button", "Hei fra buttonpress")
-
-            },
+        AvsluttSok(
+            mapViewModel = mapViewModel,
+            state = state,
+            locationObtained = locationObtained,
             modifier = Modifier
-                .wrapContentWidth(CenterHorizontally)
+                .wrapContentWidth(Alignment.CenterHorizontally)
                 .padding(
                     top = LocalConfiguration.current.screenHeightDp.dp * 0.73f
                 )
@@ -244,58 +163,15 @@ fun MannOverbord(
                     elevation = 5.dp,
                     shape = CircleShape
                 )
-                .align(CenterHorizontally),
-            shape = CircleShape,
-            colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
-            enabled = mapViewModel.enabled.value,
-        ) {
-            Text(
-                text = mapViewModel.buttonText,
-                fontWeight = FontWeight.Bold,
-                fontSize = 16.sp,
-                textAlign = TextAlign.Center
-            )
-
-            LaunchedEffect(locationObtained.value) {
-                delay(1500)
-                if (locationObtained.value) {
-                    Log.i("MapScreen", "Zoomer inn på brukeren")
-                    cameraPositionState.animate(
-                        CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation),cameraZoom),1500)
-                }
-            }
-        }
+                .align(Alignment.CenterHorizontally),
+            cameraPositionState = cameraPositionState,
+            cameraZoom = cameraZoom
+        )
 
 // Add the AlertDialog
-        if (showDialog.value) {
-            AlertDialog(
-                onDismissRequest = { showDialog.value = false },
-                title = { Text("Er du sikker? ") },
-                text = { Text("Du er nå i ferd med å stoppe søking. \nVil  du avslutte?") }, //kan legges som String resource
-                buttons = {
-                    Row(
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(bottom = 8.dp, start = 8.dp, end = 8.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Button(
-                            onClick = { showDialog.value = false }
-                        ) {
-                            Text("Nei")
-                        }
-
-                        Button(
-                            onClick = {
-                                showDialog.value = false
-                                mapViewModel.restartButton()
-                                mapViewModel.buttonText = "start søk"
-                            }
-                        ) {
-                            Text("Ja")
-                        }
-                    }
-                }
+        if (mapViewModel.showDialog) {
+            AvsluttSokPopup(
+                mapViewModel = mapViewModel
             )
         }
     }

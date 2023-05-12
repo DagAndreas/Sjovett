@@ -10,6 +10,9 @@ import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
+import com.in2000_project.BoatApp.compose.calculateDistance
+import com.in2000_project.BoatApp.compose.calculateTimeInMinutes
+import com.in2000_project.BoatApp.compose.formatTime
 import com.in2000_project.BoatApp.maps.CircleInfo
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
@@ -77,7 +80,11 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var mannOverBordInfoPopUp by mutableStateOf(true)
     var reiseplanleggerInfoPopUp by mutableStateOf(true)
 
-    var infoTextMannOverBord by mutableStateOf("test")
+    var infoTextMannOverBord by mutableStateOf("MapScreenMutableText")
+    var infoTextReiseplanlegger by mutableStateOf("ReiseplanleggerMutableText")
+
+
+    var showDialog by mutableStateOf(false)
 
 
     val a = Log.d("Oppretter ovm", "$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
@@ -184,6 +191,42 @@ class MapViewModel @Inject constructor(): ViewModel() {
             }
         } catch (e: SecurityException) {
             // Show error or something
+        }
+    }
+
+    fun removeLastMarker() {
+        if (markerPositions.size >= 2) {
+            // Remove the last marker position
+            markerPositions.removeLast()
+            coordinatesToFindDistanceBetween.removeLast()
+
+            // Remove the last polyline and update the distance and time
+            polyLines.removeLast()
+
+            if (coordinatesToFindDistanceBetween.size > 1) {
+                distanceInMeters.value = calculateDistance(coordinatesToFindDistanceBetween)
+                lengthInMinutes.value = calculateTimeInMinutes(distanceInMeters.value, speedNumber.value)
+            }
+        } else if (markerPositions.size == 1) {
+            // If there is only one marker position left, remove it and update the displayed text
+            if(!usingMyPositionTidsbruk.value) {
+                markerPositions.removeLast()
+                coordinatesToFindDistanceBetween.removeLast()
+            }
+        }
+        updateDisplayedText()
+    }
+
+    fun updateDisplayedText() {
+        if (speedNumber.value == 0f) {
+            displayedText.value = "Du vil ikke komme fram hvis du kjører 0 knop"
+
+        } else {
+            if (markerPositions.size < 2) {
+                displayedText.value = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
+            } else {
+                displayedText.value = formatTime(lengthInMinutes.value)
+            }
         }
     }
 }
