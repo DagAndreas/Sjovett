@@ -27,6 +27,9 @@ import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
+import com.plcoding.bottomnavwithbadges.ui.theme.Black
+import com.plcoding.bottomnavwithbadges.ui.theme.DeepRed
+import com.plcoding.bottomnavwithbadges.ui.theme.Red
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -61,7 +64,7 @@ fun AvsluttSok(
 
                     if (!mapViewModel.mapUpdateThread.isRunning) {
                         mapViewModel.startButton(state.lastKnownLocation, pos)
-                        mapViewModel.buttonText = "avslutt søk"
+                        mapViewModel.buttonText = "Avslutt søk"
                     } else {
                         mapViewModel.showDialog = true
                     }
@@ -79,7 +82,7 @@ fun AvsluttSok(
         },
         modifier = modifier,
         shape = CircleShape,
-        colors = ButtonDefaults.outlinedButtonColors(contentColor =  Color.Red),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = Red),
         enabled = mapViewModel.enabled.value,
     ) {
         Text(
@@ -90,7 +93,7 @@ fun AvsluttSok(
         )
 
         LaunchedEffect(locationObtained.value) {
-            delay(1500)
+            delay(2000)
             if (locationObtained.value) {
                 Log.i("MapScreen", "Zoomer inn på brukeren")
                 cameraPositionState.animate(

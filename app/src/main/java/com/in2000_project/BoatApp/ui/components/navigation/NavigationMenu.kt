@@ -1,63 +1,30 @@
-import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.annotation.SuppressLint
-import android.content.pm.PackageManager
-import android.graphics.drawable.Icon
-import android.os.Build
-import android.os.Bundle
-import androidx.activity.ComponentActivity
-import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.*
+import androidx.compose.material.Icon
+import androidx.compose.material.MaterialTheme
+import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
-import androidx.compose.material.icons.outlined.DirectionsBoat
 import androidx.compose.material.icons.outlined.Support
 import androidx.compose.material.icons.outlined.WbSunny
-import androidx.compose.material.icons.rounded.Support
 import androidx.compose.material.icons.rounded.Timer
-import androidx.compose.material.icons.rounded.WbSunny
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
-import com.in2000_project.BoatApp.compose.MannOverbord
-import com.in2000_project.BoatApp.compose.TidsbrukScreen
-import com.in2000_project.BoatApp.ui.BottomNavItem
-import com.in2000_project.BoatApp.ui.screens.StormWarning
-import com.google.android.gms.location.FusedLocationProviderClient
-import com.google.android.gms.location.LocationServices
 import com.in2000_project.BoatApp.DrawerScreens
 import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.ui.screens.VerktoyScreen
-import com.in2000_project.BoatApp.viewmodel.*
-import com.plcoding.bottomnavwithbadges.ui.theme.BottomNavWithBadgesTheme
-import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
+import com.plcoding.bottomnavwithbadges.ui.theme.Transparent
 
 
 @Composable
@@ -79,7 +46,7 @@ fun Drawer(
     ) {
         Image(
             painter = painterResource(R.drawable.logo),
-            contentDescription = "App icon",
+            contentDescription = stringResource(R.string.Logo),
             modifier = Modifier
                 .fillMaxWidth(0.6f)
                 .padding(start = 24.dp)
@@ -92,7 +59,7 @@ fun Drawer(
 
         screenMap.forEach { screen ->
             val selected = currentRoute == screen.key.route
-            val background = if (selected) Color.LightGray else Color.Unspecified
+            val background = if (selected) LightGrey else Transparent
 
             Row(
                 modifier = modifier
@@ -106,7 +73,7 @@ fun Drawer(
             ) {
                 Icon(
                     imageVector = screen.value,
-                    contentDescription = "drawerIcon",
+                    contentDescription = stringResource(R.string.Meny),
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                 )

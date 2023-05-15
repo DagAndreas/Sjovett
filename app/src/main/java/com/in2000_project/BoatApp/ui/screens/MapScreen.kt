@@ -4,24 +4,14 @@ import AvsluttSok
 import AvsluttSokPopup
 import InfoButton
 import NavigationMenuButton
-import android.annotation.SuppressLint
-import android.location.Location
 import android.util.Log
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
-import androidx.compose.material.ButtonDefaults
-import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
@@ -29,35 +19,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
-import androidx.core.graphics.toColorInt
-import androidx.lifecycle.viewModelScope
-import com.google.android.gms.maps.CameraUpdateFactory
-import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
-import com.in2000_project.BoatApp.maps.personHarDriftetTilNesteGrid
-import com.in2000_project.BoatApp.model.oceanforecast.Details
-import com.in2000_project.BoatApp.model.oceanforecast.Timesery
+import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.ui.components.InfoPopup
-import com.in2000_project.BoatApp.viewmodel.OceanViewModel
-import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
-import com.in2000_project.BoatApp.viewmodel.locationToLatLng
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.*
-import java.util.concurrent.TimeUnit
-import kotlin.math.asin
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
+import com.in2000_project.BoatApp.viewmodel.MapViewModel
+import com.plcoding.bottomnavwithbadges.ui.theme.OpacityRed
+import com.plcoding.bottomnavwithbadges.ui.theme.White
 
 //?lat=60.10&lon=5
 const val seaOrLandUrl = "https://isitwater-com.p.rapidapi.com/"
@@ -107,7 +76,7 @@ fun MannOverbord(
             Circle(
                 center = mapViewModel.circleCenter.value,
                 radius = mapViewModel.circleRadius.value,
-                fillColor = Color("#ABF44336".toColorInt()),
+                fillColor = OpacityRed,
                 strokeWidth = 2F,
                 visible = mapViewModel.circleVisibility.value
             )
@@ -125,6 +94,7 @@ fun MannOverbord(
         modifier = Modifier
             .fillMaxWidth()
     ) {
+        /*
         Row(
             modifier = Modifier
                 .padding(start = 10.dp, top = 10.dp)
@@ -137,14 +107,43 @@ fun MannOverbord(
 
             InfoButton(
                 mapViewModel = mapViewModel,
-                screen = "Mann-over-bord"
+                screen = stringResource(R.string.MannOverBordScreenName)
             )
         }
+
+         */
+
+        Column(
+            modifier = Modifier
+                .fillMaxWidth(0.16f)
+                .wrapContentWidth(CenterHorizontally)
+                .padding(top = 10.dp)
+        ) {
+
+            NavigationMenuButton(
+                buttonIcon = Icons.Filled.Menu,
+                onButtonClicked = { openDrawer() },
+                modifier = Modifier
+                    .align(CenterHorizontally)
+                    .background(
+                        color = White,
+                        shape = CircleShape
+                    )
+                    .padding(10.dp)
+                    .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
+            )
+
+            InfoButton(
+                mapViewModel = mapViewModel,
+                screen = stringResource(R.string.MannOverBordScreenName)
+            )
+        }
+
 
         if (mapViewModel.mannOverBordInfoPopUp) {
             InfoPopup(
                 mapViewModel = mapViewModel,
-                screen = "Mann-over-bord"
+                screen = stringResource(R.string.MannOverBordScreenName)
             )
         }
 
@@ -154,16 +153,16 @@ fun MannOverbord(
             state = state,
             locationObtained = locationObtained,
             modifier = Modifier
-                .wrapContentWidth(Alignment.CenterHorizontally)
+                .wrapContentWidth(CenterHorizontally)
                 .padding(
-                    top = LocalConfiguration.current.screenHeightDp.dp * 0.73f
+                    top = LocalConfiguration.current.screenHeightDp.dp * 0.66f
                 )
                 .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
                 .shadow(
                     elevation = 5.dp,
                     shape = CircleShape
                 )
-                .align(Alignment.CenterHorizontally),
+                .align(CenterHorizontally),
             cameraPositionState = cameraPositionState,
             cameraZoom = cameraZoom
         )

@@ -1,5 +1,7 @@
 package com.in2000_project.BoatApp.ui.screens
 
+//import com.example.gruppe_16.model.metalerts.Geometry
+
 import InfoButtonStorm
 import NavigationMenuButton
 import WeatherCard
@@ -15,55 +17,42 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.Bottom
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
-import androidx.compose.ui.Alignment.Companion.Top
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color.Companion.Black
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
 import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Feature
-//import com.example.gruppe_16.model.metalerts.Geometry
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.LatLngBounds
 import com.google.maps.android.compose.*
 import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.R
-
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
-import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.ui.components.InfoPopupStorm
-import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
-import com.in2000_project.BoatApp.viewmodel.LocationForecastViewModel
-import com.in2000_project.BoatApp.viewmodel.MetAlertsViewModel
-import com.in2000_project.BoatApp.viewmodel.SearchViewModel
 import com.in2000_project.BoatApp.viewmodel.*
+import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
+import com.plcoding.bottomnavwithbadges.ui.theme.White
 import io.ktor.util.*
 import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
@@ -118,6 +107,7 @@ fun StormWarning(
     Column(modifier = modifier,
         horizontalAlignment = CenterHorizontally
     ){
+        /*
         Row(
             modifier = Modifier
                 .padding(start = 10.dp, top = 10.dp)
@@ -125,13 +115,18 @@ fun StormWarning(
         ) {
             NavigationMenuButton(
                 buttonIcon = Icons.Filled.Menu,
-                onButtonClicked = { openDrawer() }
+                onButtonClicked = { openDrawer() },
+                modifier = Modifier
+                    .align(CenterHorizontally)
             )
 
             InfoButtonStorm(
                 alertsMapViewModel = viewModelMap
             )
         }
+         */
+
+
 
         if (viewModelMap.stormvarselInfoPopUp) {
             InfoPopupStorm(
@@ -145,22 +140,56 @@ fun StormWarning(
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = CenterHorizontally
         ){
-            TextField(
-                value = locationSearch.value,
-                onValueChange = { newSearchText ->
-                    viewModelSearch.onSearchChange(newSearchText)
-                    openSearch = true
-                },
-                placeholder = { Text(text = "Søk på sted") },
-                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
-                singleLine = true,
-                modifier = Modifier.onKeyEvent{
-                    if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
-                        focusManager.clearFocus()
-                    }
-                    true
-                },
-            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Column(
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .padding(top = 10.dp)
+                ) {
+                    NavigationMenuButton(
+                        buttonIcon = Icons.Filled.Menu,
+                        onButtonClicked = { openDrawer() },
+                        modifier = Modifier
+                            .align(CenterHorizontally)
+                            .background(
+                                color = White,
+                                shape = CircleShape
+                            )
+                            .padding(10.dp)
+                            .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
+                    )
+
+                    InfoButtonStorm(
+                        alertsMapViewModel = viewModelMap
+                    )
+
+                }
+
+                TextField(
+                    value = locationSearch.value,
+                    onValueChange = { newSearchText ->
+                        viewModelSearch.onSearchChange(newSearchText)
+                        openSearch = true
+                    },
+                    placeholder = { Text(text = stringResource(R.string.SokPåSted)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text),
+                    singleLine = true,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .padding(top = 10.dp)
+                        .onKeyEvent{
+                            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
+                                focusManager.clearFocus()
+                            }
+                            true
+                        },
+                )
+            }
+
             if (searchInProgress) {
                     Box {
                         CircularProgressIndicator(
@@ -174,7 +203,7 @@ fun StormWarning(
                                 .align(CenterHorizontally)
                                 .fillMaxWidth()
                                 .background(
-                                    color = androidx.compose.ui.graphics.Color(0xFFF2F2F2),
+                                    color = LightGrey,
                                     shape = RoundedCornerShape(20.dp)
                                 )
                         ) {
@@ -225,7 +254,7 @@ fun StormWarning(
             ){
                 Spacer(modifier = Modifier.height(0.025 * configuration.screenHeightDp.dp))
                 Text(
-                    text = "Været de neste 24 timene",
+                    text = stringResource(R.string.VaeretNeste24Timer),
                     fontWeight = FontWeight.Bold,
                     fontSize = 0.05 * configuration.screenWidthDp.sp
                 )
