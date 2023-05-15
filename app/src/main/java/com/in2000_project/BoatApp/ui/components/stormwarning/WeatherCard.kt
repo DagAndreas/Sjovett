@@ -1,3 +1,4 @@
+import android.content.res.Resources.Theme
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -19,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import com.in2000_project.BoatApp.R
+import com.plcoding.bottomnavwithbadges.ui.theme.*
 
 @Composable
 fun WeatherCard(
@@ -41,11 +43,11 @@ fun WeatherCard(
     val iconDesc: String
 
     val cornerShape = 20
-    val grayColor = androidx.compose.ui.graphics.Color(0xFFF2F2F2)
-    val blackColor = androidx.compose.ui.graphics.Color(0xFF000000)
+    val grayColor = LightGrey
+    //val blackColor = Black
     val tempColor = when {
-        temperature >= 0 -> androidx.compose.ui.graphics.Color(0xFFC91C1C)
-        else -> androidx.compose.ui.graphics.Color(0xFF1F39BF)
+        temperature >= 0 -> Red
+        else -> DarkBlue
     }
 
     when(weatherIcon){
@@ -145,7 +147,7 @@ fun WeatherCard(
                 bottom = 0.05 * screenWidth
             )
             .background(
-                color = Color.White, // Hvit
+                color = White, // Hvit
                 shape = RoundedCornerShape(cornerShape.dp)
             )
     ) {
@@ -194,7 +196,7 @@ fun WeatherCard(
                         Text(
                             text = "$windSpeed",
                             fontSize = (0.07 * screenWidthSp),
-                            color = blackColor
+                            color = Black
                         )
                         Column(
                             modifier = Modifier
@@ -213,7 +215,7 @@ fun WeatherCard(
                             Text(
                                 text = "($gustSpeed)",
                                 fontSize = (0.03 * screenWidthSp),
-                                color = blackColor
+                                color = Black
                             )
                         }
 
@@ -232,13 +234,13 @@ fun WeatherCard(
                         Text(
                             text = "$rainAmount",
                             fontSize = (0.07 * screenWidthSp),
-                            color = blackColor,
+                            color = Black,
                             modifier = Modifier.align(Alignment.Bottom)
                         )
                         Text(
                             text = "mm",
                             fontSize = (0.03 * screenWidthSp),
-                            color = blackColor,
+                            color = Black,
                             modifier = Modifier.align(Alignment.Bottom)
                         )
 
@@ -261,7 +263,7 @@ fun WeatherCard(
                     shape = RoundedCornerShape(10.dp)
                 )
                 .border(
-                    border = BorderStroke(1.dp, Color.Black),
+                    border = BorderStroke(1.dp, Black),
                     shape = RoundedCornerShape(10.dp)
                 )
         ) {

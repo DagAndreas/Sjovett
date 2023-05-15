@@ -6,8 +6,6 @@ import android.R.attr.*
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import androidx.compose.ui.graphics.Color
-import android.graphics.drawable.shapes.Shape
 import android.location.Location
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -16,11 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.DrawerState
-import androidx.compose.material.DrawerValue
-import androidx.compose.material.SnackbarHostState
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -29,33 +23,34 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Slider
 import androidx.compose.material3.SliderDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.Center
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Color.*
+import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.graphics.toColorInt
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
-import com.google.maps.android.compose.*
-import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import kotlin.math.*
-import androidx.compose.ui.graphics.Color.*
-import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
-import androidx.core.graphics.toColorInt
 import com.google.android.gms.maps.model.*
+import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.ui.components.InfoPopup
+import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
+import com.plcoding.bottomnavwithbadges.ui.theme.*
+import kotlin.math.*
 
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -177,7 +172,7 @@ fun TidsbrukScreen(
     BottomSheetScaffold(
 
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
-        sheetBackgroundColor = Color.White,
+        sheetBackgroundColor = White,
         sheetContent = {
 
             Column(
@@ -192,12 +187,12 @@ fun TidsbrukScreen(
                         .fillMaxWidth(0.2f)
                         .fillMaxHeight(0.01f)
                         .background(
-                            color = Color.LightGray,
+                            color = LightGrey,
                             shape = RoundedCornerShape(5.dp)
                         )
                 )
                 Text(
-                    text = "Angi rute:",
+                    text = stringResource(R.string.AngiRute),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
@@ -210,7 +205,7 @@ fun TidsbrukScreen(
                         .padding(top = 20.dp)
                 ) {
                     Text(
-                        text = "Antall knop: ${viewModel.speedNumber.value.toInt()}",
+                        text = stringResource(R.string.AntallKnop) + viewModel.speedNumber.value.toInt(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
@@ -224,7 +219,7 @@ fun TidsbrukScreen(
                         modifier = Modifier
                             .height(30.dp)
                             .background(
-                                color = Color.LightGray,
+                                color = LightGrey,
                                 shape = RoundedCornerShape(40.dp)
                             )
                             .align(Alignment.CenterVertically)
@@ -238,7 +233,7 @@ fun TidsbrukScreen(
                                 .padding(5.dp)
                                 .fillMaxWidth(0.5f),
                             colors = SliderDefaults.colors(
-                                thumbColor = Color.Gray,
+                                thumbColor = Grey,
                                 activeTickColor = Color.Unspecified,
                                 inactiveTickColor = Color.Unspecified,
                                 inactiveTrackColor = Color.Unspecified,
@@ -271,14 +266,14 @@ fun TidsbrukScreen(
                         modifier = Modifier
                             .align(Alignment.CenterVertically),
                         colors = CheckboxDefaults.colors(
-                            uncheckedColor = Color.LightGray,
-                            checkedColor = Color("#75DC79".toColorInt())
+                            uncheckedColor = LightGrey,
+                            checkedColor = Green
                         ),
                         enabled = !viewModel.lockMarkers.value
                     )
 
                     Text(
-                        text = "Start fra egen posisjon",
+                        text = stringResource(R.string.StartFraEgenPos),
                         fontSize = 13.sp,
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
@@ -296,25 +291,25 @@ fun TidsbrukScreen(
                             modifier = Modifier
                                 .width(LocalConfiguration.current.screenWidthDp.dp * 0.35f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color("#75DC79".toColorInt())
+                                containerColor = Green
                             )
                         ) {
-                            Text("Start rute")
+                            Text(stringResource(R.string.StartRute))
                         }
 
                         Button(
                             onClick = { if(!viewModel.lockMarkers.value) { viewModel.removeLastMarker() } },
                             enabled = !viewModel.markerPositions.isEmpty() && !(viewModel.usingMyPositionTidsbruk.value && viewModel.markerPositions.size == 1),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color("#FF6464".toColorInt()),
-                                disabledContainerColor = Color.LightGray
+                                containerColor = LightRed,
+                                disabledContainerColor = LightGrey
                             ),
                             modifier = Modifier
                                 .padding(start = 8.dp)
 
                         ) {
                             Text(
-                                text = "Fjern punkt",
+                                text = stringResource(R.string.FjernPunkt),
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
                             )
@@ -326,15 +321,15 @@ fun TidsbrukScreen(
                             modifier = Modifier
                                 .width(LocalConfiguration.current.screenWidthDp.dp * 0.35f),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = Color("#FF6464".toColorInt())
+                                containerColor = LightRed
                             )
                         ) {
-                            Text("Avslutt")
+                            Text(stringResource(R.string.Avslutt))
                         }
 
                         Icon(
                             imageVector = Icons.Outlined.DirectionsBoat,
-                            contentDescription = "båtIkon",
+                            contentDescription = stringResource(R.string.Baat),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .padding(horizontal = 8.dp)
@@ -397,7 +392,7 @@ fun TidsbrukScreen(
                         )
                     }
                     else{
-                        viewModel.displayedText.value = "Du må legge til to markører for å få en rute"
+                        viewModel.displayedText.value = stringResource(R.string.LeggTilFlereMarkoerer)
                     }
 
                 }
@@ -411,22 +406,33 @@ fun TidsbrukScreen(
             if (viewModel.reiseplanleggerInfoPopUp) {
                 InfoPopup(
                     mapViewModel = viewModel,
-                    screen = "Reiseplanlegger"
+                    screen = stringResource(R.string.ReiseplanleggerScreenName)
                 )
             }
 
-            Row(
+            Column(
                 modifier = Modifier
-                    .padding(start = 10.dp, top = 10.dp)
+                    .fillMaxWidth(0.16f)
+                    .wrapContentWidth(CenterHorizontally)
+                    .padding(top = 10.dp)
             ) {
+
                 NavigationMenuButton(
                     buttonIcon = Icons.Filled.Menu,
-                    onButtonClicked = { openDrawer() }
+                    onButtonClicked = { openDrawer() },
+                    modifier = Modifier
+                        .align(CenterHorizontally)
+                        .background(
+                            color = White,
+                            shape = CircleShape
+                        )
+                        .padding(10.dp)
+                        .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
                 )
 
                 InfoButton(
                     mapViewModel = viewModel,
-                    screen = "Reiseplanlegger"
+                    screen = stringResource(R.string.ReiseplanleggerScreenName)
                 )
             }
 
@@ -472,7 +478,7 @@ fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Doubl
 
 // Format time in minutes to display as text
 fun formatTime(timeInMinutes: Double): String {
-    return if (timeInMinutes <= 1) {
+    return if (timeInMinutes < 1) {
         "Under 1 minutt"
     } else {
         val hours = (timeInMinutes / 60).toInt()

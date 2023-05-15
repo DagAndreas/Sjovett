@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name">ComposeGoogleMaps</string>
     <string name="icon_delete">&#xe872;</string>
+    <string name="Logo">Logo</string>
+    <string name="Meny">Meny-ikon</string>
     <string-array name="speedUnits">
         <item>knop</item>
         <item>km/t</item>
