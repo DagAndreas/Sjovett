@@ -45,6 +45,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.compose.*
+import com.google.maps.android.ktx.model.markerOptions
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
@@ -249,18 +250,34 @@ fun TidsbrukScreen(
                             viewModel.usingMyPositionTidsbruk.value = !viewModel.usingMyPositionTidsbruk.value
 
                             if(!viewModel.usingMyPositionTidsbruk.value){
-                                viewModel.markerPositions.clear()
-                                viewModel.coordinatesToFindDistanceBetween.clear()
-                                viewModel.polyLines.clear()
+                                viewModel.markerPositions.removeFirst()
+                                viewModel.coordinatesToFindDistanceBetween.removeFirst()
+
+                                if (viewModel.polyLines.isNotEmpty()) {
+                                    viewModel.polyLines.removeFirst()
+                                }
+                                //viewModel.markerPositions.clear()
+                                //viewModel.coordinatesToFindDistanceBetween.clear()
+                                //viewModel.polyLines.clear()
                             }
                             else{
-                                viewModel.markerPositions.clear()
-                                viewModel.coordinatesToFindDistanceBetween.clear()
+                                viewModel.markerPositions.add(0, locationToLatLng(state.lastKnownLocation))
+                                viewModel.coordinatesToFindDistanceBetween.add(0,viewModel.markerPositions[0])
+                                if (viewModel.coordinatesToFindDistanceBetween.size >=2){
+                                    val polyLine = PolylineOptions().add(viewModel.markerPositions[0], viewModel.markerPositions[1]).color(android.graphics.Color.BLACK)
+                                    viewModel.polyLines.add(0, polyLine)
+                                }
+
+                                //viewModel.markerPositions.clear()
+                                /*viewModel.coordinatesToFindDistanceBetween.clear()
                                 viewModel.polyLines.clear()
 
                                 viewModel.markerPositions.add(locationToLatLng(state.lastKnownLocation!!))
-                                viewModel.coordinatesToFindDistanceBetween.add(locationToLatLng(state.lastKnownLocation!!))
+                                viewModel.coordinatesToFindDistanceBetween.add(locationToLatLng(state.lastKnownLocation!!))*/
                             }
+                            viewModel.distanceInMeters.value = calculateDistance(viewModel.coordinatesToFindDistanceBetween)
+                            viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
+
                             viewModel.updateDisplayedText()
                         },
                         modifier = Modifier
