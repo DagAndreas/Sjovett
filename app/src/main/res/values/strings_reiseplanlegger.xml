@@ -1,7 +1,7 @@
 <resources>
 
     <string name="AngiRute">Angi rute:</string>
-    <string name="AntallKnop">\"Antall knop: \"</string>
+    <string name="AntallKnop">\Antall knop: \</string>
     <string name="StartFraEgenPos">Start fra egen posisjon</string>
     <string name="StartRute">Start rute</string>
     <string name="FjernPunkt">Fjern punkt</string>
