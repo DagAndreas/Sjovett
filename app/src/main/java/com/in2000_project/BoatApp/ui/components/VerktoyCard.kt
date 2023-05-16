@@ -29,6 +29,10 @@ import coil.compose.AsyncImage
 import com.in2000_project.BoatApp.R
 
 
+
+//KAN SLETTES
+
+
 //@Preview
 @Composable
 fun VerktoyCard(name: String, color: String, icon: Painter) {
