@@ -1,6 +1,8 @@
 package com.in2000_project.BoatApp
 
 import Drawer
+import Livredning
+import Sjoemerkesystemet
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager
 import android.os.Build
@@ -145,6 +147,23 @@ class MapActivity : ComponentActivity() {
                                     }
                                 )
                             }
+
+                            composable(DrawerScreens.Livredning.route) {
+                                Livredning(
+                                    openDrawer = {
+                                        openDrawer()
+                                    }
+                                )
+                            }
+
+                            composable(DrawerScreens.Sjoemerkesystemet.route) {
+                                Sjoemerkesystemet(
+                                    openDrawer = {
+                                        openDrawer()
+                                    }
+                                )
+                            }
+
                         }
                     }
                 }
@@ -158,6 +177,8 @@ sealed class DrawerScreens(val title: String, val route: String) {
     object MannOverBord : DrawerScreens("Mann over bord", "mannoverbord")
     object StormWarning : DrawerScreens("Stormvarsel", "stormvarsel")
     object TidsbrukScreen : DrawerScreens( "Reiseplanlegger", "reiseplanlegger")
+    object Livredning : DrawerScreens("Livredning", "livredning")
+    object Sjoemerkesystemet : DrawerScreens("Sjømerkesystemet", "sjoemerkesystemet")
 }
 
 

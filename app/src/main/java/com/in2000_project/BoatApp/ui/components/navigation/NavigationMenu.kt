@@ -7,8 +7,10 @@ import androidx.compose.material.Icon
 import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Support
-import androidx.compose.material.icons.outlined.WbSunny
+import androidx.compose.material.icons.outlined.*
+import androidx.compose.material.icons.rounded.AltRoute
+import androidx.compose.material.icons.rounded.BorderOuter
+import androidx.compose.material.icons.rounded.Router
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,7 +38,9 @@ fun Drawer(
     val screenMap: Map<DrawerScreens, ImageVector> = mapOf(
         DrawerScreens.MannOverBord to Icons.Outlined.Support,
         DrawerScreens.StormWarning to Icons.Outlined.WbSunny,
-        DrawerScreens.TidsbrukScreen to Icons.Rounded.Timer
+        DrawerScreens.TidsbrukScreen to Icons.Rounded.Timer,
+        DrawerScreens.Livredning to Icons.Outlined.MedicalServices,
+        DrawerScreens.Sjoemerkesystemet to Icons.Outlined.Book
     )
 
     Column(
