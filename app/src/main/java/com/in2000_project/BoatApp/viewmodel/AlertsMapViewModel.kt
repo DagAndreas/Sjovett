@@ -38,7 +38,7 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
 
     //InfoKort
     var stormvarselInfoPopUp by mutableStateOf(true)
-    var infoTextStormvarsel by mutableStateOf("StormvarselMutableText")
+    var infoTextStormvarsel by mutableStateOf("Skriv inn ønsket område i søkefeltet. Sveip til høyre for å se værvarsel for det neste døgnet.")
 
     val state: StateFlow<MapStateCluster> = _state.asStateFlow()
 
