@@ -40,7 +40,8 @@ fun Drawer(
         DrawerScreens.StormWarning to Icons.Outlined.WbSunny,
         DrawerScreens.TidsbrukScreen to Icons.Rounded.Timer,
         DrawerScreens.Livredning to Icons.Outlined.MedicalServices,
-        DrawerScreens.Sjoemerkesystemet to Icons.Outlined.Book
+        DrawerScreens.Sjomerkesystemet to Icons.Outlined.Book,
+        DrawerScreens.Sjovettreglene to Icons.Outlined.List
     )
 
     Column(
