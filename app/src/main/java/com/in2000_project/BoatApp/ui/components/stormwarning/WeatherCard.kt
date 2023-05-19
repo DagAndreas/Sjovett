@@ -30,8 +30,6 @@ fun WeatherCard(
     windDirection: Double,
     gustSpeed: Double,
     rainAmount: Double,
-    //rainProbability: Double, /* TODO: Remove if not used! */
-    //lightningProbability: Double, /* TODO: Remove if not used! */
     weatherIcon: String
 ) {
 
@@ -137,7 +135,7 @@ fun WeatherCard(
         else -> {icon = R.drawable.round_cloud_sync_24; iconDesc = "Searching for weather"; Log.e("Ikon", "Could not find drawable: $weatherIcon")}
     }
 
-    Box( // Hele boksen
+    Box(
         modifier = Modifier
             .height(0.35 * screenHeight)
             .width(0.8 * screenWidth)
@@ -147,11 +145,11 @@ fun WeatherCard(
                 bottom = 0.05 * screenWidth
             )
             .background(
-                color = White, // Hvit
+                color = White,
                 shape = RoundedCornerShape(cornerShape.dp)
             )
     ) {
-        Box( // Hovedboks
+        Box( // Main box
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .fillMaxHeight(0.9f)
@@ -243,16 +241,15 @@ fun WeatherCard(
                             color = Black,
                             modifier = Modifier.align(Alignment.Bottom)
                         )
-
                     } // End of "Rain row"
                 } // End of "Bottom row"
             }
-        } // Hovedboks slutt
+        } // End of "Main box"
 
-        val hour = time.removeSuffix("Z").split("T")[1].split(":")
+        val hour = time.split(" ")[3].split(":")
         val useTime = "${hour[0]}:${hour[1]}"
 
-        Box( // Overskrift
+        Box( // Header
             modifier = Modifier
                 .align(Alignment.TopCenter)
                 .wrapContentSize(Alignment.Center)
@@ -275,6 +272,6 @@ fun WeatherCard(
                     .background(grayColor),
                 fontWeight = FontWeight.Bold
             )
-        }// Overskrift slutt
+        }// End of "Header"
     }
 }
