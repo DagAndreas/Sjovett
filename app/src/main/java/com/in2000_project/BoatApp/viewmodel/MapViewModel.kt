@@ -80,8 +80,8 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var mannOverBordInfoPopUp by mutableStateOf(true)
     var reiseplanleggerInfoPopUp by mutableStateOf(true)
 
-    var infoTextMannOverBord by mutableStateOf("MapScreenMutableText")
-    var infoTextReiseplanlegger by mutableStateOf("ReiseplanleggerMutableText")
+    var infoTextMannOverBord by mutableStateOf("Trykk på 'Start søk' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.")
+    var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.")
 
 
     var showDialog by mutableStateOf(false)
@@ -119,6 +119,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         enabled.value = true
         timePassedInSeconds.value =  0
         mann_er_overbord.value = false
+        infoTextMannOverBord = "Trykk på 'Start søk' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig."
         polyLinesMap.clear()
     }
 
@@ -129,6 +130,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         circleVisibility.value = true
         enabled.value = true
         mann_er_overbord.value = true
+        infoTextMannOverBord = "Trykk på 'Avslutt søk' for å avslutte søket. Søkeområdet vil ikke lenger være synlig."
         markersMapScreen.add(pos)
         mapUpdateThread.isRunning = true
         mapUpdateThread = MapUpdateThread(this)
