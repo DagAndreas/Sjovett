@@ -26,10 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
-import kotlin.math.asin
-import kotlin.math.atan2
-import kotlin.math.cos
-import kotlin.math.sin
+import kotlin.math.*
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
@@ -258,7 +255,8 @@ fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
     val currentTime = Date()
     Log.i("Current time", "$currentTime")
     var i = 0
-
+    var smallestIndex = 0
+    var smallestSecondsBetween = Long.MAX_VALUE
     for (item in listOfTime) {
         val checkTime: Date
         try {
@@ -269,19 +267,20 @@ fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
         }
 
         val secondsBetween = getSecondsBetween(currentTime, checkTime)
-        if (secondsBetween >= 0) {
-            Log.i("found closest time:", "${listOfTime[i].time}")
-            return listOfTime[i].data.instant.details
+        if (secondsBetween >= 0 && secondsBetween < smallestSecondsBetween) {
+            smallestIndex = i;
+            smallestSecondsBetween = secondsBetween
         }
         i++
     }
-    return listOfTime[0].data.instant.details
+    Log.i("closest time:", "${listOfTime[smallestIndex].time} is the closest to ${currentTime.time}")
+    return listOfTime[smallestIndex].data.instant.details
 }
 fun getSecondsBetween(date1: Date, date2: Date): Long {
-    val diffInMilliseconds = date1.time - date2.time
+    val diffInMilliseconds = abs(date1.time - date2.time)
+    //Log.i("diffInMilliseconds", "$diffInMilliseconds")
     return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
 }
-
 
 /** brukes for å hente posisjonen fra state. default hvis null*/
 fun locationToLatLng(loc: Location?): LatLng {
