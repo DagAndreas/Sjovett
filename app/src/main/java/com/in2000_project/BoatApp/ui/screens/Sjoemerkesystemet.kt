@@ -14,6 +14,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
@@ -32,13 +33,21 @@ fun Sjoemerkesystemet(
         R.drawable.sjomerkesystemet_plakat2
     )
 
-    Box(
+    ZoomableBox(
         modifier = Modifier
             .background(color = LightGrey)
             .fillMaxSize()
     ) {
 
-        LazyColumn() {
+        LazyColumn(
+            modifier = Modifier
+                .graphicsLayer(
+                    scaleX = scale,
+                    scaleY = scale,
+                    translationX = offsetX,
+                    translationY = offsetY
+                )
+        ) {
             items (imageList) {image ->
 
                 ElevatedCard(
@@ -61,7 +70,6 @@ fun Sjoemerkesystemet(
 
         Box(
             modifier = Modifier
-                .align(Alignment.TopStart)
                 .padding(10.dp)
         ) {
             NavigationMenuButton(
