@@ -441,6 +441,7 @@ fun TidsbrukScreen(
                         .padding(10.dp)
                         .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
                 )
+                Spacer(Modifier.height(10.dp))
 
                 InfoButton(
                     mapViewModel = viewModel,
