@@ -52,8 +52,7 @@ fun InfoPopup(
             else {
                 ""
             }
-        )
-               }, //kan legges som String resource
+        )}, //kan legges som String resource
         buttons = { }
     )
 }

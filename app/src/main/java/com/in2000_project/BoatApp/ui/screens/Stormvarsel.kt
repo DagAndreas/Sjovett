@@ -49,6 +49,7 @@ import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
+import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.ui.components.InfoPopupStorm
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
@@ -62,8 +63,8 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 
+@RequiresApi(Build.VERSION_CODES.M)
 @SuppressLint("PotentialBehaviorOverride")
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
 fun StormWarning(
@@ -72,9 +73,9 @@ fun StormWarning(
     viewModelMap: AlertsMapViewModel,
     viewModelSearch: SearchViewModel,
     setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
-    //calculateZoneViewCenter: () -> LatLngBounds,
     modifier: Modifier,
-    openDrawer: () -> Unit
+    openDrawer: () -> Unit,
+    connection: CheckInternet
 ){
     val mapProperties = MapProperties(isMyLocationEnabled = true/*mapState.lastKnownLocation != null,*/)
     val mapState by viewModelMap.state.collectAsState()
@@ -101,33 +102,15 @@ fun StormWarning(
     var openSearch by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    viewModelForecast.updateUserCoord(userLat, userLng)
+    Log.e("Stormvarsel", "viewModelForecast.updateUserCoord(userLat, userLng) 1")
+    viewModelForecast.updateUserCoord(userLat, userLng, connection)
+    Log.e("Stormvarsel", "viewModelForecast.updateUserCoord(userLat, userLng) 2")
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
+
 
     Column(modifier = modifier,
         horizontalAlignment = CenterHorizontally
     ){
-        /*
-        Row(
-            modifier = Modifier
-                .padding(start = 10.dp, top = 10.dp)
-                .align(Alignment.Start)
-        ) {
-            NavigationMenuButton(
-                buttonIcon = Icons.Filled.Menu,
-                onButtonClicked = { openDrawer() },
-                modifier = Modifier
-                    .align(CenterHorizontally)
-            )
-
-            InfoButtonStorm(
-                alertsMapViewModel = viewModelMap
-            )
-        }
-         */
-
-
-
         if (viewModelMap.stormvarselInfoPopUp) {
             InfoPopupStorm(
                 alertsMapViewModel = viewModelMap
@@ -135,8 +118,7 @@ fun StormWarning(
         }
 
         Column(
-            modifier = modifier.fillMaxSize()
-            ,
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = CenterHorizontally
         ){
@@ -207,6 +189,8 @@ fun StormWarning(
                                     shape = RoundedCornerShape(20.dp)
                                 )
                         ) {
+
+
                             items(cities.value) { CityName ->
                                 Text(
                                     text = "${CityName.name}, ${CityName.country}",
@@ -223,7 +207,7 @@ fun StormWarning(
                                             Log.d("temper", location)
 
                                             CoroutineScope(Dispatchers.IO).launch {
-                                                viewModelSearch.fetchCityData(CityName.name)
+                                                viewModelSearch.fetchCityData(CityName.name, connection)
                                                 while (geoCodeUiState.value.cityList.isEmpty()) {
                                                     delay(100) // Wait for 100 milliseconds before checking again
                                                 }
@@ -233,10 +217,9 @@ fun StormWarning(
                                                     userLng = cityData[0].longitude
                                                     viewModelForecast.updateUserCoord(
                                                         userLat,
-                                                        userLng
+                                                        userLng,
+                                                        connection
                                                     )
-
-
                                                 }
                                                 viewModelSearch.resetCityData()
                                             }
@@ -275,8 +258,6 @@ fun StormWarning(
                                     windDirection = temperatureData[key].data.instant.details.wind_from_direction,
                                     gustSpeed = temperatureData[key].data.instant.details.wind_speed_of_gust,
                                     rainAmount = temperatureData[key].data.next_1_hours.details.precipitation_amount,
-                                    //rainProbability = temperatureData[key].data.next_1_hours.details.probability_of_precipitation,
-                                    //lightningProbability = temperatureData[key].data.next_1_hours.details.probability_of_thunder,
                                     weatherIcon = temperatureData[key].data.next_1_hours.summary.symbol_code
                                 )
                             }
@@ -327,60 +308,49 @@ fun StormWarning(
     }
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun createInstant(date: String): Instant? {
-    val currentTimeData = date.removeSuffix("Z").split("T")
-    val currentYear = currentTimeData[0].split("-")[0].toInt()
-    val currentMonth = currentTimeData[0].split("-")[1].toInt()
-    val currentDay = currentTimeData[0].split("-")[2].toInt()
-    val currentHour = currentTimeData[1].split(":")[0].toInt()
-    val currentMinute = currentTimeData[1].split(":")[1].toInt()
-    val currentSecond = currentTimeData[1].split(":")[2].toInt()
-    return Instant.ofEpochSecond(0)
-        .atZone(ZoneOffset.UTC)
-        .withYear(currentYear)
-        .withMonth(currentMonth)
-        .withDayOfMonth(currentDay)
-        .withHour(currentHour)
-        .withMinute(currentMinute)
-        .withSecond(currentSecond)
-        .toInstant()
+fun createCalendar(date: String): Calendar? {
+    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
+    sdf.timeZone = TimeZone.getTimeZone("UTC")
+    val parsedDate = sdf.parse(date) ?: return null
+    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
+    calendar.time = parsedDate
+    return calendar
 }
 
 @SuppressLint("SimpleDateFormat")
-@RequiresApi(Build.VERSION_CODES.O)
-fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Instant> {
-    val returnMap = mutableMapOf<Int, Instant>() // Will contain index for time now, every three hours up to 24 hours
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
+    val returnMap = mutableMapOf<Int, Date>()
+    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.GERMANY)
+    sdf.timeZone = TimeZone.getTimeZone("UTC")
     val time = sdf.format(Date())
-    val currentTime = createInstant(time)!!
-    var wantedBetween = 0
+    val currentTime = createCalendar(time)!!
+    var wantedBetween = 60*60*2 // Two hours
     var found = 0
-    for ((i, item) in listOfTime.withIndex()) {
-        val checkTime = createInstant(item.time)!!
+    var i = 0
+    for (item in listOfTime) {
+        val checkTime = createCalendar(item.time)!!
         val secondsBetween = compareTimes(currentTime, checkTime)
-        if(secondsBetween >= wantedBetween) {
+        if (secondsBetween >= wantedBetween) {
             found++
-            if(wantedBetween == 0) {
-                wantedBetween = 60*60*3 // 60 seconds * 60 to get 1 hour * 3 to get 3 hours
+            if (wantedBetween == 0) {
+                wantedBetween = 60 * 60 * 3 // 60 seconds * 60 to get 1 hour * 3 to get 3 hours
             } else {
-                wantedBetween += 60*60*3 // 3 hours in the future
+                wantedBetween += 60 * 60 * 3 // 3 hours in the future
             }
-            returnMap[i] = checkTime
-            if (found >= 8){ // 8 will give us close to 24 hour coverage
+            returnMap[i] = checkTime.time
+            if (found >= 8) {
                 return returnMap
             }
         }
+        i++
     }
     return returnMap
 }
 
-@RequiresApi(Build.VERSION_CODES.O)
-fun compareTimes(currentInstant: Instant, checkTimeInstant: Instant): Long {
-// find the difference in seconds
-    return ChronoUnit.SECONDS.between(currentInstant, checkTimeInstant)
+fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
+    val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
+    return diffMillis / 1000
 }
-
 
 fun getColor(awarenessLevel: String): String {
     val color = awarenessLevel.split("; ")[1]
@@ -395,6 +365,34 @@ fun getColor(awarenessLevel: String): String {
     }
 }
 
+fun addStormClusters(
+    viewModelMap: AlertsMapViewModel,
+    warnings: List<Feature>
+) {
+    viewModelMap.resetCluster()
+    for(warning in warnings){
+        Log.i("Warning at location", "${warning.properties.area} - ${warning.properties.geographicDomain}")
+        if(warning.properties.geographicDomain == "marine") {
+            viewModelMap.addCluster(
+                id = warning.properties.area,
+                title = warning.properties.area,
+                description = warning.properties.instruction,
+                polygonOptions = polygonOptions {
+                    for (item in warning.geometry.coordinates) {
+                        for (coordinate in item) {
+                            add(LatLng(coordinate[1], coordinate[0]))
+                        }
+                    }
+                    fillColor(Color.parseColor((getColor(warning.properties.awareness_level))))
+                    strokeWidth(0.5f)
+                }
+            )
+        }
+    }
+}
+
+// TODO: Unsused function
+/*
 fun getWeatherIcon(weatherIcon: String): MutableMap<Int, String> {
     val returnMap = mutableMapOf<Int, String>()
     val icon: Int
@@ -488,78 +486,9 @@ fun getWeatherIcon(weatherIcon: String): MutableMap<Int, String> {
     returnMap[icon] = iconDesc
     return returnMap
 }
-fun addStormClusters(
-    viewModelMap: AlertsMapViewModel,
-    warnings: List<Feature>
-) {
-    viewModelMap.resetCluster()
-    for(warning in warnings){
-        Log.i("Warning at location", "${warning.properties.area} - ${warning.properties.geographicDomain}")
-        if(warning.properties.geographicDomain == "marine") {// || warning.properties.geographicDomain == "land" /*&& checkIfCloseToWarning(warning.geometry)*/){ // checkIfCloseToWarning viser kun de i nærhetenn av brukeren
-            viewModelMap.addCluster(
-                id = warning.properties.area,
-                title = warning.properties.area,
-                description = warning.properties.instruction,
-                polygonOptions = polygonOptions {
-                    for (item in warning.geometry.coordinates) {
-                        for (coordinate in item) {
-                            add(LatLng(coordinate[1], coordinate[0]))
-                        }
-                    }
-                    fillColor(Color.parseColor((getColor(warning.properties.awareness_level))))
-                    strokeWidth(0.5f)
-                }
-            )
-        }
-    }
-}
+ */
 
-//TODO: kan bruke denne for å sleppe minimum sdk 26.
-/*
-fun createCalendar(date: String): Calendar? {
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-    sdf.timeZone = TimeZone.getTimeZone("UTC")
-    val parsedDate = sdf.parse(date) ?: return null
-    val calendar = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-    calendar.time = parsedDate
-    return calendar
-}
-
-@SuppressLint("SimpleDateFormat")
-fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Calendar> {
-    val returnMap = mutableMapOf<Int, Calendar>()
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
-    sdf.timeZone = TimeZone.getTimeZone("UTC")
-    val time = sdf.format(Date())
-    val currentTime = createCalendar(time)!!
-    var wantedBetween = 0L
-    var found = 0
-    var i = 0
-    for (item in listOfTime) {
-        val checkTime = createCalendar(item.time)!!
-        val secondsBetween = compareTimes(currentTime, checkTime)
-        if (secondsBetween >= wantedBetween) {
-            found++
-            if (wantedBetween == 0L) {
-                wantedBetween = 60 * 60 * 3
-            } else {
-                wantedBetween += 60 * 60 * 3
-            }
-            returnMap[i] = checkTime
-            if (found >= 8) {
-                return returnMap
-            }
-        }
-        i++
-    }
-    return returnMap
-}
-
-fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
-    val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
-    return diffMillis / 1000
-}*/
-
+// TODO: Unused function
 /*
 fun findBorders(
     listOfCoordinates: Geometry,
