@@ -3,19 +3,38 @@ import com.in2000_project.BoatApp.ui.screens.getColor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.time.Instant
+import java.util.*
 
 class StormvarselKtTest {
     @Test
-    fun testCompareTimes() {
+    fun testCompareTimes1() {
         // TODO: Arrange
-        val currentInstant = Instant.parse("2023-05-19T12:00:00Z")
-        val checkTimeInstant = Instant.parse("2023-05-19T15:00:00Z")
+        val currentCalendar = Calendar.getInstance()
+        currentCalendar.set(2023, Calendar.MAY, 19, 12, 0, 0)
+        val checkTimeCalendar = Calendar.getInstance()
+        checkTimeCalendar.set(2023, Calendar.MAY, 19, 15, 0, 0)
 
         // TODO: Act
-        val result = compareTimes(currentInstant, checkTimeInstant)
+        val result = compareTimes(currentCalendar, checkTimeCalendar)
 
         // TODO: Assert
         val expectedDifference = 3 * 60 * 60 // 3 hours in seconds
+
+        assertEquals(expectedDifference.toLong(), result)
+    }
+    @Test
+    fun testCompareTimes2() {
+        // TODO: Arrange
+        val currentCalendar = Calendar.getInstance()
+        currentCalendar.set(2023, Calendar.MAY, 19, 12, 0, 0)
+        val checkTimeCalendar = Calendar.getInstance()
+        checkTimeCalendar.set(2023, Calendar.MAY, 18, 12, 0, 0)
+
+        // TODO: Act
+        val result = compareTimes(currentCalendar, checkTimeCalendar)
+
+        // TODO: Assert
+        val expectedDifference =  24 * 60 * 60 // 24 hours in seconds
 
         assertEquals(expectedDifference.toLong(), result)
     }

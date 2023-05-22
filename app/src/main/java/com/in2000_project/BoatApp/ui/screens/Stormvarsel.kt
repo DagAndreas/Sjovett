@@ -54,6 +54,7 @@ import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 import io.ktor.util.*
 import kotlinx.coroutines.*
+import java.lang.Math.abs
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -346,7 +347,7 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
 }
 
 fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
-    val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
+    val diffMillis = abs(checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis)
     return diffMillis / 1000
 }
 
