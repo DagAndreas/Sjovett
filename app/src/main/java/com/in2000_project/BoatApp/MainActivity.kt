@@ -4,7 +4,9 @@ import Drawer
 import Livredning
 import Sjoemerkesystemet
 import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.content.Context
 import android.content.pm.PackageManager
+import android.net.ConnectivityManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -27,11 +29,12 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.in2000_project.BoatApp.compose.MannOverbord
 import com.in2000_project.BoatApp.compose.TidsbrukScreen
+import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.ui.screens.StormWarning
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 
 // Heisann og hoppsan
@@ -68,12 +71,17 @@ class MapActivity : ComponentActivity() {
     private val alertsMapViewModel = AlertsMapViewModel()
 
 
-    @RequiresApi(Build.VERSION_CODES.O)
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
+        val internet = CheckInternet(cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
+        var networkStatus = false
+        internet.waitForNetwork(setTrue = {networkStatus = true})
+        while (!networkStatus){}
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         viewModel.setClient(fusedLocationProviderClient)
         askPermissions()
+
         setContent {
             window.statusBarColor = ContextCompat.getColor(this, R.color.black)
 
@@ -122,7 +130,8 @@ class MapActivity : ComponentActivity() {
                                     mapViewModel = viewModel,
                                     openDrawer = {
                                         openDrawer()
-                                    }
+                                    },
+                                    connection = internet
                                 )
                             }
                             composable(DrawerScreens.StormWarning.route) {
@@ -136,7 +145,8 @@ class MapActivity : ComponentActivity() {
                                     modifier = Modifier,
                                     openDrawer = {
                                         openDrawer()
-                                    }
+                                    },
+                                    connection = internet
                                 )
                             }
                             composable(DrawerScreens.TidsbrukScreen.route) {
@@ -144,7 +154,8 @@ class MapActivity : ComponentActivity() {
                                     viewModel = viewModel,
                                     openDrawer = {
                                         openDrawer()
-                                    }
+                                    },
+                                    connection = internet
                                 )
                             }
 

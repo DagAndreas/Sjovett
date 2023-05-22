@@ -17,7 +17,6 @@ data class CityName(
         )
 
         return combinations.any{
-            //it.contains(search, ignoreCase = true) //gir treff uansett om stor eller liten bokstav
             it.startsWith(search, ignoreCase = true)
         }
     }

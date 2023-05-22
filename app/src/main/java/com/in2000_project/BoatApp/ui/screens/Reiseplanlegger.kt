@@ -42,6 +42,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
@@ -53,7 +54,8 @@ import kotlin.math.*
 @Composable
 fun TidsbrukScreen(
     viewModel: MapViewModel = viewModel(),
-    openDrawer: () -> Unit
+    openDrawer: () -> Unit,
+    connection: CheckInternet
 ) {
     viewModel.updateLocation()
 

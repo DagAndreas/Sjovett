@@ -49,6 +49,7 @@ import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
+import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.ui.components.InfoPopupStorm
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
@@ -62,8 +63,8 @@ import java.time.temporal.ChronoUnit
 import java.util.*
 
 
+@RequiresApi(Build.VERSION_CODES.M)
 @SuppressLint("PotentialBehaviorOverride")
-@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
 fun StormWarning(
@@ -72,9 +73,9 @@ fun StormWarning(
     viewModelMap: AlertsMapViewModel,
     viewModelSearch: SearchViewModel,
     setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
-    //calculateZoneViewCenter: () -> LatLngBounds,
     modifier: Modifier,
-    openDrawer: () -> Unit
+    openDrawer: () -> Unit,
+    connection: CheckInternet
 ){
     val mapProperties = MapProperties(isMyLocationEnabled = true/*mapState.lastKnownLocation != null,*/)
     val mapState by viewModelMap.state.collectAsState()
@@ -101,33 +102,15 @@ fun StormWarning(
     var openSearch by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    viewModelForecast.updateUserCoord(userLat, userLng)
+    Log.e("Stormvarsel", "viewModelForecast.updateUserCoord(userLat, userLng) 1")
+    viewModelForecast.updateUserCoord(userLat, userLng, connection)
+    Log.e("Stormvarsel", "viewModelForecast.updateUserCoord(userLat, userLng) 2")
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
+
 
     Column(modifier = modifier,
         horizontalAlignment = CenterHorizontally
     ){
-        /*
-        Row(
-            modifier = Modifier
-                .padding(start = 10.dp, top = 10.dp)
-                .align(Alignment.Start)
-        ) {
-            NavigationMenuButton(
-                buttonIcon = Icons.Filled.Menu,
-                onButtonClicked = { openDrawer() },
-                modifier = Modifier
-                    .align(CenterHorizontally)
-            )
-
-            InfoButtonStorm(
-                alertsMapViewModel = viewModelMap
-            )
-        }
-         */
-
-
-
         if (viewModelMap.stormvarselInfoPopUp) {
             InfoPopupStorm(
                 alertsMapViewModel = viewModelMap
@@ -135,8 +118,7 @@ fun StormWarning(
         }
 
         Column(
-            modifier = modifier.fillMaxSize()
-            ,
+            modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = CenterHorizontally
         ){
@@ -207,6 +189,8 @@ fun StormWarning(
                                     shape = RoundedCornerShape(20.dp)
                                 )
                         ) {
+
+
                             items(cities.value) { CityName ->
                                 Text(
                                     text = "${CityName.name}, ${CityName.country}",
@@ -223,7 +207,7 @@ fun StormWarning(
                                             Log.d("temper", location)
 
                                             CoroutineScope(Dispatchers.IO).launch {
-                                                viewModelSearch.fetchCityData(CityName.name)
+                                                viewModelSearch.fetchCityData(CityName.name, connection)
                                                 while (geoCodeUiState.value.cityList.isEmpty()) {
                                                     delay(100) // Wait for 100 milliseconds before checking again
                                                 }
@@ -233,10 +217,9 @@ fun StormWarning(
                                                     userLng = cityData[0].longitude
                                                     viewModelForecast.updateUserCoord(
                                                         userLat,
-                                                        userLng
+                                                        userLng,
+                                                        connection
                                                     )
-
-
                                                 }
                                                 viewModelSearch.resetCityData()
                                             }
@@ -389,7 +372,7 @@ fun addStormClusters(
     viewModelMap.resetCluster()
     for(warning in warnings){
         Log.i("Warning at location", "${warning.properties.area} - ${warning.properties.geographicDomain}")
-        if(warning.properties.geographicDomain == "marine") {// || warning.properties.geographicDomain == "land" /*&& checkIfCloseToWarning(warning.geometry)*/){ // checkIfCloseToWarning viser kun de i nærhetenn av brukeren
+        if(warning.properties.geographicDomain == "marine") {
             viewModelMap.addCluster(
                 id = warning.properties.area,
                 title = warning.properties.area,

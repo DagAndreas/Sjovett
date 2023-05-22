@@ -1,10 +1,14 @@
 package com.in2000_project.BoatApp.viewmodel
 
+import android.os.Build
+import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.GeoCodeUiState
 import com.in2000_project.BoatApp.model.geoCode.CityName
+import com.in2000_project.BoatApp.ui.components.CheckInternet
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
@@ -46,23 +50,24 @@ class SearchViewModel: ViewModel() {
     }
 
 
-    suspend fun fetchCityData(cityName: String) {
-        _locationSearch.update{
-            if (cityName != null){
-                cityName
-            } else {
-                ""
+    @RequiresApi(Build.VERSION_CODES.M)
+    suspend fun fetchCityData(cityName: String, connection: CheckInternet) {
+        if (!connection.checkNetwork()) {
+            Log.e("Internet connection", "Not connected!")
+        } else {
+            _locationSearch.update{
+                if (cityName != null){
+                    cityName
+                } else {
+                    ""
+                }
             }
-        }
-        CoroutineScope(Dispatchers.IO).launch {
-            val url = "https://api.api-ninjas.com/v1/geocoding?city=$cityName&country=Norway"
-            _geoCodeUiState.update {
-                // setter warningList til å være en MetAlertsResponse
-                //val deferred = async { (it.copy(cityList = _dataSource.fetchGeoCodeData(url))) }
-                //delay(5000)
-                //deferred.await()
-                it.copy(cityList = _dataSource.fetchGeoCodeData(url))
+            CoroutineScope(Dispatchers.IO).launch {
+                val url = "https://api.api-ninjas.com/v1/geocoding?city=$cityName&country=Norway"
+                _geoCodeUiState.update {
+                    it.copy(cityList = _dataSource.fetchGeoCodeData(url))
 
+                }
             }
         }
     }
