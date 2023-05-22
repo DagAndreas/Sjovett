@@ -1,7 +1,5 @@
 package com.in2000_project.BoatApp.ui.screens
 
-import com.in2000_project.BoatApp.compose.calculateTimeInMinutes
-import com.in2000_project.BoatApp.compose.formatTime
 import org.junit.Assert.*
 
 import org.junit.Test
@@ -14,7 +12,7 @@ class ReiseplanleggerKtTest() {
         val knots = 100f
 
         // TODO: Act
-        val outcome = (calculateTimeInMinutes(distanceInMeters, knots)== 0.6)
+        val outcome = (calculateTimeInMinutes(distanceInMeters, knots) == 0.6)
 
         //TODO: Assert
 

@@ -1,12 +1,13 @@
 <resources>
 
-    <string name="AngiRute">Angi rute:</string>
-    <string name="AntallKnop">\Antall knop: \</string>
-    <string name="StartFraEgenPos">Start fra egen posisjon</string>
-    <string name="StartRute">Start rute</string>
-    <string name="FjernPunkt">Fjern punkt</string>
-    <string name="Avslutt">Avslutt</string>
-    <string name="Baat">Båt</string>
-    <string name="LeggTilFlereMarkoerer">Du må legge til to markører for å få en rute</string>
+    <string name="ChooseRoute">Angi rute:</string>
+    <string name="SpeedInKnots">\Antall knop: \</string>
+    <string name="StartFromCurrentPosition">Start fra egen posisjon</string>
+    <string name="StartRoute">Start rute</string>
+    <string name="RemoveMarker">Fjern punkt</string>
+    <string name="End">Avslutt</string>
+    <string name="Boat">Båt</string>
+    <string name="AddMarkers">Du må legge til to markører for å få en rute</string>
     <string name="ReiseplanleggerScreenName">Reiseplanlegger</string>
+
 </resources>

@@ -1,7 +1,7 @@
-package com.in2000_project.BoatApp.compose
+package com.in2000_project.BoatApp.ui.screens
 
 import InfoButton
-import NavigationMenuButton
+import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
 import android.R.attr.*
 import android.content.Context
 import android.graphics.Bitmap
@@ -38,11 +38,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
@@ -54,8 +52,7 @@ import kotlin.math.*
 @Composable
 fun TidsbrukScreen(
     viewModel: MapViewModel = viewModel(),
-    openDrawer: () -> Unit,
-    connection: CheckInternet
+    openDrawer: () -> Unit
 ) {
     viewModel.updateLocation()
 
@@ -68,26 +65,15 @@ fun TidsbrukScreen(
     }
 
 // Define the properties of the map
-    val mapProperties = MapProperties(
-        isMyLocationEnabled = state.lastKnownLocation != null
-    )
-
     /*
-    // Define a function to update the displayed text based on the current state
-    fun updateDisplayedText() {
-        if (viewModel.speedNumber.value == 0f) {
-            viewModel.displayedText.value = "Du vil ikke komme fram hvis du kjører 0 knop"
+    isMyLocationEnabled is set to always true in this version of the code,
+    this is due to some of our emulators inconsistency to remember that
+    "allow use of location" was enabled
 
-        } else {
-            if (viewModel.markerPositions.size < 2) {
-                viewModel.displayedText.value = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
-            } else {
-                viewModel.displayedText.value = formatTime(viewModel.lengthInMinutes.value)
-            }
-        }
-    }
-
+    This is the line that would be in the finished product:
+    isMyLocationEnabled = mapState.lastKnownLocation != null
      */
+    val mapProperties = MapProperties(isMyLocationEnabled = true)
 
 // Define a function to handle changes to the speed slider
     val onSpeedChanged: (Float) -> Unit = { value ->
@@ -138,34 +124,7 @@ fun TidsbrukScreen(
             }
             viewModel.updateDisplayedText()
         }
-        //polyLines[0] = locationToLatLng(viewModel.state.value.lastKnownLocation)
     }
-
-    /*
-    fun removeLastMarker() {
-        if (viewModel.markerPositions.size >= 2) {
-            // Remove the last marker position
-            viewModel.markerPositions.removeLast()
-            viewModel.coordinatesToFindDistanceBetween.removeLast()
-
-            // Remove the last polyline and update the distance and time
-            viewModel.polyLines.removeLast()
-
-            if (viewModel.coordinatesToFindDistanceBetween.size > 1) {
-                viewModel.distanceInMeters.value = calculateDistance(viewModel.coordinatesToFindDistanceBetween)
-                viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
-            }
-        } else if (viewModel.markerPositions.size == 1) {
-            // If there is only one marker position left, remove it and update the displayed text
-            if(!viewModel.usingMyPositionTidsbruk.value) {
-                viewModel.markerPositions.removeLast()
-                viewModel.coordinatesToFindDistanceBetween.removeLast()
-            }
-        }
-        updateDisplayedText()
-    }
-
-     */
 
     BottomSheetScaffold(
 
@@ -180,7 +139,7 @@ fun TidsbrukScreen(
             ) {
                 Box(
                     modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                        .align(CenterHorizontally)
                         .padding(top = 10.dp)
                         .fillMaxWidth(0.2f)
                         .fillMaxHeight(0.01f)
@@ -190,11 +149,11 @@ fun TidsbrukScreen(
                         )
                 )
                 Text(
-                    text = stringResource(R.string.AngiRute),
+                    text = stringResource(R.string.ChooseRoute),
                     fontSize = 18.sp,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier
-                        .align(Alignment.CenterHorizontally)
+                        .align(CenterHorizontally)
                         .padding(top = 5.dp)
                 )
 
@@ -203,7 +162,7 @@ fun TidsbrukScreen(
                         .padding(top = 20.dp)
                 ) {
                     Text(
-                        text = stringResource(R.string.AntallKnop) + viewModel.speedNumber.value.toInt(),
+                        text = stringResource(R.string.SpeedInKnots) + viewModel.speedNumber.value.toInt(),
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Bold,
                     )
@@ -253,9 +212,6 @@ fun TidsbrukScreen(
                                 if (viewModel.polyLines.isNotEmpty()) {
                                     viewModel.polyLines.removeFirst()
                                 }
-                                //viewModel.markerPositions.clear()
-                                //viewModel.coordinatesToFindDistanceBetween.clear()
-                                //viewModel.polyLines.clear()
                             }
                             else{
                                 viewModel.markerPositions.add(0, locationToLatLng(state.lastKnownLocation))
@@ -264,13 +220,6 @@ fun TidsbrukScreen(
                                     val polyLine = PolylineOptions().add(viewModel.markerPositions[0], viewModel.markerPositions[1]).color(android.graphics.Color.BLACK)
                                     viewModel.polyLines.add(0, polyLine)
                                 }
-
-                                //viewModel.markerPositions.clear()
-                                /*viewModel.coordinatesToFindDistanceBetween.clear()
-                                viewModel.polyLines.clear()
-
-                                viewModel.markerPositions.add(locationToLatLng(state.lastKnownLocation!!))
-                                viewModel.coordinatesToFindDistanceBetween.add(locationToLatLng(state.lastKnownLocation!!))*/
                             }
                             viewModel.distanceInMeters.value = calculateDistance(viewModel.coordinatesToFindDistanceBetween)
                             viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
@@ -287,7 +236,7 @@ fun TidsbrukScreen(
                     )
 
                     Text(
-                        text = stringResource(R.string.StartFraEgenPos),
+                        text = stringResource(R.string.StartFromCurrentPosition),
                         fontSize = 13.sp,
                         modifier = Modifier
                             .align(Alignment.CenterVertically)
@@ -308,7 +257,7 @@ fun TidsbrukScreen(
                                 containerColor = Green
                             )
                         ) {
-                            Text(stringResource(R.string.StartRute))
+                            Text(stringResource(R.string.StartRoute))
                         }
 
                         Button(
@@ -323,7 +272,7 @@ fun TidsbrukScreen(
 
                         ) {
                             Text(
-                                text = stringResource(R.string.FjernPunkt),
+                                text = stringResource(R.string.RemoveMarker),
                                 modifier = Modifier
                                     .align(Alignment.CenterVertically)
                             )
@@ -338,12 +287,12 @@ fun TidsbrukScreen(
                                 containerColor = LightRed
                             )
                         ) {
-                            Text(stringResource(R.string.Avslutt))
+                            Text(stringResource(R.string.End))
                         }
 
                         Icon(
                             imageVector = Icons.Outlined.DirectionsBoat,
-                            contentDescription = stringResource(R.string.Baat),
+                            contentDescription = stringResource(R.string.Boat),
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
                                 .padding(horizontal = 8.dp)
@@ -360,7 +309,7 @@ fun TidsbrukScreen(
             }
         }
     ) {
-        Box() {
+        Box {
             GoogleMap(
                 modifier = Modifier
                     .fillMaxSize(),
@@ -385,14 +334,12 @@ fun TidsbrukScreen(
                         // Create a scaled bitmap with the desired dimensions
                         val scaledBitmapStart = Bitmap.createScaledBitmap(bitmapStart, 64, 64, false) // Change 64 to the desired size of the icon
                         val scaledBitmapFinish = Bitmap.createScaledBitmap(bitmapFinish, 64, 64, false) // Change 64 to the desired size of the icon
-
-
+                        
                         // Create a BitmapDescriptor from the scaled bitmap
                         val iconStartIcon = BitmapDescriptorFactory.fromBitmap(scaledBitmapStart)
                         val iconFinishFlag = BitmapDescriptorFactory.fromBitmap(scaledBitmapFinish)
 
                         // Use the icon in your Marker
-
                         Marker(
                             state = MarkerState(position = viewModel.markerPositions.first()),
                             icon = iconStartIcon
@@ -401,18 +348,16 @@ fun TidsbrukScreen(
                         Marker(
                             state = MarkerState(position = viewModel.markerPositions.last()),
                             icon = iconFinishFlag
-
-
                         )
                     }
                     else{
-                        viewModel.displayedText.value = stringResource(R.string.LeggTilFlereMarkoerer)
+                        viewModel.displayedText.value = stringResource(R.string.AddMarkers)
                     }
 
                 }
 
                 viewModel.polyLines.forEach { options ->
-                    val points = options.getPoints()
+                    val points = options.points
                     Polyline(points)
                 }
             }
@@ -454,16 +399,6 @@ fun TidsbrukScreen(
         }
     }
 }
-
-
-private suspend fun CameraPositionState.centerOnLocation(
-    location: Location
-) = animate(
-    update = CameraUpdateFactory.newLatLngZoom(
-        LatLng(location.latitude, location.longitude),
-        15f
-    ),
-)
 
 // Calculate distance between coordinates
 fun calculateDistance(coordinates: List<LatLng>): Double {

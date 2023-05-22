@@ -21,10 +21,10 @@ class LocationForecastViewModel {
     init{
         fetchLocationForecastData(0.0, 0.0)
     }
-    private fun fetchLocationForecastData(lat: Double, lng: Double) { // Henter data fra APIet
+    private fun fetchLocationForecastData(lat: Double, lng: Double) {
         Log.d("Fetch", "LocationForecast")
         CoroutineScope(Dispatchers.IO).launch {
-            // https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=59.9139&lon=10.7522
+            // Link to the original API: https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=59.9139&lon=10.7522
             val url = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/locationforecast/2.0/complete?lat=$lat&lon=$lng"
             _temperatureUiState.update {
                 (it.copy(timeList = _dataSource.fetchLocationForecastData(url).properties.timeseries))

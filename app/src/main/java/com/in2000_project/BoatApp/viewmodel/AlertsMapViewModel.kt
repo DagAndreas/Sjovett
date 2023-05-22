@@ -36,7 +36,7 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
         )
     )
 
-    //InfoKort
+    //InfoCards
     var stormvarselInfoPopUp by mutableStateOf(true)
     var infoTextStormvarsel by mutableStateOf("Skriv inn ønsket område i søkefeltet. Sveip til høyre for å se værvarsel for det neste døgnet.")
 
@@ -44,7 +44,6 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
 
     fun updateUserLocation(lat: Double, lng: Double) {
         _alertsMapUiState.update {
-            // setter warningList til å være en MetAlertsResponse
             (it.copy(longitude = lng, latitude = lat))
         }
     }
@@ -62,7 +61,6 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
                 clusterItems = listOfClusters
             )
         }
-        //Oppdatere state?
     }
 
     fun resetCluster() {
@@ -101,13 +99,4 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
         clusterManager.addItems(state.value.clusterItems)
         return clusterManager
     }
-/*
-    fun calculateZoneLatLngBounds(): LatLngBounds { //TODO: This function zooms in on all storms on the map
-        // Get all the points from all the polygons and calculate the camera view that will show them all.
-        val latLngs = state.value.clusterItems.map { it.polygonOptions }
-            .map { it.points.map { LatLng(it.latitude, it.longitude) } }.flatten()
-        return latLngs.calculateCameraViewPoints().getCenterOfPolygon()
-    }
-
- */
 }

@@ -10,9 +10,9 @@ import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
-import com.in2000_project.BoatApp.compose.calculateDistance
-import com.in2000_project.BoatApp.compose.calculateTimeInMinutes
-import com.in2000_project.BoatApp.compose.formatTime
+import com.in2000_project.BoatApp.ui.screens.calculateDistance
+import com.in2000_project.BoatApp.ui.screens.calculateTimeInMinutes
+import com.in2000_project.BoatApp.ui.screens.formatTime
 import com.in2000_project.BoatApp.maps.CircleInfo
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
@@ -49,44 +49,34 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     var displayedText = mutableStateOf("Du kan legge til en destinasjon ved å holde inne et sted på kartet. ")
 
-
-    //Hvem er var og val egentlig? Mutablestate gjør det mulig å endre på pekerens
     var distanceInMeters = mutableStateOf(0.0)
     var lengthInMinutes = mutableStateOf(0.0)
     var polyLines =  mutableStateListOf<PolylineOptions>()
     var lockMarkers =  mutableStateOf(false)
     var usingMyPositionTidsbruk = mutableStateOf(false)
-
-
     var markerPositions =  mutableStateListOf<LatLng>()
-    //.apply { myPosition.value?.let { add(it) } }
     var speedNumber =    mutableStateOf(15f)
-    // distance between all of the markers
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
     val markersMapScreen = mutableListOf<LatLng>()
     val polyLinesMap = mutableListOf<PolylineOptions>()
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
     var circleRadius = mutableStateOf(25.0)
     var circleVisibility = mutableStateOf(false)
-    var enabled = mutableStateOf(true) //shift-f6 til "sosButtonVisible
+    var enabled = mutableStateOf(true)
     var timePassedInSeconds = mutableStateOf( 0 )
-    var mann_er_overbord = mutableStateOf(false)
+    var manIsOverboard = mutableStateOf(false)
     var buttonText = "start søk"
 
     //InfoKort
-    var mannOverBordInfoPopUp by mutableStateOf(true)
+    var manIsOverboardInfoPopup by mutableStateOf(true)
     var reiseplanleggerInfoPopUp by mutableStateOf(true)
 
     var infoTextMannOverBord by mutableStateOf("Trykk på 'Start søk' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.")
     var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.")
 
-
     var showDialog by mutableStateOf(false)
 
-
-    val a = Log.d("Oppretter ovm", "$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
     val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
-
 
     var mapUpdateThread = MapUpdateThread(this)
     class MapUpdateThread(
@@ -94,15 +84,15 @@ class MapViewModel @Inject constructor(): ViewModel() {
     ) : Thread() {
         var isRunning = false
         override fun run() {
-            sleep(100) //sov litt for å ha tid til å hente oceanforecastobject
+            sleep(100) // Sleeps to ensure that data has been collected from oceanforecastobject
             isRunning = true
-            Log.i("Hei", "fra tråd")
-            val sleep_delay:Long = 2 //sekunder
+            val sleepDelay:Long = 2 // seconds
             while(isRunning){
-                Log.i("Hei", "fra trådloop")
-                mapViewModel.updateMap(sleep_delay)
+                // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
+                mapViewModel.updateMap(sleepDelay)
                 mapViewModel.updateMarkerAndPolyLines()
-                sleep(sleep_delay*1000) // x antall sek
+                // in milliseconds, this function waits 2 seconds between each update
+                sleep(sleepDelay*1000)
             }
         }
     }
@@ -115,7 +105,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         circleVisibility.value = false
         enabled.value = true
         timePassedInSeconds.value =  0
-        mann_er_overbord.value = false
+        manIsOverboard.value = false
         infoTextMannOverBord = "Trykk på 'Start søk' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig."
         polyLinesMap.clear()
     }
@@ -126,7 +116,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         oceanViewModel.getOceanForecastResponse()
         circleVisibility.value = true
         enabled.value = true
-        mann_er_overbord.value = true
+        manIsOverboard.value = true
         infoTextMannOverBord = "Trykk på 'Avslutt søk' for å avslutte søket. Søkeområdet vil ikke lenger være synlig."
         markersMapScreen.add(pos)
         mapUpdateThread.isRunning = true
@@ -167,7 +157,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
                 }
             }
         } catch (e: SecurityException) {
-            // Show error or something
+            Log.e("updateLocation", e.toString())
         }
     }
 
@@ -189,7 +179,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
                 }
             }
         } catch (e: SecurityException) {
-            // Show error or something
+            Log.e("getDeviceLocation", e.toString())
         }
     }
 
@@ -230,21 +220,20 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 }
 
-/** Når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den asignes
- * på nytt. */
+/* TODO: Når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den assignes på nytt. */
 fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
-    Log.i("MapScreen", "New Pos fra $personCoordinate")
+    Log.i("MapScreen", "New Pos from $personCoordinate")
     val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
-    val dataLatLng: LatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
+    val dataLatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
 
     if (personHarDriftetTilNesteGrid(dataLatLng, personCoordinate)){
         ovm.setPath(personCoordinate)
         ovm.getOceanForecastResponse()
     }
-    //finner hvilken Timesery (objekt med oceandata) som er nærmeste timestamp
+    //Finds the Timesery (object with oceandata) that is closest timestamp
     val forecastDetails = findClosestDataToTimestamp(ovm.oceanForecastResponseObject.properties.timeseries)
 
-    Log.i("MapScreen Bølge", "seawaterspeed: ${forecastDetails.sea_water_speed}, seawaterdirection: ${forecastDetails.sea_water_to_direction}")
+    Log.i("MapScreen Wave", "seawaterspeed: ${forecastDetails.sea_water_speed}, seawaterdirection: ${forecastDetails.sea_water_to_direction}")
     return calculatePosition(listOf(personCoordinate.latitude, personCoordinate.longitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
 }
 
@@ -253,7 +242,6 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
 fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     val currentTime = Date()
-    //Log.i("Current time", "$currentTime")
     var i = 0
     var smallestIndex = 0
     var smallestSecondsBetween = Long.MAX_VALUE
@@ -267,19 +255,17 @@ fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
         }
 
         val secondsBetween = getSecondsBetween(currentTime, checkTime)
-        if (secondsBetween >= 0 && secondsBetween < smallestSecondsBetween) {
-            smallestIndex = i;
+        if (secondsBetween in 0 until smallestSecondsBetween) {
+            smallestIndex = i
             smallestSecondsBetween = secondsBetween
         }
         i++
     }
 
-    //Log.i("closest time:", "${listOfTime[smallestIndex].time} is the closest to ${currentTime.time}")
     return listOfTime[smallestIndex].data.instant.details
 }
 fun getSecondsBetween(date1: Date, date2: Date): Long {
     val diffInMilliseconds = abs(date1.time - date2.time)
-    //Log.i("diffInMilliseconds", "$diffInMilliseconds")
     return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
 }
 

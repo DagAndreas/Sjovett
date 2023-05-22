@@ -1,4 +1,5 @@
-import android.content.res.Resources.Theme
+package com.in2000_project.BoatApp.ui.components.stormwarning
+
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -42,7 +43,6 @@ fun WeatherCard(
 
     val cornerShape = 20
     val grayColor = LightGrey
-    //val blackColor = Black
     val tempColor = when {
         temperature >= 0 -> Red
         else -> DarkBlue
