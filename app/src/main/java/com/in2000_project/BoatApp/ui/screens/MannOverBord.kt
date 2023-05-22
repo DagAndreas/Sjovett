@@ -1,10 +1,12 @@
 package com.in2000_project.BoatApp.compose
 
-import AvsluttSok
+import EndSearch
 import AvsluttSokPopup
 import InfoButton
 import NavigationMenuButton
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -25,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.OpacityRed
@@ -34,11 +37,14 @@ import java.util.*
 //?lat=60.10&lon=5
 const val seaOrLandUrl = "https://isitwater-com.p.rapidapi.com/"
 
+@RequiresApi(Build.VERSION_CODES.M)
 @Composable
 fun MannOverbord(
     mapViewModel: MapViewModel,
-    openDrawer: () -> Unit
+    openDrawer: () -> Unit,
+    connection: CheckInternet
 ) {
+
     mapViewModel.updateLocation()
 
     val state by mapViewModel.state.collectAsState()
@@ -66,9 +72,7 @@ fun MannOverbord(
         )
     }
 
-    Box(
-
-    ) {
+    Box {
         GoogleMap(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,7 +131,7 @@ fun MannOverbord(
                     String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 
                 Text(
-                    text = "${stringResource(R.string.Tid_søkt_melding)} $timePassedFormatted",
+                    text = "${stringResource(R.string.TimeSearchedMessage)} $timePassedFormatted",
                     Modifier
                         .background(Color.White, shape = RoundedCornerShape(8.dp))
                         .padding(8.dp)
@@ -141,7 +145,7 @@ fun MannOverbord(
 
             InfoButton(
                 mapViewModel = mapViewModel,
-                screen = stringResource(R.string.MannOverBordScreenName)
+                screen = stringResource(R.string.ManOverboardScreenName)
             )
         }
 
@@ -149,12 +153,12 @@ fun MannOverbord(
         if (mapViewModel.mannOverBordInfoPopUp) {
             InfoPopup(
                 mapViewModel = mapViewModel,
-                screen = stringResource(R.string.MannOverBordScreenName)
+                screen = stringResource(R.string.ManOverboardScreenName)
             )
         }
 
 
-        AvsluttSok(
+        EndSearch(
             mapViewModel = mapViewModel,
             state = state,
             locationObtained = locationObtained,
@@ -170,7 +174,8 @@ fun MannOverbord(
                 )
                 .align(CenterHorizontally),
             cameraPositionState = cameraPositionState,
-            cameraZoom = cameraZoom
+            cameraZoom = cameraZoom,
+            connection = connection
         )
 
 // Add the AlertDialog

@@ -22,9 +22,9 @@ class ApiDataSource {
     }
 
     suspend fun fetchLocationForecastData(path: String): LocationForecastResponse {
-        Log.i("Henter lokasjonsdata", "fra $path")
+        Log.i("Fetching LocationData", "fra $path")
         val response = try {
-            client.get() {
+            client.get {
                 url(path)
                 headers {
                     append(
@@ -67,9 +67,9 @@ class ApiDataSource {
     }
 
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
-        //Log.d("API_request", "attempting fetchOceanForecastData.launch")
+        Log.d("API_request", "attempting fetchOceanForecastData.launch")
         val response = try {
-            client.get() {
+            client.get {
                 url(path)//path)
                 headers {
                     append(
@@ -85,28 +85,33 @@ class ApiDataSource {
             exitProcess(0)
         }
 
-        Log.d("API_request", "fetchOceanForecastData.launch success, response: ")
-        Log.i("ApiData_Source_Ocean", "response: $response")
+        Log.d("API_request", "fetchOceanForecastData.launch success, response: $response")
         return response
     }
     suspend fun fetchGeoCodeData(path: String): List<City> {
-        Log.i("Henter geodata", "fra $path")
-        val response = client.get {
-            url(path)
-            headers {
-                append(
-                    name = "X-Api-Key",
-                    value = "Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
-                )
-            }
-        }.body<List<City>>()
-        Log.d("Henter", response.toString())
+        Log.i("API_request", "Fetching geodata from $path")
+        val response = try {
+            client.get {
+                url(path)
+                headers {
+                    append(
+                        name = "X-Api-Key",
+                        value = "Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
+                    )
+                }
+            }.body<List<City>>()
+        } catch (e: Exception) {
+            // General exception
+            Log.e("API_request xxx", path)
+            Log.e("API_request xxx", e.message.toString())
+            exitProcess(0)
+        }
 
-        Log.d("API_request", "fetchGeoCodeData.launch success, response: $response")
+        Log.d("API_request", "fetchGeoCodeData success, response: $response")
         return response
     }
     suspend fun fetchSeaOrLandResponse(path: String): SeaOrLandResponse {
-        Log.i("Henter SeaOrLand data", "fra $path")
+        Log.i("Fetching SeaOrLand data", "fra $path")
         val response = try {
             client.get(path).body<SeaOrLandResponse>()
         }
@@ -116,8 +121,7 @@ class ApiDataSource {
             Log.e("API_request xxx", e.message.toString())
             exitProcess(0)
         }
-        Log.d("API_request", "fetchSeaOrLandResponse.launch success, response: ")
-        Log.i("ApiData_Source_SeaOrLan", "response: $response")
+        Log.i("API_request", "ApiData_Source_SeaOrLand success, response: $response")
         return response
     }
 

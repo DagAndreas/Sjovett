@@ -26,7 +26,7 @@ fun AvsluttSokPopup(
     AlertDialog(
         onDismissRequest = { mapViewModel.showDialog = false },
         title = { Text(stringResource(R.string.AreYouSure)) },
-        text = { Text(stringResource(R.string.AreYouSureText)) }, //kan legges som String resource
+        text = { Text(stringResource(R.string.AreYouSureText)) },
         buttons = {
             Row(
                 Modifier
