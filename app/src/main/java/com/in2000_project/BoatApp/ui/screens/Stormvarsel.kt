@@ -377,14 +377,14 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Instant> {
 
 @RequiresApi(Build.VERSION_CODES.O)
 fun compareTimes(currentInstant: Instant, checkTimeInstant: Instant): Long {
-// find the difference in seconds
+    // find the difference in seconds
     return ChronoUnit.SECONDS.between(currentInstant, checkTimeInstant)
 }
 
 
 fun getColor(awarenessLevel: String): String {
     val color = awarenessLevel.split("; ")[1]
-    Log.d("Color", color)
+    //Log.d("Color", color)
 
     return when (color) {
         "green" -> "#803AF93C"

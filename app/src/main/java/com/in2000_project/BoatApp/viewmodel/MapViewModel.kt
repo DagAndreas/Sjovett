@@ -253,7 +253,7 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
 fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     val currentTime = Date()
-    Log.i("Current time", "$currentTime")
+    //Log.i("Current time", "$currentTime")
     var i = 0
     var smallestIndex = 0
     var smallestSecondsBetween = Long.MAX_VALUE
@@ -273,7 +273,8 @@ fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
         }
         i++
     }
-    Log.i("closest time:", "${listOfTime[smallestIndex].time} is the closest to ${currentTime.time}")
+
+    //Log.i("closest time:", "${listOfTime[smallestIndex].time} is the closest to ${currentTime.time}")
     return listOfTime[smallestIndex].data.instant.details
 }
 fun getSecondsBetween(date1: Date, date2: Date): Long {

@@ -86,4 +86,33 @@ class MannOverBordKtTest {
 
         assertEquals(expectedDetails, closestData)
     }
+    @Test
+    fun testFindClosestDataToTimestamp3() {
+        // TODO: Arrange
+        val listOfTime = listOf(
+            Timesery(
+                Data(Instant(detailsA)),
+                // -6 where 6 is milliseconds. 6*60000 equals 6 minutes
+                sdf.format(Date(currentTime.time - 10*60000))
+            ),
+            Timesery(
+                Data(Instant(detailsB)),
+                sdf.format(Date(currentTime.time + 4*60000))
+            ),
+            Timesery(
+                Data(Instant(detailsC)),
+                sdf.format(Date(currentTime.time))
+            )
+        )
+
+        // TODO: Act
+        val closestData = findClosestDataToTimestamp(listOfTime)
+
+        // TODO: Assert
+        val expectedDetails = detailsC // Create the expected Details object
+
+        assertEquals(expectedDetails, closestData)
+    }
+
+
 }
