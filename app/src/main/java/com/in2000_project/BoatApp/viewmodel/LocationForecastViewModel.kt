@@ -1,8 +1,11 @@
 package com.in2000_project.BoatApp.viewmodel
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.TemperatureUiState
+import com.in2000_project.BoatApp.ui.components.CheckInternet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -29,7 +32,12 @@ class LocationForecastViewModel {
         }
     }
 
-    fun updateUserCoord(lat: Double, lng: Double){
-        fetchLocationForecastData(lat, lng)
+    @RequiresApi(Build.VERSION_CODES.M)
+    fun updateUserCoord(lat: Double, lng: Double, connection: CheckInternet){
+        if (!connection.checkNetwork()) {
+            Log.e("Internet connection", "Not connected!")
+        } else {
+            fetchLocationForecastData(lat, lng)
+        }
     }
 }
