@@ -350,14 +350,15 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
     return returnMap
 }
 
+
 fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
     val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
     return diffMillis / 1000
-}
+
 
 fun getColor(awarenessLevel: String): String {
     val color = awarenessLevel.split("; ")[1]
-    Log.d("Color", color)
+    //Log.d("Color", color)
 
     return when (color) {
         "green" -> "#803AF93C"
