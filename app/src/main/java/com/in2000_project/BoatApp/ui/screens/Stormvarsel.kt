@@ -1,10 +1,8 @@
 package com.in2000_project.BoatApp.ui.screens
 
-//import com.example.gruppe_16.model.metalerts.Geometry
-
 import InfoButtonStorm
-import NavigationMenuButton
-import WeatherCard
+import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
+import com.in2000_project.BoatApp.ui.components.stormwarning.WeatherCard
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -107,9 +105,7 @@ fun StormWarning(
     var openSearch by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    Log.e("Stormvarsel", "viewModelForecast.updateUserCoord(userLat, userLng) 1")
     viewModelForecast.updateUserCoord(userLat, userLng, connection)
-    Log.e("Stormvarsel", "viewModelForecast.updateUserCoord(userLat, userLng) 2")
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
 
 
@@ -209,7 +205,6 @@ fun StormWarning(
 
                                             location = CityName.name
                                             cityData = emptyList()
-                                            Log.d("temper", location)
 
                                             CoroutineScope(Dispatchers.IO).launch {
                                                 viewModelSearch.fetchCityData(CityName.name, connection)
@@ -350,17 +345,14 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
     return returnMap
 }
 
-
 fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
     val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
     return diffMillis / 1000
-
+}
 
 fun getColor(awarenessLevel: String): String {
-    val color = awarenessLevel.split("; ")[1]
-    //Log.d("Color", color)
 
-    return when (color) {
+    return when (awarenessLevel.split("; ")[1]) {
         "green" -> "#803AF93C"
         "yellow" -> "#80F5D062"
         "orange" -> "#80F78D02"

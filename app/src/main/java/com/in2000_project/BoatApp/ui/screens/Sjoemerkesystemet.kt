@@ -12,13 +12,14 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
+import com.in2000_project.BoatApp.ui.components.zoom.ZoomableBox
 import com.plcoding.bottomnavwithbadges.ui.theme.Black
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White

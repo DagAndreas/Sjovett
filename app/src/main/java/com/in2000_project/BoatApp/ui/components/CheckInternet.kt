@@ -27,13 +27,13 @@ class CheckInternet(private val cm: ConnectivityManager) {
         }
         Log.d("CurrentNetwork", "Found a connection!")
     }
+    @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.M)
     fun waitForNetwork(
         setTrue: ()->Unit
     ) {
         GlobalScope.launch {
             waitUntilNetworkAvailable()
-            // The network is available, you can continue with your app logic here
             setTrue()
         }
     }

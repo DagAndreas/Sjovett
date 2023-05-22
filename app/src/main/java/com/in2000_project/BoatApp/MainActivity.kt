@@ -1,7 +1,7 @@
 package com.in2000_project.BoatApp
 
 import Drawer
-import Livredning
+import com.in2000_project.BoatApp.ui.screens.Livredning
 import Sjoemerkesystemet
 import Sjovettreglene
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -28,8 +28,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import com.in2000_project.BoatApp.compose.MannOverbord
-import com.in2000_project.BoatApp.compose.TidsbrukScreen
+import com.in2000_project.BoatApp.ui.screens.MannOverbord
+import com.in2000_project.BoatApp.ui.screens.TidsbrukScreen
 import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.ui.screens.StormWarning
 import com.in2000_project.BoatApp.viewmodel.*
@@ -52,11 +52,11 @@ class MapActivity : ComponentActivity() {
             }
         }
 
-    private fun askPermissions() = when {
+    private fun askPermissions() = when (PackageManager.PERMISSION_GRANTED) {
         ContextCompat.checkSelfPermission(
             this,
             ACCESS_FINE_LOCATION
-        ) == PackageManager.PERMISSION_GRANTED -> {
+        ) -> {
             viewModel.getDeviceLocation(fusedLocationProviderClient)
             alertsMapViewModel.getDeviceLocation(fusedLocationProviderClient)
 
@@ -74,13 +74,19 @@ class MapActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
+        // This part of the code checks if the user has internet connection
         val internet = CheckInternet(cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
         var networkStatus = false
         internet.waitForNetwork(setTrue = {networkStatus = true})
-        while (!networkStatus){}
+        while (!networkStatus){
+            /* Stops the app from starting without internet connection */
+        }
+
+        // The user har connected to the internet, and we begin loading the app
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         viewModel.setClient(fusedLocationProviderClient)
+        // Asks permission to use the users location, this has to be true and we assume this later in the app
         askPermissions()
 
         setContent {
@@ -88,14 +94,11 @@ class MapActivity : ComponentActivity() {
 
             AppTheme {
                 val navController = rememberNavController()
-
-                //todo: rename metalerts eller stormwarning til å henge sammen? storm = met og temp = loc?
                 val stormWarningViewModels = MetAlertsViewModel()
                 val temperatureViewModel = LocationForecastViewModel()
                 val searchViewModel = SearchViewModel()
 
                 Surface(color = MaterialTheme.colors.background) {
-
                     val drawerState = rememberDrawerState(DrawerValue.Closed)
                     val scope = rememberCoroutineScope()
                     val openDrawer = {
@@ -142,7 +145,6 @@ class MapActivity : ComponentActivity() {
                                     viewModelMap = alertsMapViewModel,
                                     viewModelSearch = searchViewModel,
                                     setupClusterManager = alertsMapViewModel::setupClusterManager,
-                                    //calculateZoneViewCenter = alertsMapViewModel::calculateZoneLatLngBounds,
                                     modifier = Modifier,
                                     openDrawer = {
                                         openDrawer()
@@ -155,8 +157,7 @@ class MapActivity : ComponentActivity() {
                                     viewModel = viewModel,
                                     openDrawer = {
                                         openDrawer()
-                                    },
-                                    connection = internet
+                                    }
                                 )
                             }
 
@@ -183,7 +184,6 @@ class MapActivity : ComponentActivity() {
                                     }
                                 )
                             }
-
                         }
                     }
                 }

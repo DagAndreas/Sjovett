@@ -8,9 +8,6 @@ import androidx.compose.material.MaterialTheme
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.*
-import androidx.compose.material.icons.rounded.AltRoute
-import androidx.compose.material.icons.rounded.BorderOuter
-import androidx.compose.material.icons.rounded.Router
 import androidx.compose.material.icons.rounded.Timer
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -78,7 +75,7 @@ fun Drawer(
             ) {
                 Icon(
                     imageVector = screen.value,
-                    contentDescription = stringResource(R.string.Meny),
+                    contentDescription = stringResource(R.string.Menu),
                     modifier = Modifier
                         .align(Alignment.CenterVertically)
                 )

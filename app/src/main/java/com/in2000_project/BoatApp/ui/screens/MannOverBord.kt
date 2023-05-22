@@ -1,9 +1,9 @@
-package com.in2000_project.BoatApp.compose
+package com.in2000_project.BoatApp.ui.screens
 
 import EndSearch
-import AvsluttSokPopup
+import com.in2000_project.BoatApp.ui.components.manoverboard.AvsluttSokPopup
 import InfoButton
-import NavigationMenuButton
+import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -34,7 +34,6 @@ import com.plcoding.bottomnavwithbadges.ui.theme.OpacityRed
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 import java.util.*
 
-//?lat=60.10&lon=5
 const val seaOrLandUrl = "https://isitwater-com.p.rapidapi.com/"
 
 @RequiresApi(Build.VERSION_CODES.M)
@@ -48,36 +47,30 @@ fun MannOverbord(
     mapViewModel.updateLocation()
 
     val state by mapViewModel.state.collectAsState()
-    val mapProperties = MapProperties(
-        // Only enable if user has accepted location permissions.
-        isMyLocationEnabled = true //state.lastKnownLocation != null
-    )
+    /*
+    isMyLocationEnabled is set to always true in this version of the code,
+    this is due to some of our emulators inconsistency to remember that
+    "allow use of location" was enabled
+
+    This is the line that would be in the finished product:
+    isMyLocationEnabled = mapState.lastKnownLocation != null
+     */
+    val mapProperties = MapProperties(isMyLocationEnabled = true)
 
     val locationObtained = remember { mutableStateOf(false) }
     mapViewModel.updateLocation()
     locationObtained.value = true
 
 
-    var cameraZoom: Float = 15f
-    val cameraPositionState = rememberCameraPositionState{
-    //    position = CameraPosition.fromLatLngZoom(LatLng(65.0, 11.0), cameraZoom)
-    }
-    val haveZoomedAtStart = remember { mutableStateOf( false )}
-    //Log.i("mannoverbord - i ", "${haveZoomedAtStart}")
-    Log.i("Circlecenter:", "${mapViewModel.circleCenter.value}")
-    if (mapViewModel.oceanViewModel.oceanForecastResponseObject != null) {
-        Log.i(
-            "MapviewModel data cent:",
-            "${mapViewModel.oceanViewModel.oceanForecastResponseObject.geometry.coordinates}"
-        )
-    }
+    val cameraZoom = 15f
+    val cameraPositionState = rememberCameraPositionState{}
+    Log.i("Circlecenter", "${mapViewModel.circleCenter.value}")
 
     Box {
         GoogleMap(
             modifier = Modifier
-                .fillMaxSize()
-            ,properties = mapProperties,
-            /* contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.75f), //flytter knappene */
+                .fillMaxSize(),
+            properties = mapProperties,
             cameraPositionState = cameraPositionState
         ) {
             Circle(
@@ -87,7 +80,7 @@ fun MannOverbord(
                 strokeWidth = 2F,
                 visible = mapViewModel.circleVisibility.value
             )
-            val polyLinesMapCopy = mapViewModel.polyLinesMap.toList() // Create a copy
+            val polyLinesMapCopy = mapViewModel.polyLinesMap.toList()
             polyLinesMapCopy.forEach { options ->
                 val points = options.points
                 Polyline(
@@ -141,22 +134,18 @@ fun MannOverbord(
                 )
             }
 
-
-
             InfoButton(
                 mapViewModel = mapViewModel,
                 screen = stringResource(R.string.ManOverboardScreenName)
             )
         }
 
-
-        if (mapViewModel.mannOverBordInfoPopUp) {
+        if (mapViewModel.manIsOverboardInfoPopup) {
             InfoPopup(
                 mapViewModel = mapViewModel,
                 screen = stringResource(R.string.ManOverboardScreenName)
             )
         }
-
 
         EndSearch(
             mapViewModel = mapViewModel,
@@ -178,7 +167,7 @@ fun MannOverbord(
             connection = connection
         )
 
-// Add the AlertDialog
+        // Add the AlertDialog
         if (mapViewModel.showDialog) {
             AvsluttSokPopup(
                 mapViewModel = mapViewModel

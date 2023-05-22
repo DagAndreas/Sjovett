@@ -20,14 +20,12 @@ class MetAlertsViewModel: ViewModel() {
         fetchMetAlerts()
     }
 
-    private fun fetchMetAlerts() { // Henter data fra APIet
-        Log.d("Fetch", "MetAlerts")
+    private fun fetchMetAlerts() {
         Log.d("API_request", "attempting fetchMetAlerts.launch")
         CoroutineScope(Dispatchers.IO).launch {
-            // https://api.met.no/weatherapi/metalerts/1.1/.json
+            // Link to the original API: https://api.met.no/weatherapi/metalerts/1.1/.json
             val url = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/metalerts/1.1/.json"
             _stormWarningUiState.update {
-                // setter warningList til å være en MetAlertsResponse
                 (it.copy(warningList = _dataSource.fetchMetAlertsData(url).features))
             }
         }

@@ -1,27 +1,9 @@
 package com.in2000_project.BoatApp.ui.components
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.AlertDialog
-import androidx.compose.material.Button
 import androidx.compose.material.Text
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Popup
-import androidx.compose.ui.window.PopupProperties
-import androidx.lifecycle.ViewModel
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
@@ -38,7 +20,7 @@ fun InfoPopup(
                 mapViewModel.reiseplanleggerInfoPopUp = false
             }
             else if (screen == "Mann-over-bord") {
-                mapViewModel.mannOverBordInfoPopUp = false
+                mapViewModel.manIsOverboardInfoPopup = false
             }
         },
         title = { Text("Informasjon") },
@@ -52,7 +34,7 @@ fun InfoPopup(
             else {
                 ""
             }
-        )}, //kan legges som String resource
+        )},
         buttons = { }
     )
 }
@@ -65,7 +47,7 @@ fun InfoPopupStorm(
         onDismissRequest = {
             alertsMapViewModel.stormvarselInfoPopUp = false
         },
-        title = { Text(stringResource(R.string.Informasjon)) },
+        title = { Text(stringResource(R.string.Information)) },
         text = { Text(alertsMapViewModel.infoTextStormvarsel) }, //kan legges som String resource
         buttons = { }
     )

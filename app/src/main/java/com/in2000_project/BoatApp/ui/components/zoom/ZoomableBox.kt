@@ -1,3 +1,5 @@
+package com.in2000_project.BoatApp.ui.components.zoom
+
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.*

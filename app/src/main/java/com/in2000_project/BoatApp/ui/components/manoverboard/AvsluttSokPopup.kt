@@ -1,3 +1,5 @@
+package com.in2000_project.BoatApp.ui.components.manoverboard
+
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -40,14 +42,14 @@ fun AvsluttSokPopup(
                     shape = RoundedCornerShape(5.dp),
                     border = BorderStroke(width = 1.dp, color = Black)
                 ) {
-                    Text("Nei")
+                    Text(stringResource(R.string.No))
                 }
-
+                val buttonText = stringResource(R.string.StartSearch)
                 Button(
                     onClick = {
                         mapViewModel.showDialog = false
                         mapViewModel.restartButton()
-                        mapViewModel.buttonText = "start søk"
+                        mapViewModel.buttonText = buttonText
                     },
                     modifier = Modifier
                         .padding(start = 20.dp),
@@ -55,7 +57,7 @@ fun AvsluttSokPopup(
                     shape = RoundedCornerShape(5.dp),
                     border = BorderStroke(width = 1.dp, color = Black)
                 ) {
-                    Text("Ja")
+                    Text(stringResource(R.string.Yes))
                 }
             }
         }

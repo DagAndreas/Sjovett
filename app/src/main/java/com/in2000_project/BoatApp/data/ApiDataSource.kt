@@ -13,6 +13,7 @@ import io.ktor.client.request.*
 import io.ktor.serialization.gson.*
 import kotlin.system.exitProcess
 
+// TODO: Legg nøklene på et trygt sted!
 
 class ApiDataSource {
     private val client = HttpClient{
@@ -28,8 +29,8 @@ class ApiDataSource {
                 url(path)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",//R.string.Proxy_name.toString(),
-                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"//R.string.Proxy_key.toString()
+                        name = "X-Gravitee-Api-Key",
+                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"
                     )
                 }
             }.body<LocationForecastResponse>()
@@ -56,7 +57,7 @@ class ApiDataSource {
                     )
                 }
             }.body<MetAlertsResponse>()
-        } catch (e: Exception) { // Denne kan kanskje fjernes?
+        } catch (e: Exception) {
             // General exception
             Log.e("API_request xxx", path)
             Log.e("API_request xxx", e.message.toString())
@@ -124,6 +125,4 @@ class ApiDataSource {
         Log.i("API_request", "ApiData_Source_SeaOrLand success, response: $response")
         return response
     }
-
-
 }

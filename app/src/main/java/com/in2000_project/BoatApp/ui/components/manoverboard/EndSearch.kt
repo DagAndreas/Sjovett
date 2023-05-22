@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.CameraPositionState
-import com.in2000_project.BoatApp.compose.seaOrLandUrl
+import com.in2000_project.BoatApp.ui.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
@@ -54,7 +54,7 @@ fun EndSearch(
                         seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
                     }
 
-                    if (seaOrLandResponse?.water == true) {
+                    if (seaOrLandResponse.water) {
                         mapViewModel.oceanViewModel.setPath(pos)
                         mapViewModel.oceanViewModel.getOceanForecastResponse()
 
@@ -70,12 +70,12 @@ fun EndSearch(
                             mapViewModel.showDialog = true
                         }
 
-                    } else if (seaOrLandResponse?.water == false) {
-                        mapViewModel.mannOverBordInfoPopUp = true
+                    } else if (seaOrLandResponse.water == false) {
+                        mapViewModel.manIsOverboardInfoPopup = true
                         mapViewModel.infoTextMannOverBord =
                             "Vi kan ikke ta inn bølgedata når du er på land."
                     } else {
-                        mapViewModel.mannOverBordInfoPopUp = true
+                        mapViewModel.manIsOverboardInfoPopup = true
                         mapViewModel.infoTextMannOverBord =
                             "Vi fikk ikke hentet dataene. Prøv igjen!"
                     }

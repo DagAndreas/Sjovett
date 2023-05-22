@@ -2,28 +2,15 @@
     <string name="app_name">ComposeGoogleMaps</string>
     <string name="icon_delete">&#xe872;</string>
     <string name="Logo">Logo</string>
-    <string name="Informasjon">Informasjon</string>
-    <string name="Meny">Meny-ikon</string>
+    <string name="Yes">Ja</string>
+    <string name="No">Nei</string>
+    <string name="CPR_poster">Livredningsplakat</string>
+    <string name="RulesOfTheSea">Sjøvettreglene</string>
+    <string name="Information">Informasjon</string>
+    <string name="Menu">Meny-ikon</string>
     <string-array name="speedUnits">
         <item>knop</item>
         <item>km/t</item>
         <item>m/s</item>
-    </string-array>s
-    <string-array name="verktoyCards">
-        <item>Båtregler</item>
-        <item>Førstehjelp</item>
-    </string-array>
-    <array name="verktoyCardss">
-        <item>
-            <string-array name = "Båtregler">
-                <item>Fargekode</item>
-
-            </string-array>
-        </item>
-    </array>
-    <string-array name="timeOfDayArray">
-        <item>Nå</item>
-        <item>1 time</item>
-        <item>6 timer</item>
     </string-array>
 </resources>

@@ -11,16 +11,16 @@ import kotlinx.coroutines.launch
 const val oceanURL = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/oceanforecast/2.0/complete"
 
 class OceanViewModel(urlPath: String): ViewModel() {
-    val _dataSource = ApiDataSource()
+    private val _dataSource = ApiDataSource()
     var path: String = urlPath
     var oceanForecastResponseObject: OceanForecastResponse = getOceanForecastResponse()
-    var antallGangerHentet = 0
+    var amountOfTimesFetched = 0
 
     fun getOceanForecastResponse(): OceanForecastResponse{
         viewModelScope.launch {
             oceanForecastResponseObject = _dataSource.fetchOceanForecastData(path)
-            antallGangerHentet++
-            Log.i("OceanViewModel", "hentet vanndata $antallGangerHentet ganger")
+            amountOfTimesFetched++
+            Log.i("OceanViewModel", "Fetched ocean data $amountOfTimesFetched times")
         }
         return oceanForecastResponseObject
     }

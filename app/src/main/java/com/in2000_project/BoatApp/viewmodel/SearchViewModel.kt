@@ -13,7 +13,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
 class SearchViewModel: ViewModel() {
-    val _dataSource = ApiDataSource()
+    private val _dataSource = ApiDataSource()
     private val _geoCodeUiState = MutableStateFlow(GeoCodeUiState())
     val geoCodeUiState = _geoCodeUiState.asStateFlow()
 
@@ -26,10 +26,10 @@ class SearchViewModel: ViewModel() {
     private val _cities = MutableStateFlow(getAllCities(norwegianCities))
     val cities = locationSearch
         .onEach { _searchInProgress.update{true}}
-        //.debounce(100L)
         .combine(_cities){ text, cities ->
             if(text.isBlank()){
-                cities //viser alle steder om man ikke har begynt søk
+                // Shows the entire list if the user does not type anything
+                cities
             }else{
                 delay(500L)
                 cities.filter{
@@ -38,7 +38,7 @@ class SearchViewModel: ViewModel() {
             }
         }
         .onEach{_searchInProgress.update{false}}
-        .stateIn( //for å få stateFlow
+        .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
             _cities.value
@@ -52,21 +52,16 @@ class SearchViewModel: ViewModel() {
 
     @RequiresApi(Build.VERSION_CODES.M)
     suspend fun fetchCityData(cityName: String, connection: CheckInternet) {
-        if (!connection.checkNetwork()) {
+        if (!connection.checkNetwork()) { // Stops the use of internet actions, if internet is not connected
             Log.e("Internet connection", "Not connected!")
         } else {
             _locationSearch.update{
-                if (cityName != null){
-                    cityName
-                } else {
-                    ""
-                }
+                cityName
             }
             CoroutineScope(Dispatchers.IO).launch {
                 val url = "https://api.api-ninjas.com/v1/geocoding?city=$cityName&country=Norway"
                 _geoCodeUiState.update {
                     it.copy(cityList = _dataSource.fetchGeoCodeData(url))
-
                 }
             }
         }
@@ -80,7 +75,7 @@ class SearchViewModel: ViewModel() {
 }
 
 
-//todo: Legge byene i string resources
+//Todo: Legge byene i string resources
 val norwegianCities = listOf(
     "Reine",
     "Bergsida",
