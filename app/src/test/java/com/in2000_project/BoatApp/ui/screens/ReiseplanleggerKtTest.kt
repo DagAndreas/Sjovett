@@ -15,7 +15,6 @@ class ReiseplanleggerKtTest() {
         val outcome = (calculateTimeInMinutes(distanceInMeters, knots) == 0.6)
 
         //TODO: Assert
-
         assertTrue(outcome)
     }
     @Test

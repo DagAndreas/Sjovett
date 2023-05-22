@@ -3,6 +3,7 @@ import com.in2000_project.BoatApp.model.oceanforecast.Data
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Instant
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
+import com.in2000_project.BoatApp.viewmodel.calculateRadius
 import com.in2000_project.BoatApp.viewmodel.findClosestDataToTimestamp
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -113,6 +114,26 @@ class MannOverBordKtTest {
 
         assertEquals(expectedDetails, closestData)
     }
+    @Test
+    fun testCalculateRadius() {
+        // TODO: Arrange
+        val testCases = listOf(
+            10 to 50.0,   // newRadius = 10 * 5.0 = 50.0
+            30 to 150.0,  // newRadius = 30 * 5.0 = 150.0
+            5 to 25.0,    // newRadius < 25.0, returns 25.0
+            40 to 200.0,  // newRadius > 200.0, returns 200.0
+            0 to 25.0     // newRadius < 25.0, returns 25.0
+        )
 
+        val delta = 0.0001 // Tolerance for floating-point comparisons
+
+        for ((minutes, expectedRadius) in testCases) {
+            // TODO: Act
+            val result = calculateRadius(minutes)
+
+            // TODO: Assert
+            assertEquals(expectedRadius, result, delta)
+        }
+    }
 
 }
