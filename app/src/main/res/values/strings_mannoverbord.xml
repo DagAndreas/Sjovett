@@ -1,7 +1,7 @@
 <resources>
 
-    <string name="AreYouSure">\"Er du sikker? \"</string>
-    <string name="AreYouSureText">\"Du er nå i ferd med å stoppe søking. \nVil  du avslutte?"\</string>
-    <string name="MannOverBordScreenName">Mann-over-bord</string>
-    <string name="Tid_søkt_melding">Tid søkt:</string>
+    <string name="AreYouSure">Er du sikker?</string>
+    <string name="AreYouSureText">Du er nå i ferd med å stoppe søking. \nVil  du avslutte?\</string>
+    <string name="ManOverboardScreenName">Mann-over-bord</string>
+    <string name="TimeSearchedMessage">Tid søkt:</string>
 </resources>

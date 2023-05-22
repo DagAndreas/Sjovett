@@ -1,6 +1,6 @@
 package com.in2000_project.BoatApp.compose
 
-import AvsluttSok
+import EndSearch
 import AvsluttSokPopup
 import InfoButton
 import NavigationMenuButton
@@ -131,7 +131,7 @@ fun MannOverbord(
                     String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 
                 Text(
-                    text = "${stringResource(R.string.Tid_søkt_melding)} $timePassedFormatted",
+                    text = "${stringResource(R.string.TimeSearchedMessage)} $timePassedFormatted",
                     Modifier
                         .background(Color.White, shape = RoundedCornerShape(8.dp))
                         .padding(8.dp)
@@ -145,7 +145,7 @@ fun MannOverbord(
 
             InfoButton(
                 mapViewModel = mapViewModel,
-                screen = stringResource(R.string.MannOverBordScreenName)
+                screen = stringResource(R.string.ManOverboardScreenName)
             )
         }
 
@@ -153,12 +153,12 @@ fun MannOverbord(
         if (mapViewModel.mannOverBordInfoPopUp) {
             InfoPopup(
                 mapViewModel = mapViewModel,
-                screen = stringResource(R.string.MannOverBordScreenName)
+                screen = stringResource(R.string.ManOverboardScreenName)
             )
         }
 
 
-        AvsluttSok(
+        EndSearch(
             mapViewModel = mapViewModel,
             state = state,
             locationObtained = locationObtained,
