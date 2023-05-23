@@ -30,7 +30,6 @@ class SearchViewModel(context: Context): ViewModel() {
     val searchInProgress = _searchInProgress.asStateFlow()
 
     val array: Array<String> = context.resources.getStringArray(R.array.city_list)
-
     private val _cities = MutableStateFlow(getAllCities(array.toList()))
 
     val cities = locationSearch
