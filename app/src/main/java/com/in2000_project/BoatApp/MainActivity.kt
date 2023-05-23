@@ -17,6 +17,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.navigation.compose.NavHost
@@ -54,7 +55,9 @@ class MapActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 val stormWarningViewModels = MetAlertsViewModel()
                 val temperatureViewModel = LocationForecastViewModel()
-                val searchViewModel = SearchViewModel()
+                val context = LocalContext.current
+                val searchViewModel = SearchViewModel(context)
+                val searchViewModel2 = SearchViewModel()
                 val internet = CheckInternet(cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
 
                 Surface(color = MaterialTheme.colors.background) {
