@@ -64,18 +64,9 @@ fun TidsbrukScreen(
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
     }
 
-// Define the properties of the map
-    /*
-    isMyLocationEnabled is set to always true in this version of the code,
-    this is due to some of our emulators inconsistency to remember that
-    "allow use of location" was enabled
-
-    This is the line that would be in the finished product:
-    isMyLocationEnabled = mapState.lastKnownLocation != null
-     */
     val mapProperties = MapProperties(isMyLocationEnabled = true)
 
-// Define a function to handle changes to the speed slider
+    // Define a function to handle changes to the speed slider
     val onSpeedChanged: (Float) -> Unit = { value ->
         viewModel.speedNumber.value = value.roundToInt().toFloat()
         viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
@@ -83,7 +74,7 @@ fun TidsbrukScreen(
         viewModel.updateLocation()
     }
 
-// Define a function to handle long presses on the map
+    // Define a function to handle long presses on the map
     val onLongPress: (LatLng) -> Unit = { position ->
         if (!viewModel.lockMarkers.value) {
             // Update the current location
@@ -126,8 +117,8 @@ fun TidsbrukScreen(
         }
     }
 
+    // the sheet that is on the bottom of the screen
     BottomSheetScaffold(
-
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetBackgroundColor = White,
         sheetContent = {
@@ -182,6 +173,7 @@ fun TidsbrukScreen(
                             .align(Alignment.CenterVertically)
 
                     ) {
+                        // choose knots
                         Slider(
                             value = viewModel.speedNumber.value,
                             onValueChange = onSpeedChanged,
@@ -199,7 +191,7 @@ fun TidsbrukScreen(
                             )
                         )
                     }
-
+                    // use my location for route or not
                     Checkbox(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
@@ -259,7 +251,7 @@ fun TidsbrukScreen(
                         ) {
                             Text(stringResource(R.string.StartRoute))
                         }
-
+                        // remove marker
                         Button(
                             onClick = { if(!viewModel.lockMarkers.value) { viewModel.removeLastMarker() } },
                             enabled = !viewModel.markerPositions.isEmpty() && !(viewModel.usingMyPositionTidsbruk.value && viewModel.markerPositions.size == 1),
@@ -278,7 +270,7 @@ fun TidsbrukScreen(
                             )
                         }
                     } else {
-
+                        // lock or unlock route
                         Button(
                             onClick = { viewModel.lockMarkers.value = !viewModel.lockMarkers.value },
                             modifier = Modifier
@@ -319,7 +311,6 @@ fun TidsbrukScreen(
                 onMapLongClick = onLongPress
             ) {
                 val context: ProvidableCompositionLocal<Context> = LocalContext
-
                 if (!viewModel.lockMarkers.value) {
                     viewModel.markerPositions.forEach { position ->
                         Marker(
@@ -403,6 +394,8 @@ fun TidsbrukScreen(
 // Calculate distance between coordinates
 fun calculateDistance(coordinates: List<LatLng>): Double {
     var distance = 0.0
+
+    // iterates through the list
     for (i in 0 until coordinates.lastIndex) {
         val from = coordinates[i]
         val to = coordinates[i + 1]

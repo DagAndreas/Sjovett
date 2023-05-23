@@ -9,5 +9,7 @@
     <string name="Boat">Båt</string>
     <string name="AddMarkers">Du må legge til to markører for å få en rute</string>
     <string name="ReiseplanleggerScreenName">Reiseplanlegger</string>
+    <string name="DisplayedTextWhenSpeedNull">Du vil ikke komme fram hvis du kjører 0 knop</string>
+    <string name="DisplayedTextWhenNotTwoMarkers">Du kan legge til en destinasjon ved å holde inne et sted på kartet.</string>
 
 </resources>

@@ -46,17 +46,19 @@ class MapViewModel @Inject constructor(): ViewModel() {
     )
 
     val state: StateFlow<MapState> = _state.asStateFlow()
-
     var displayedText = mutableStateOf("Du kan legge til en destinasjon ved å holde inne et sted på kartet. ")
 
+    // These are for Reiseplanlegger
     var distanceInMeters = mutableStateOf(0.0)
     var lengthInMinutes = mutableStateOf(0.0)
     var polyLines =  mutableStateListOf<PolylineOptions>()
     var lockMarkers =  mutableStateOf(false)
     var usingMyPositionTidsbruk = mutableStateOf(false)
-    var markerPositions =  mutableStateListOf<LatLng>()
-    var speedNumber =    mutableStateOf(15f)
+    var markerPositions = mutableStateListOf<LatLng>()
+    var speedNumber = mutableStateOf(15f)
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
+
+    // These are for Mann-over-bord
     val markersMapScreen = mutableListOf<LatLng>()
     val polyLinesMap = mutableListOf<PolylineOptions>()
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
@@ -65,14 +67,15 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var enabled = mutableStateOf(true)
     var timePassedInSeconds = mutableStateOf( 0 )
     var manIsOverboard = mutableStateOf(false)
-    var buttonText = "start søk"
+    var buttonText = "Start søk"
 
-    //InfoKort
+    // PopUp
     var manIsOverboardInfoPopup by mutableStateOf(true)
     var reiseplanleggerInfoPopUp by mutableStateOf(true)
 
     var infoTextMannOverBord by mutableStateOf("Trykk på 'Start søk' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.")
-    var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.")
+    var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.\n" +
+            "NB! Denne reiseplanleggeren tar ikke hensyn til skjær og grunner. Rute planlegges på eget ansvar.")
 
     var showDialog by mutableStateOf(false)
 
@@ -206,6 +209,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         updateDisplayedText()
     }
 
+    // Updates the displayed text for the user
     fun updateDisplayedText() {
         if (speedNumber.value == 0f) {
             displayedText.value = "Du vil ikke komme fram hvis du kjører 0 knop"
@@ -276,8 +280,7 @@ fun locationToLatLng(loc: Location?): LatLng {
     return LatLng(59.0, 11.0) //default val i oslofjorden
 }
 
-// should find a way to know when it changes grid
-// take into account that I assume timeCheckingFor is given in minutes
+// Take into account that we assume timeCheckingFor is given in minutes
 fun calculatePosition(
     coordinatesStart:List<Double>,
     seaSurfaceWaveToDegrees: Double,
@@ -311,7 +314,7 @@ fun calculatePosition(
     return LatLng(newLat, newLng)
 }
 
-
+// Calculates the radius of the search-area
 fun calculateRadius(minutes: Int): Double {
     val newRadius: Double = minutes * 5.0
     return if (newRadius > 200.0) 200.0
