@@ -1,24 +1,20 @@
 package com.in2000_project.BoatApp
 
 import Drawer
-import com.in2000_project.BoatApp.ui.screens.Livredning
 import Sjoemerkesystemet
 import Sjovettreglene
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.content.Context
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
-import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.material.icons.filled.*
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -28,10 +24,10 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.in2000_project.BoatApp.ui.screens.Livredning
 import com.in2000_project.BoatApp.ui.screens.MannOverbord
-import com.in2000_project.BoatApp.ui.screens.TidsbrukScreen
-import com.in2000_project.BoatApp.ui.components.CheckInternet
 import com.in2000_project.BoatApp.ui.screens.StormWarning
+import com.in2000_project.BoatApp.ui.screens.TidsbrukScreen
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -41,53 +37,15 @@ import kotlinx.coroutines.*
 // Heisann og hoppsan
 @AndroidEntryPoint
 class MapActivity : ComponentActivity() {
-
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                viewModel.getDeviceLocation(fusedLocationProviderClient)
-                alertsMapViewModel.getDeviceLocation(fusedLocationProviderClient)
-            }
-        }
-
-    private fun askPermissions() = when (PackageManager.PERMISSION_GRANTED) {
-        ContextCompat.checkSelfPermission(
-            this,
-            ACCESS_FINE_LOCATION
-        ) -> {
-            viewModel.getDeviceLocation(fusedLocationProviderClient)
-            alertsMapViewModel.getDeviceLocation(fusedLocationProviderClient)
-
-        }
-        else -> {
-            requestPermissionLauncher.launch(ACCESS_FINE_LOCATION)
-        }
-    }
-
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private val viewModel: MapViewModel by viewModels()
 
     private val alertsMapViewModel = AlertsMapViewModel()
 
-
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
-        // This part of the code checks if the user has internet connection
-        val internet = CheckInternet(cm = getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager)
-        var networkStatus = false
-        internet.waitForNetwork(setTrue = {networkStatus = true})
-        while (!networkStatus){
-            /* Stops the app from starting without internet connection */
-        }
-
-        // The user har connected to the internet, and we begin loading the app
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         viewModel.setClient(fusedLocationProviderClient)
-        // Asks permission to use the users location, this has to be true and we assume this later in the app
-        askPermissions()
 
         setContent {
             window.statusBarColor = ContextCompat.getColor(this, R.color.black)
@@ -97,6 +55,7 @@ class MapActivity : ComponentActivity() {
                 val stormWarningViewModels = MetAlertsViewModel()
                 val temperatureViewModel = LocationForecastViewModel()
                 val searchViewModel = SearchViewModel()
+                val internet = CheckInternet(cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
 
                 Surface(color = MaterialTheme.colors.background) {
                     val drawerState = rememberDrawerState(DrawerValue.Closed)
