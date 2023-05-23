@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.GeoCodeUiState
 import com.in2000_project.BoatApp.model.geoCode.CityName
-import com.in2000_project.BoatApp.ui.components.CheckInternet
+import com.in2000_project.BoatApp.CheckInternet
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
