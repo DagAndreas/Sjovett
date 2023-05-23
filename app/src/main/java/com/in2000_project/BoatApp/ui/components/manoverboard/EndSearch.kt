@@ -17,7 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.CameraPositionState
 import com.in2000_project.BoatApp.ui.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.data.MapState
-import com.in2000_project.BoatApp.ui.components.CheckInternet
+import com.in2000_project.BoatApp.CheckInternet
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng

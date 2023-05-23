@@ -47,14 +47,13 @@ import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
-import com.in2000_project.BoatApp.ui.components.CheckInternet
+import com.in2000_project.BoatApp.CheckInternet
 import com.in2000_project.BoatApp.ui.components.InfoPopupStorm
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 import io.ktor.util.*
 import kotlinx.coroutines.*
-import java.lang.Math.abs
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -80,7 +79,7 @@ fun StormWarning(
 
     This is the line that would be in the finished product:
     isMyLocationEnabled = mapState.lastKnownLocation != null
-     */
+    */
     val mapProperties = MapProperties(isMyLocationEnabled = true)
     val mapState by viewModelMap.state.collectAsState()
     if (mapState.lastKnownLocation != null) {
@@ -150,7 +149,6 @@ fun StormWarning(
                     InfoButtonStorm(
                         alertsMapViewModel = viewModelMap
                     )
-
                 }
 
                 TextField(
@@ -325,18 +323,15 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
     sdf.timeZone = TimeZone.getTimeZone("UTC")
     val time = sdf.format(Date())
     val currentTime = createCalendar(time)!!
-    var wantedBetween = 60*60*2 // Two hours
+    var wantedBetween = 0
     var found = 0
+
     for ((i, item) in listOfTime.withIndex()) {
         val checkTime = createCalendar(item.time)!!
         val secondsBetween = compareTimes(currentTime, checkTime)
         if (secondsBetween >= wantedBetween) {
             found++
-            if (wantedBetween == 0) {
-                wantedBetween = 60 * 60 * 3 // 60 seconds * 60 to get 1 hour * 3 to get 3 hours
-            } else {
-                wantedBetween += 60 * 60 * 3 // 3 hours in the future
-            }
+            wantedBetween += 60 * 3 // 60 seconds * 60 to get 1 hour * 3 to get 3 hours
             returnMap[i] = checkTime.time
             if (found >= 8) {
                 return returnMap
@@ -347,12 +342,11 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
 }
 
 fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
-    val diffMillis = abs(checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis)
-    return diffMillis / 1000
+    val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
+    return diffMillis / (1000 * 60)
 }
 
 fun getColor(awarenessLevel: String): String {
-
     return when (awarenessLevel.split("; ")[1]) {
         "green" -> "#803AF93C"
         "yellow" -> "#80F5D062"
