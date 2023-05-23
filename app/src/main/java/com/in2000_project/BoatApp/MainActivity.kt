@@ -7,12 +7,14 @@ import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,6 +45,7 @@ class MapActivity : ComponentActivity() {
 
     private val alertsMapViewModel = AlertsMapViewModel()
 
+    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
@@ -57,7 +60,6 @@ class MapActivity : ComponentActivity() {
                 val temperatureViewModel = LocationForecastViewModel()
                 val context = LocalContext.current
                 val searchViewModel = SearchViewModel(context)
-                val searchViewModel2 = SearchViewModel()
                 val internet = CheckInternet(cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
 
                 Surface(color = MaterialTheme.colors.background) {
