@@ -7,6 +7,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -45,6 +46,7 @@ import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import com.plcoding.bottomnavwithbadges.ui.theme.*
+import java.lang.Thread.sleep
 import kotlin.math.*
 
 
@@ -195,6 +197,7 @@ fun TidsbrukScreen(
                     Checkbox(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
+                            viewModel.updateLocation()
                             viewModel.usingMyPositionTidsbruk.value = !viewModel.usingMyPositionTidsbruk.value
 
                             if(!viewModel.usingMyPositionTidsbruk.value){
@@ -207,6 +210,7 @@ fun TidsbrukScreen(
                             }
                             else{
                                 viewModel.markerPositions.add(0, locationToLatLng(state.lastKnownLocation))
+
                                 viewModel.coordinatesToFindDistanceBetween.add(0,viewModel.markerPositions[0])
                                 if (viewModel.coordinatesToFindDistanceBetween.size >=2){
                                     val polyLine = PolylineOptions().add(viewModel.markerPositions[0], viewModel.markerPositions[1]).color(android.graphics.Color.BLACK)
@@ -412,6 +416,8 @@ fun calculateDistance(coordinates: List<LatLng>): Double {
     return distance
 }
 
+
+
 // Calculate time in minutes based on distance and speed
 fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Double {
     val metersInNauticalMile = 1853
@@ -432,4 +438,8 @@ fun formatTime(timeInMinutes: Double): String {
             "$hours timer og $minutes minutter"
         }
     }
+}
+fun get_position(viewModel: MapViewModel): Location? {
+    viewModel.updateLocation()
+    return viewModel.state.value.lastKnownLocation
 }
