@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp
+package com.in2000_project.BoatApp.launch
 
 import android.Manifest
 import android.Manifest.permission.ACCESS_FINE_LOCATION
@@ -9,6 +9,8 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import com.in2000_project.BoatApp.MapActivity
+import com.in2000_project.BoatApp.R
 
 
 class NoUserLocation : AppCompatActivity() {

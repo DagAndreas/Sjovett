@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp
+package com.in2000_project.BoatApp.launch
 
 import android.Manifest
 import android.content.Intent
@@ -9,6 +9,8 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import androidx.core.content.ContextCompat
+import com.in2000_project.BoatApp.MapActivity
+import com.in2000_project.BoatApp.R
 
 class SplashActivity : AppCompatActivity() {
     private val SPLASH_DELAY: Long = 3000 // 3 seconds

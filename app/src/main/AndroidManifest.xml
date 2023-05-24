@@ -20,14 +20,14 @@
         android:theme="@style/Theme.BoatApp"
         tools:targetApi="32">
         <activity
-            android:name=".NoUserLocation"
+            android:name=".launch.NoUserLocation"
             android:exported="false"
             android:theme="@style/Theme.Design.NoActionBar" />
         <activity
             android:name=".MapActivity"
             android:exported="false" />
         <activity
-            android:name=".NoNetworkActivity"
+            android:name=".launch.NoNetworkActivity"
             android:exported="false"
             android:theme="@style/Theme.Design.NoActionBar" />
 
@@ -36,7 +36,7 @@
             android:value="${GOOGLE_MAPS_API_KEY}" />
 
         <activity
-            android:name=".SplashActivity"
+            android:name=".launch.SplashActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.Design.NoActionBar">

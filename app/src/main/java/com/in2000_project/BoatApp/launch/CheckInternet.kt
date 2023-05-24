@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp
+package com.in2000_project.BoatApp.launch
 
 import android.net.ConnectivityManager
 import android.util.Log

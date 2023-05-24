@@ -11,9 +11,9 @@ import com.in2000_project.BoatApp.maps.*
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.PolygonOptions
-import com.in2000_project.BoatApp.ZoneClusterItem
+import com.in2000_project.BoatApp.maps.ZoneClusterItem
 import com.in2000_project.BoatApp.data.MapStateCluster
-import com.in2000_project.BoatApp.ZoneClusterManager
+import com.in2000_project.BoatApp.maps.ZoneClusterManager
 import com.in2000_project.BoatApp.data.AlertsMapUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow

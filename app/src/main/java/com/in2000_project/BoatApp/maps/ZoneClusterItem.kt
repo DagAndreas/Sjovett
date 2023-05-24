@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp
+package com.in2000_project.BoatApp.maps
 
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.clustering.ClusterItem
