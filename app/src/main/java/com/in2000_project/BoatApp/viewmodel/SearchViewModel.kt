@@ -58,7 +58,6 @@ class SearchViewModel(context: Context): ViewModel() {
     }
 
 
-    @RequiresApi(Build.VERSION_CODES.M)
     suspend fun fetchCityData(cityName: String, connection: CheckInternet) {
         if (!connection.checkNetwork()) { // Stops the use of internet actions, if internet is not connected
             Log.e("Internet connection", "Not connected!")

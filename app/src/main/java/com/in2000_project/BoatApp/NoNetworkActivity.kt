@@ -24,7 +24,7 @@ class NoNetworkActivity : AppCompatActivity() {
         networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
                 if (isInternetAvailable()) {
-                    startActivity(Intent(this@NoNetworkActivity, MapActivity::class.java))
+                    startActivity(Intent(this@NoNetworkActivity, SplashActivity::class.java))
                     finish()
                 }
             }

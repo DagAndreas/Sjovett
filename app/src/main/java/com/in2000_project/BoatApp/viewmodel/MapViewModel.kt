@@ -101,7 +101,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 
 
-    fun restartButton(){
+    fun restartButton(text: String){
         mapUpdateThread.isRunning = false
         circleCenter.value = state.value.circle.coordinates
         circleRadius.value = 25.0
@@ -109,18 +109,18 @@ class MapViewModel @Inject constructor(): ViewModel() {
         enabled.value = true
         timePassedInSeconds.value =  0
         manIsOverboard.value = false
-        infoTextMannOverBord = "Trykk på 'Start søk' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig."
+        infoTextMannOverBord = text
         polyLinesMap.clear()
     }
 
-    fun startButton(state: Location?, pos: LatLng){
+    fun startButton(state: Location?, pos: LatLng, text: String){
         circleCenter.value = locationToLatLng(state)
         oceanViewModel.setPath(circleCenter.value)
         oceanViewModel.getOceanForecastResponse()
         circleVisibility.value = true
         enabled.value = true
         manIsOverboard.value = true
-        infoTextMannOverBord = "Trykk på 'Avslutt søk' for å avslutte søket. Søkeområdet vil ikke lenger være synlig."
+        infoTextMannOverBord = text
         markersMapScreen.add(pos)
         mapUpdateThread.isRunning = true
         mapUpdateThread = MapUpdateThread(this)

@@ -29,6 +29,7 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
     private val _alertsMapUiState = MutableStateFlow(AlertsMapUiState())
     val alertsMapUiState = _alertsMapUiState.asStateFlow()
 
+
     private val _state = MutableStateFlow(
         MapStateCluster(
             lastKnownLocation = null,
@@ -99,4 +100,5 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
         clusterManager.addItems(state.value.clusterItems)
         return clusterManager
     }
+
 }

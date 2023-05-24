@@ -1,7 +1,8 @@
 legg inn i local.properties:
 
-
     GOOGLE_MAPS_API_KEY=AIzaSyCtUtAv6RFDzClFOc8LbxK5B5cRybtb1KI
+    MET_KEY=dc1732ae-a8a0-4dd5-8052-26094bfbca11
+    GEO_KEY="Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
 
 
 gradle.build:
