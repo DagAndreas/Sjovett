@@ -3,6 +3,7 @@ package com.in2000_project.BoatApp.data
 import android.util.Log
 import com.example.gruppe_16.model.locationforecast.LocationForecastResponse
 import com.example.gruppe_16.model.metalerts.MetAlertsResponse
+import com.in2000_project.BoatApp.BuildConfig
 import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
 import com.in2000_project.BoatApp.model.seaOrLand.SeaOrLandResponse
@@ -30,7 +31,7 @@ class ApiDataSource {
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",
-                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"
+                        value = BuildConfig.MET_KEY
                     )
                 }
             }.body<LocationForecastResponse>()
@@ -53,7 +54,7 @@ class ApiDataSource {
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",
-                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"
+                        value = BuildConfig.MET_KEY
                     )
                 }
             }.body<MetAlertsResponse>()
@@ -74,8 +75,8 @@ class ApiDataSource {
                 url(path)//path)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",//R.string.Proxy_name.toString(),
-                        value = "dc1732ae-a8a0-4dd5-8052-26094bfbca11"//R.string.Proxy_key.toString()
+                        name = "X-Gravitee-Api-Key",
+                        value = BuildConfig.MET_KEY
                     )
                 }
             }.body<OceanForecastResponse>()
@@ -97,7 +98,7 @@ class ApiDataSource {
                 headers {
                     append(
                         name = "X-Api-Key",
-                        value = "Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
+                        value = BuildConfig.GEO_KEY
                     )
                 }
             }.body<List<City>>()

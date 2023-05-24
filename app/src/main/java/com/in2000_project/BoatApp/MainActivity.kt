@@ -36,8 +36,6 @@ import com.plcoding.bottomnavwithbadges.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 
-
-// Heisann og hoppsan
 @AndroidEntryPoint
 class MapActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
@@ -45,7 +43,6 @@ class MapActivity : ComponentActivity() {
 
     private val alertsMapViewModel = AlertsMapViewModel()
 
-    @RequiresApi(Build.VERSION_CODES.M)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)

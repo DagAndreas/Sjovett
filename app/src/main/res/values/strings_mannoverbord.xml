@@ -5,4 +5,6 @@
     <string name="ManOverboardScreenName">Mann-over-bord</string>
     <string name="TimeSearchedMessage">Tid søkt:</string>
     <string name="StartSearch">Start søk</string>
+    <string name="RestartSearch">Trykk på \'Start søk\' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.</string>
+    <string name="QuitSearch">Trykk på \'Avslutt søk\' for å avslutte søket. Søkeområdet vil ikke lenger være synlig.</string>
 </resources>
