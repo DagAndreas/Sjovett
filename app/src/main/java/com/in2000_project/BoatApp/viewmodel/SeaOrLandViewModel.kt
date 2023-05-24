@@ -10,9 +10,9 @@ class SeaOrLandViewModel(urlPath: String) : ViewModel() {
     private val _dataSource = ApiDataSource()
     var path: String = urlPath
     private var amountOfTimesFetched = 0
+    private var seaOrLandResponse = SeaOrLandResponse(0.0, 0.0, true)
 
     suspend fun getSeaOrLandResponse(): SeaOrLandResponse {
-        var seaOrLandResponse = SeaOrLandResponse(0.0, 0.0, true)
         try {
             seaOrLandResponse = _dataSource.fetchSeaOrLandResponse(path)
             amountOfTimesFetched++
