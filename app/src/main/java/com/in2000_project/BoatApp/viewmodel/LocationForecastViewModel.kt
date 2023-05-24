@@ -5,7 +5,7 @@ import android.util.Log
 import androidx.annotation.RequiresApi
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.TemperatureUiState
-import com.in2000_project.BoatApp.CheckInternet
+import com.in2000_project.BoatApp.launch.CheckInternet
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow

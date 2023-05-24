@@ -3,18 +3,11 @@ package com.in2000_project.BoatApp
 import Drawer
 import Sjoemerkesystemet
 import Sjovettreglene
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.content.pm.PackageManager
 import android.net.ConnectivityManager
-import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.rememberCoroutineScope
@@ -27,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.ui.screens.Livredning
 import com.in2000_project.BoatApp.ui.screens.MannOverbord
 import com.in2000_project.BoatApp.ui.screens.StormWarning

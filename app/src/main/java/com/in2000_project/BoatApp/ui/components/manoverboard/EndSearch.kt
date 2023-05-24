@@ -1,6 +1,4 @@
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
 import androidx.compose.material.ButtonDefaults
@@ -18,7 +16,7 @@ import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.CameraPositionState
 import com.in2000_project.BoatApp.ui.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.data.MapState
-import com.in2000_project.BoatApp.CheckInternet
+import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel

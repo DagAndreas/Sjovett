@@ -43,9 +43,9 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.ZoneClusterManager
+import com.in2000_project.BoatApp.maps.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
-import com.in2000_project.BoatApp.CheckInternet
+import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.ui.components.InfoPopupStorm
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey

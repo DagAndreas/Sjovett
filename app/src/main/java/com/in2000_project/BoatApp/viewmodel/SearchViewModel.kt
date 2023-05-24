@@ -1,21 +1,16 @@
 package com.in2000_project.BoatApp.viewmodel
 
 import android.content.Context
-import android.content.res.Resources
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
-import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.GeoCodeUiState
 import com.in2000_project.BoatApp.model.geoCode.CityName
-import com.in2000_project.BoatApp.CheckInternet
+import com.in2000_project.BoatApp.launch.CheckInternet
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
-import org.hamcrest.Condition.Step
 
 
 class SearchViewModel(context: Context): ViewModel() {

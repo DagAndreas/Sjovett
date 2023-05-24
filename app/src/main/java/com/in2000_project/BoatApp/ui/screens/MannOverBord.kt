@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.CheckInternet
+import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.OpacityRed

@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp
+package com.in2000_project.BoatApp.launch
 
 import android.content.Context
 import android.content.Intent
@@ -8,6 +8,7 @@ import android.net.NetworkCapabilities
 import android.net.NetworkRequest
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import com.in2000_project.BoatApp.R
 
 class NoNetworkActivity : AppCompatActivity() {
 
