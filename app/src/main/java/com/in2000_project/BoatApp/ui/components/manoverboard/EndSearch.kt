@@ -99,7 +99,7 @@ fun EndSearch(
         )
 
         LaunchedEffect(locationObtained.value) {
-            delay(2000)
+            delay(50)
             if (locationObtained.value) {
                 Log.i("MapScreen", "Zoomer inn på brukeren")
                 cameraPositionState.animate(

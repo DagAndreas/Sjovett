@@ -59,7 +59,11 @@ fun MannOverbord(
 
     val locationObtained = remember { mutableStateOf(false) }
     mapViewModel.updateLocation()
-    locationObtained.value = true
+    if(state.lastKnownLocation!=null && !locationObtained.value){
+        locationObtained.value = true
+        Log.i("galksjd", "headsd")
+    }
+
 
 
     val cameraZoom = 15f
