@@ -74,9 +74,9 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var manIsOverboardInfoPopup by mutableStateOf(true)
     var reiseplanleggerInfoPopUp by mutableStateOf(true)
 
-    var infoTextMannOverBord by mutableStateOf("Trykk på 'Start søk' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.")
-    var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.\n" +
-            "NB! Denne reiseplanleggeren tar ikke hensyn til skjær og grunner. Rute planlegges på eget ansvar.")
+    var infoTextMannOverBord by mutableStateOf("")
+    //var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.\n" +
+            //"NB! Denne reiseplanleggeren tar ikke hensyn til skjær og grunner. Rute planlegges på eget ansvar.")
 
     var showDialog by mutableStateOf(false)
 
