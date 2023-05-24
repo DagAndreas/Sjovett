@@ -42,7 +42,6 @@ fun Livredning(
         modifier = Modifier
             .background(color = LightGrey)
     ) {
-
         LazyColumn(
             modifier = Modifier
                 .graphicsLayer(

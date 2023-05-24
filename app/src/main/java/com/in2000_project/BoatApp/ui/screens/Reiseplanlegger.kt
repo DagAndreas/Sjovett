@@ -7,6 +7,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
+import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -45,6 +46,7 @@ import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import com.plcoding.bottomnavwithbadges.ui.theme.*
+import java.lang.Thread.sleep
 import kotlin.math.*
 
 
@@ -191,12 +193,13 @@ fun TidsbrukScreen(
                             )
                         )
                     }
+
+                    viewModel.updateLocation()
                     // use my location for route or not
                     Checkbox(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
                             viewModel.usingMyPositionTidsbruk.value = !viewModel.usingMyPositionTidsbruk.value
-
                             if(!viewModel.usingMyPositionTidsbruk.value){
                                 viewModel.markerPositions.removeFirst()
                                 viewModel.coordinatesToFindDistanceBetween.removeFirst()
@@ -411,6 +414,8 @@ fun calculateDistance(coordinates: List<LatLng>): Double {
     }
     return distance
 }
+
+
 
 // Calculate time in minutes based on distance and speed
 fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Double {

@@ -27,6 +27,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.*
+import kotlin.system.exitProcess
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
@@ -73,9 +74,9 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var manIsOverboardInfoPopup by mutableStateOf(true)
     var reiseplanleggerInfoPopUp by mutableStateOf(true)
 
-    var infoTextMannOverBord by mutableStateOf("Trykk på 'Start søk' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.")
-    var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.\n" +
-            "NB! Denne reiseplanleggeren tar ikke hensyn til skjær og grunner. Rute planlegges på eget ansvar.")
+    var infoTextMannOverBord by mutableStateOf("")
+    //var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.\n" +
+            //"NB! Denne reiseplanleggeren tar ikke hensyn til skjær og grunner. Rute planlegges på eget ansvar.")
 
     var showDialog by mutableStateOf(false)
 
@@ -87,12 +88,14 @@ class MapViewModel @Inject constructor(): ViewModel() {
     ) : Thread() {
         var isRunning = false
         override fun run() {
+            mapViewModel.oceanViewModel.setPath(mapViewModel.circleCenter.value)
+            mapViewModel.oceanViewModel.getOceanForecastResponse()
             sleep(100) // Sleeps to ensure that data has been collected from oceanforecastobject
             isRunning = true
             val sleepDelay:Long = 2 // seconds
             while(isRunning){
                 // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
-                mapViewModel.updateMap(sleepDelay * 60 * 5)
+                mapViewModel.updateMap(sleepDelay*60)
                 mapViewModel.updateMarkerAndPolyLines()
                 // in milliseconds, this function waits 2 seconds between each update
                 sleep(sleepDelay*1000)
@@ -160,6 +163,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
                 }
             }
         } catch (e: SecurityException) {
+            exitProcess(-1)
             Log.e("updateLocation", e.toString())
         }
     }
