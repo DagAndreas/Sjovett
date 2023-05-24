@@ -27,6 +27,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 import kotlin.math.*
+import kotlin.system.exitProcess
 
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
@@ -162,6 +163,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
                 }
             }
         } catch (e: SecurityException) {
+            exitProcess(-1)
             Log.e("updateLocation", e.toString())
         }
     }

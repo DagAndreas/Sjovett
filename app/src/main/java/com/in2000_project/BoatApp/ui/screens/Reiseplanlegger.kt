@@ -193,13 +193,13 @@ fun TidsbrukScreen(
                             )
                         )
                     }
+
+                    viewModel.updateLocation()
                     // use my location for route or not
                     Checkbox(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
-                            viewModel.updateLocation()
                             viewModel.usingMyPositionTidsbruk.value = !viewModel.usingMyPositionTidsbruk.value
-
                             if(!viewModel.usingMyPositionTidsbruk.value){
                                 viewModel.markerPositions.removeFirst()
                                 viewModel.coordinatesToFindDistanceBetween.removeFirst()
@@ -210,7 +210,6 @@ fun TidsbrukScreen(
                             }
                             else{
                                 viewModel.markerPositions.add(0, locationToLatLng(state.lastKnownLocation))
-
                                 viewModel.coordinatesToFindDistanceBetween.add(0,viewModel.markerPositions[0])
                                 if (viewModel.coordinatesToFindDistanceBetween.size >=2){
                                     val polyLine = PolylineOptions().add(viewModel.markerPositions[0], viewModel.markerPositions[1]).color(android.graphics.Color.BLACK)
@@ -438,8 +437,4 @@ fun formatTime(timeInMinutes: Double): String {
             "$hours timer og $minutes minutter"
         }
     }
-}
-fun get_position(viewModel: MapViewModel): Location? {
-    viewModel.updateLocation()
-    return viewModel.state.value.lastKnownLocation
 }
