@@ -13,7 +13,7 @@ import com.google.android.gms.maps.model.PolylineOptions
 import com.in2000_project.BoatApp.ui.screens.calculateDistance
 import com.in2000_project.BoatApp.ui.screens.calculateTimeInMinutes
 import com.in2000_project.BoatApp.ui.screens.formatTime
-import com.in2000_project.BoatApp.maps.CircleInfo
+import com.in2000_project.BoatApp.data.CircleState
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -38,7 +38,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     private val _state = MutableStateFlow(
         MapState(
             lastKnownLocation = null,
-            circle = CircleInfo(
+            circle = CircleState(
                 coordinates = LatLng(59.0373, 10.5883), //default 59, 10.5. Oslofjorden.
                 radius = 25.0
             )
