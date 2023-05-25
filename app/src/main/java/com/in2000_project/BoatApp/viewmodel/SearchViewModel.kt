@@ -81,7 +81,6 @@ class SearchViewModel(context: Context): ViewModel() {
 
 
 fun getAllCities(cities: List<String>): MutableList<CityName>{
-
     val listOfCities = emptyList<CityName>().toMutableList()
     for(city in cities){
         listOfCities.add(CityName(city, "Norway"))

@@ -43,12 +43,14 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
 
     val state: StateFlow<MapStateCluster> = _state.asStateFlow()
 
+    /** Updates the users location in the _alertsMapUiState variable */
     fun updateUserLocation(lat: Double, lng: Double) {
         _alertsMapUiState.update {
             (it.copy(longitude = lng, latitude = lat))
         }
     }
 
+    /** Adds the clusters to _state */
     fun addCluster(
         id: String,
         title: String,
@@ -63,7 +65,7 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
             )
         }
     }
-
+    /** Clears _state of clusters*/
     fun resetCluster() {
         listOfClusters.clear()
         _state.update{
@@ -74,24 +76,8 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
         }
     }
 
-    @SuppressLint("MissingPermission")
-    fun getDeviceLocation(
-        fusedLocationProviderClient: FusedLocationProviderClient
-    ) {
-        try {
-            val locationResult = fusedLocationProviderClient.lastLocation
-            locationResult.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _state.value = state.value.copy(
-                        lastKnownLocation = task.result,
-                    )
-                }
-            }
-        } catch (e: SecurityException) {
-            Log.e("SecurityException", e.toString())
-        }
-    }
 
+    /** Sets up a cluster manager */
     fun setupClusterManager(
         context: Context,
         map: GoogleMap,
