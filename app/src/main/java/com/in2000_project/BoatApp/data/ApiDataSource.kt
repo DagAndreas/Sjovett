@@ -14,8 +14,6 @@ import io.ktor.client.request.*
 import io.ktor.serialization.gson.*
 import kotlin.system.exitProcess
 
-// TODO: Legg nøklene på et trygt sted!
-
 class ApiDataSource {
     private val client = HttpClient{
         install(ContentNegotiation) {
