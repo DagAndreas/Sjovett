@@ -90,7 +90,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         override fun run() {
             mapViewModel.oceanViewModel.setPath(mapViewModel.circleCenter.value)
             mapViewModel.oceanViewModel.getOceanForecastResponse()
-            sleep(100) // Sleeps to ensure that data has been collected from oceanforecastobject
+            sleep(400) // Sleeps to ensure that data has been collected from oceanforecastobject
             isRunning = true
             val sleepDelay:Long = 2 // seconds
             while(isRunning){
