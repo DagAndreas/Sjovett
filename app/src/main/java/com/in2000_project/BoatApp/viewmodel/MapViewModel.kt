@@ -100,7 +100,9 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 
     /** Resets search-area data */
-    fun restartButton(text: String){
+
+    //TODO: Skal denne ha text som parameter?
+    fun restartButton(){
         mapUpdateThread.isRunning = false
         circleCenter.value = state.value.circle.coordinates
         circleRadius.value = 25.0
