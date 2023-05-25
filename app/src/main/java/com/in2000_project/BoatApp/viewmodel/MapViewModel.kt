@@ -74,7 +74,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var manIsOverboardInfoPopup by mutableStateOf(true)
     var reiseplanleggerInfoPopUp by mutableStateOf(true)
 
-    var infoTextMannOverBord by mutableStateOf("")
+    //var infoTextMannOverBord by mutableStateOf("")
     //var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.\n" +
             //"NB! Denne reiseplanleggeren tar ikke hensyn til skjær og grunner. Rute planlegges på eget ansvar.")
 
@@ -104,7 +104,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 
 
-    fun restartButton(text: String){
+    fun restartButton(){
         mapUpdateThread.isRunning = false
         circleCenter.value = state.value.circle.coordinates
         circleRadius.value = 25.0
@@ -112,18 +112,16 @@ class MapViewModel @Inject constructor(): ViewModel() {
         enabled.value = true
         timePassedInSeconds.value =  0
         manIsOverboard.value = false
-        infoTextMannOverBord = text
         polyLinesMap.clear()
     }
 
-    fun startButton(state: Location?, pos: LatLng, text: String){
+    fun startButton(state: Location?, pos: LatLng){
         circleCenter.value = locationToLatLng(state)
         oceanViewModel.setPath(circleCenter.value)
         oceanViewModel.getOceanForecastResponse()
         circleVisibility.value = true
         enabled.value = true
         manIsOverboard.value = true
-        infoTextMannOverBord = text
         markersMapScreen.add(pos)
         mapUpdateThread.isRunning = true
         mapUpdateThread = MapUpdateThread(this)

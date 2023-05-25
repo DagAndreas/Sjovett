@@ -1,7 +1,6 @@
 package com.in2000_project.BoatApp.ui.screens
 
 import EndSearch
-import com.in2000_project.BoatApp.ui.components.manoverboard.AvsluttSokPopup
 import InfoButton
 import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
 import android.os.Build
@@ -31,6 +30,7 @@ import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.ui.components.InfoPopup
 import com.in2000_project.BoatApp.ui.components.info.NoInternetPopup
+import com.in2000_project.BoatApp.ui.components.manoverboard.EndSearchPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.OpacityRed
 import com.plcoding.bottomnavwithbadges.ui.theme.White
@@ -177,7 +177,7 @@ fun MannOverbord(
 
         // Add the AlertDialog
         if (mapViewModel.showDialog) {
-            AvsluttSokPopup(
+            EndSearchPopup(
                 mapViewModel = mapViewModel
             )
         }

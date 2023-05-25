@@ -31,11 +31,10 @@ fun InfoPopup(
         text = { Text(
             if (screen == "Reiseplanlegger") {
                 // TODO: Sander T, ha en sjekk her for hvilken tekst som skal vises
-                stringResource(R.string.TextBoxReiseplanlegger)
-                //mapViewModel.infoTextReiseplanlegger
+                infoTextReiseplanlegger
             }
             else if (screen == "Mann-over-bord") {
-                stringResource(R.string.TextBoxMannOverBordDefault)
+                infoTextMannOverBord
             }
             else {
                 ""
@@ -57,7 +56,7 @@ fun InfoPopupStorm(
             alertsMapViewModel.stormvarselInfoPopUp = false
         },
         title = { Text(stringResource(R.string.Information)) },
-        text = { Text(alertsMapViewModel.infoTextStormvarsel) }, //kan legges som String resource
+        text = { Text(infoTextStormVarsel) },
         buttons = { }
     )
 }
