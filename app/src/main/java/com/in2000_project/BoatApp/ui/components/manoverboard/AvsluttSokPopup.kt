@@ -22,7 +22,7 @@ import com.plcoding.bottomnavwithbadges.ui.theme.Red
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 
 @Composable
-fun AvsluttSokPopup(
+fun EndSearchPopup(
     mapViewModel: MapViewModel
 ) {
     AlertDialog(
@@ -45,11 +45,11 @@ fun AvsluttSokPopup(
                     Text(stringResource(R.string.No))
                 }
                 val buttonText = stringResource(R.string.StartSearch)
-                val restartText = stringResource(R.string.StartSearch)
+
                 Button(
                     onClick = {
                         mapViewModel.showDialog = false
-                        mapViewModel.restartButton(text = restartText)
+                        mapViewModel.restartButton()
                         mapViewModel.buttonText = buttonText
                     },
                     modifier = Modifier

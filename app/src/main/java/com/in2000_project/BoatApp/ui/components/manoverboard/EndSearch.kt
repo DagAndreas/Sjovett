@@ -37,7 +37,7 @@ fun EndSearch(
     connection: CheckInternet,
     internetPopupState: InternetPopupState
 ) {
-    val quitText = stringResource(R.string.QuitSearch)
+
     Button(
         onClick = {
             if (!connection.checkNetwork()) {
@@ -67,20 +67,14 @@ fun EndSearch(
                         )
 
                         if (!mapViewModel.mapUpdateThread.isRunning) {
-                            mapViewModel.startButton(state.lastKnownLocation, pos, text = quitText)
+                            mapViewModel.startButton(state.lastKnownLocation, pos)
                             mapViewModel.buttonText = "Avslutt søk"
                         } else {
                             mapViewModel.showDialog = true
                         }
 
-                    } else if (seaOrLandResponse.water == false) {
-                        mapViewModel.manIsOverboardInfoPopup = true
-                        mapViewModel.infoTextMannOverBord =
-                            "Vi kan ikke ta inn bølgedata når du er på land."
                     } else {
                         mapViewModel.manIsOverboardInfoPopup = true
-                        mapViewModel.infoTextMannOverBord =
-                            "Vi fikk ikke hentet dataene. Prøv igjen!"
                     }
                 }
             }
