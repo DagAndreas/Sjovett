@@ -19,17 +19,16 @@ fun List<LatLng>.getCenterOfPolygon(): LatLngBounds {
     Returns true if the person has drifted either 400m in longitude or in latitude.
  */
 fun hasChangedGrid(dataCoordinate: LatLng, personCoordinate: LatLng): Boolean {
-    // approximate radius of the Earth in meters
-    val earthRadiusMeter = 6371000.0
+    val latDistancePerDegree = 111000 // approx distance in meters per degree of latitude
+    val latdiff = abs(dataCoordinate.latitude - personCoordinate.latitude) * latDistancePerDegree
 
-    val deltaLongitude = abs(dataCoordinate.longitude - personCoordinate.longitude) * PI / 180
-    val deltaLatitude = abs(dataCoordinate.latitude - personCoordinate.latitude) * PI / 180
+    val earthRadius = 6371e3 // Earth's radius in meters
+    val latRad = Math.toRadians(dataCoordinate.latitude)
+    val longdiff = abs(dataCoordinate.longitude - personCoordinate.longitude) * PI / 180 * cos(latRad) * earthRadius
 
-    val distanceLongitude = 2 * PI * earthRadiusMeter * cos(personCoordinate.latitude * PI / 180) * deltaLongitude / 360
-    val distanceLatitude = 2 * PI * earthRadiusMeter * deltaLatitude / 360
-
-    val answer = distanceLongitude > 400.0 || distanceLatitude > 400.0
+    val answer = latdiff > 400.0 || longdiff > 400.0
     Log.i("DriftCheck:", "person: $personCoordinate, data: $dataCoordinate. New grid = $answer")
     return answer
+
 }
 

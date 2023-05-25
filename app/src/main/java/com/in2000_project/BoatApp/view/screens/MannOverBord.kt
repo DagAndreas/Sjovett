@@ -97,9 +97,6 @@ fun MannOverbord(
                 visible = a.value,
             )
 
-
-
-
             Circle(
                 center = mapViewModel.circleCenter.value,
                 radius = mapViewModel.circleRadius.value,
@@ -183,7 +180,7 @@ fun MannOverbord(
                 .padding(
                     top = LocalConfiguration.current.screenHeightDp.dp * 0.66f
                 )
-                .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
+                .size(LocalConfiguration.current.screenWidthDp.dp * 0.225f)
                 .shadow(
                     elevation = 5.dp,
                     shape = CircleShape
