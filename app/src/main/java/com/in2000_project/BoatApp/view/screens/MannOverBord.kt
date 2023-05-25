@@ -81,7 +81,7 @@ fun MannOverbord(
     val cameraPositionState = rememberCameraPositionState{}
     Log.i("Circlecenter", "${mapViewModel.circleCenter.value}")
 
-    val a = mapViewModel.manIsOverboard
+    val manIsOverboard = mapViewModel.manIsOverboard
 
     Box {
         GoogleMap(
@@ -94,7 +94,7 @@ fun MannOverbord(
             Marker(
                 state = MarkerState(mapViewModel.circleCenter.value),
                 icon = BitmapDescriptorFactory.defaultMarker(), // Your red icon
-                visible = a.value,
+                visible = manIsOverboard.value,
             )
 
             Circle(
