@@ -45,6 +45,8 @@ fun EndSearchPopup(
                 Button(
                     onClick = {
                         mapViewModel.showDialog = false
+
+                        //TODO: Skal denne ha text som parameter?
                         mapViewModel.restartButton()
                         mapViewModel.buttonText = buttonText
                     },

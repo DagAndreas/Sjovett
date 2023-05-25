@@ -66,7 +66,7 @@ fun MannOverBordButton(
 
 
                         if (!mapViewModel.mapUpdateThread.isRunning) {
-                            mapViewModel.startButton(state.lastKnownLocation, pos)
+                            mapViewModel.startButton(state.lastKnownLocation, pos, "")
                             mapViewModel.buttonText = "Stopp søk"
                         } else {
                             mapViewModel.showDialog = true
