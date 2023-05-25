@@ -41,11 +41,11 @@ fun EndSearchPopup(
                     Text(stringResource(R.string.No))
                 }
                 val buttonText = stringResource(R.string.StartSearch)
-                val restartText = stringResource(R.string.StartSearch)
+
                 Button(
                     onClick = {
                         mapViewModel.showDialog = false
-                        mapViewModel.restartButton(text = restartText)
+                        mapViewModel.restartButton()
                         mapViewModel.buttonText = buttonText
                     },
                     modifier = Modifier

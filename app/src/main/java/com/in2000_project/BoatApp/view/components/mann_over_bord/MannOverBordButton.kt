@@ -40,11 +40,10 @@ fun MannOverBordButton(
     connection: CheckInternet,
     internetPopupState: InternetPopupState
 ) {
-    val quitText = stringResource(R.string.QuitSearch)
+
     Button(
         onClick = {
             if (!connection.checkNetwork()) {
-                Log.e("Internet connection", "Not connected!")
                 internetPopupState.checkInternetPopup.value = true
             } else {
                 mapViewModel.updateLocation()
@@ -57,7 +56,6 @@ fun MannOverBordButton(
                     var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
                     while (seaOrLandResponse == null) {
                         delay(100)
-                        Log.i("MapScreen seaorland", "waiting for seaorlandresponse")
                         seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
                     }
 
@@ -66,30 +64,19 @@ fun MannOverBordButton(
                         mapViewModel.oceanViewModel.setPath(pos)
                         mapViewModel.oceanViewModel.getOceanForecastResponse()
 
-                        Log.i(
-                            "sender den",
-                            "${mapViewModel.oceanViewModel.oceanForecastResponseObject}"
-                        )
 
                         if (!mapViewModel.mapUpdateThread.isRunning) {
-                            mapViewModel.startButton(state.lastKnownLocation, pos, text = quitText)
-                            mapViewModel.buttonText = "Avslutt søk"
+                            mapViewModel.startButton(state.lastKnownLocation, pos)
+                            mapViewModel.buttonText = "Stopp søk"
                         } else {
                             mapViewModel.showDialog = true
                         }
 
-                    } else if (seaOrLandResponse.water == false) {
-                        mapViewModel.manIsOverboardInfoPopup = true
-                        mapViewModel.infoTextMannOverBord =
-                            "Vi kan ikke ta inn bølgedata når du er på land."
                     } else {
                         mapViewModel.manIsOverboardInfoPopup = true
-                        mapViewModel.infoTextMannOverBord =
-                            "Vi fikk ikke hentet dataene. Prøv igjen!"
                     }
                 }
             }
-            Log.i("MapScreen button", "Hei fra buttonpress")
 
         },
         modifier = modifier,
@@ -107,7 +94,6 @@ fun MannOverBordButton(
         LaunchedEffect(locationObtained.value) {
             delay(50)
             if (locationObtained.value) {
-                Log.i("MapScreen", "Zoomer inn på brukeren")
                 cameraPositionState.animate(
                     CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom),1500)
             }

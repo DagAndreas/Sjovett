@@ -74,8 +74,6 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var manIsOverboardInfoPopup by mutableStateOf(true)
     var reiseplanleggerInfoPopup by mutableStateOf(true)
 
-    var infoTextMannOverBord by mutableStateOf("")
-
     var showDialog by mutableStateOf(false)
 
     val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
@@ -88,15 +86,15 @@ class MapViewModel @Inject constructor(): ViewModel() {
         override fun run() {
             mapViewModel.oceanViewModel.setPath(mapViewModel.circleCenter.value)
             mapViewModel.oceanViewModel.getOceanForecastResponse()
-            sleep(100) // Sleeps to ensure that data has been collected from oceanforecastobject
+            sleep(400) // Sleeps to ensure that data has been collected from oceanforecastobject
             isRunning = true
             val sleepDelay:Long = 2 // seconds
             while(isRunning){
                 // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
-                mapViewModel.updateMap(sleepDelay*60)
+                mapViewModel.updateMap(sleepDelay*200)
                 mapViewModel.updateMarkerAndPolyLines()
                 // in milliseconds, this function waits 2 seconds between each update
-                sleep(sleepDelay*1000)
+                sleep(sleepDelay*50)
             }
         }
     }
@@ -110,7 +108,6 @@ class MapViewModel @Inject constructor(): ViewModel() {
         enabled.value = true
         timePassedInSeconds.value =  0
         manIsOverboard.value = false
-        infoTextMannOverBord = text
         polyLinesMap.clear()
     }
 
@@ -122,7 +119,6 @@ class MapViewModel @Inject constructor(): ViewModel() {
         circleVisibility.value = true
         enabled.value = true
         manIsOverboard.value = true
-        infoTextMannOverBord = text
         markersMapScreen.add(pos)
         mapUpdateThread.isRunning = true
         mapUpdateThread = MapUpdateThread(this)
@@ -165,8 +161,8 @@ class MapViewModel @Inject constructor(): ViewModel() {
                 }
             }
         } catch (e: SecurityException) {
-            exitProcess(-1)
             Log.e("updateLocation", e.toString())
+            exitProcess(-1)
         }
     }
 
