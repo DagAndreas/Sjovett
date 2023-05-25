@@ -91,10 +91,10 @@ class MapViewModel @Inject constructor(): ViewModel() {
             val sleepDelay:Long = 2 // seconds
             while(isRunning){
                 // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
-                mapViewModel.updateMap(sleepDelay*200)
+                mapViewModel.updateMap(sleepDelay)
                 mapViewModel.updateMarkerAndPolyLines()
                 // in milliseconds, this function waits 2 seconds between each update
-                sleep(sleepDelay*50)
+                sleep(sleepDelay*1000)
             }
         }
     }
@@ -231,6 +231,55 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
         updateDisplayedText()
     }
+    // Handles changes to the speed slider
+    fun onSpeedChanged(value: Float) {
+        speedNumber.value = value.roundToInt().toFloat()
+        lengthInMinutes.value = calculateTimeInMinutes(distanceInMeters.value, speedNumber.value)
+        updateDisplayedText()
+        updateLocation()
+    }
+
+
+    fun onLongPress(position: LatLng) {
+        if (!lockMarkers.value) {
+            updateLocation()
+
+            if (markerPositions.isEmpty()) {
+                markerPositions += position
+                coordinatesToFindDistanceBetween.add(position)
+            } else {
+                if (usingMyPositionTidsbruk.value) {
+                    markerPositions[0] = locationToLatLng(state.value.lastKnownLocation!!)
+                    if (polyLines.size >= 1) {
+                        val updatedFirstPolyLine = PolylineOptions()
+                            .add(markerPositions[0], markerPositions[1])
+                            .color(android.graphics.Color.RED)
+                        polyLines[0] = updatedFirstPolyLine
+                    }
+                }
+
+                markerPositions.add(position)
+                coordinatesToFindDistanceBetween.add(position)
+
+                val lastPosition = markerPositions[markerPositions.size - 2]
+                val options = PolylineOptions()
+                    .add(lastPosition, position)
+                    .color(android.graphics.Color.RED)
+
+                polyLines.add(options)
+
+                if (coordinatesToFindDistanceBetween.size > 1) {
+                    distanceInMeters.value =
+                        calculateDistance(coordinatesToFindDistanceBetween)
+                    lengthInMinutes.value =
+                        calculateTimeInMinutes(distanceInMeters.value, speedNumber.value)
+                }
+            }
+
+            updateDisplayedText()
+        }
+    }
+
 }
 
 /** Calculates the new position of the center in projected search-area in Mann-over-bord  */
@@ -332,6 +381,7 @@ fun calculateRadius(minutes: Int): Double {
     else if (newRadius < 25.0) 25.0
     else newRadius
 }
+
 
 
 
