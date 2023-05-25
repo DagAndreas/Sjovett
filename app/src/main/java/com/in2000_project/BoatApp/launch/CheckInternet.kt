@@ -2,6 +2,9 @@ package com.in2000_project.BoatApp.launch
 
 import android.net.ConnectivityManager
 import android.util.Log
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
+import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.*
 
@@ -31,7 +34,17 @@ class CheckInternet(private val cm: ConnectivityManager) {
 
     //TODO: Her trenger vi en popup som sier til brukeren at de ikke er koblet til nett
     @Composable
-    fun Popup(){
-
+    fun NoInternetPopup(){
+        AlertDialog(
+            onDismissRequest = {
+                //sette en global variabel til false
+            },
+            title = { Text("Ikke internett") },
+            text = { Text(
+                text = "Det ser ut som du ikke har internett. Koble til internett for å bruke denne funksjonen."
+            )
+            },
+            buttons = {}
+        )
     }
 }
