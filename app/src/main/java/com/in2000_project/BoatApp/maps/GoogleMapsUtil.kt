@@ -27,7 +27,7 @@ fun hasChangedGrid(dataCoordinate: LatLng, personCoordinate: LatLng): Boolean {
     val longdiff = abs(dataCoordinate.longitude - personCoordinate.longitude) * PI / 180 * cos(latRad) * earthRadius
 
     val answer = latdiff > 400.0 || longdiff > 400.0
-    Log.i("DriftCheck:", "person: $personCoordinate, data: $dataCoordinate. New grid = $answer")
+    //Log.i("DriftCheck:", "person: $personCoordinate, data: $dataCoordinate. New grid = $answer")
     return answer
 
 }
