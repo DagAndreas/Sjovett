@@ -44,7 +44,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     )
 
     val state: StateFlow<MapState> = _state.asStateFlow()
-    var displayedText = mutableStateOf("Du kan legge til en destinasjon ved å holde inne et sted på kartet. ")
+    var travelTimeText = mutableStateOf("Du kan legge til en destinasjon ved å holde inne et sted på kartet. ")
 
     // These are for Reiseplanlegger
     var distanceInMeters = mutableStateOf(0.0)
@@ -192,13 +192,13 @@ class MapViewModel @Inject constructor(): ViewModel() {
     /** Updates the displayed text for the user */
     fun updateDisplayedText() {
         if (speedNumber.value == 0f) {
-            displayedText.value = "Du vil ikke komme fram hvis du kjører 0 knop"
+            travelTimeText.value = "Du vil ikke komme fram hvis du kjører 0 knop"
 
         } else {
             if (markerPositions.size < 2) {
-                displayedText.value = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
+                travelTimeText.value = "Du kan legge til en destinasjon ved å holde inne et sted på kartet. "
             } else {
-                displayedText.value = formatTime(lengthInMinutes.value)
+                travelTimeText.value = formatTime(lengthInMinutes.value)
             }
         }
     }

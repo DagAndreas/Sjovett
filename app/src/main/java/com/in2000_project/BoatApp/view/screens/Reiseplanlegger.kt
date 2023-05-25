@@ -6,7 +6,6 @@ import android.R.attr.*
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -44,7 +43,6 @@ import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.view.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import com.plcoding.bottomnavwithbadges.ui.theme.*
 import kotlin.math.*
 
@@ -56,7 +54,7 @@ fun TidsbrukScreen(
     openMenu: () -> Unit
 ) {
     viewModel.updateLocation()
-    
+
     // Collect the current state from the view model
     val state by viewModel.state.collectAsState()
 
@@ -218,7 +216,7 @@ fun TidsbrukScreen(
                         )
 
                         Text(
-                            text = viewModel.displayedText.value,
+                            text = viewModel.travelTimeText.value,
                             textAlign = TextAlign.Center,
                             modifier = Modifier
                                 .align(Alignment.CenterVertically)
@@ -269,7 +267,7 @@ fun TidsbrukScreen(
                         )
                     }
                     else{
-                        viewModel.displayedText.value = stringResource(R.string.AddMarkers)
+                        viewModel.travelTimeText.value = stringResource(R.string.AddMarkers)
                     }
                 }
                 viewModel.polyLines.forEach { options ->
