@@ -28,7 +28,9 @@ import androidx.compose.ui.unit.sp
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.launch.CheckInternet
+import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.ui.components.InfoPopup
+import com.in2000_project.BoatApp.ui.components.info.NoInternetPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.OpacityRed
 import com.plcoding.bottomnavwithbadges.ui.theme.White
@@ -41,7 +43,8 @@ const val seaOrLandUrl = "https://isitwater-com.p.rapidapi.com/"
 fun MannOverbord(
     mapViewModel: MapViewModel,
     openDrawer: () -> Unit,
-    connection: CheckInternet
+    connection: CheckInternet,
+    internetPopupState: InternetPopupState
 ) {
 
     mapViewModel.updateLocation()
@@ -164,13 +167,20 @@ fun MannOverbord(
                 .align(CenterHorizontally),
             cameraPositionState = cameraPositionState,
             cameraZoom = cameraZoom,
-            connection = connection
+            connection = connection,
+            internetPopupState = internetPopupState
         )
 
         // Add the AlertDialog
         if (mapViewModel.showDialog) {
             AvsluttSokPopup(
                 mapViewModel = mapViewModel
+            )
+        }
+
+        if (internetPopupState.checkInternetPopup.value) {
+            NoInternetPopup(
+                internetPopupState = internetPopupState
             )
         }
     }

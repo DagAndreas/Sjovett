@@ -9,6 +9,7 @@ import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.GeoCodeUiState
 import com.in2000_project.BoatApp.model.geoCode.CityName
 import com.in2000_project.BoatApp.launch.CheckInternet
+import com.in2000_project.BoatApp.launch.InternetPopupState
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
 
@@ -53,10 +54,12 @@ class SearchViewModel(context: Context): ViewModel() {
     }
 
 
-    suspend fun fetchCityData(cityName: String, connection: CheckInternet) {
+    suspend fun fetchCityData(cityName: String, connection: CheckInternet, internetPopupState: InternetPopupState) {
         if (!connection.checkNetwork()) { // Stops the use of internet actions, if internet is not connected
             Log.e("Internet connection", "Not connected!")
+            internetPopupState.checkInternetPopup.value = true
         } else {
+            internetPopupState.checkInternetPopup.value = false
             _locationSearch.update{
                 cityName
             }

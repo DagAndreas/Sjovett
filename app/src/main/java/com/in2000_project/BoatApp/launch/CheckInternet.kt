@@ -32,19 +32,4 @@ class CheckInternet(private val cm: ConnectivityManager) {
         }
     }
 
-    //TODO: Her trenger vi en popup som sier til brukeren at de ikke er koblet til nett
-    @Composable
-    fun NoInternetPopup(){
-        AlertDialog(
-            onDismissRequest = {
-                //sette en global variabel til false
-            },
-            title = { Text("Ikke internett") },
-            text = { Text(
-                text = "Det ser ut som du ikke har internett. Koble til internett for å bruke denne funksjonen."
-            )
-            },
-            buttons = {}
-        )
-    }
 }

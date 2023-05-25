@@ -222,6 +222,31 @@ class MapViewModel @Inject constructor(): ViewModel() {
             }
         }
     }
+    
+    fun updateUseOfCurrentLocation(state: MapState) {
+        usingMyPositionTidsbruk.value = !usingMyPositionTidsbruk.value
+
+        if(!usingMyPositionTidsbruk.value){
+            markerPositions.removeFirst()
+            coordinatesToFindDistanceBetween.removeFirst()
+
+            if (polyLines.isNotEmpty()) {
+                polyLines.removeFirst()
+            }
+        }
+        else{
+            markerPositions.add(0, locationToLatLng(state.lastKnownLocation))
+            coordinatesToFindDistanceBetween.add(0,markerPositions[0])
+            if (coordinatesToFindDistanceBetween.size >=2){
+                val polyLine = PolylineOptions().add(markerPositions[0], markerPositions[1]).color(android.graphics.Color.BLACK)
+                polyLines.add(0, polyLine)
+            }
+        }
+        distanceInMeters.value = calculateDistance(coordinatesToFindDistanceBetween)
+        lengthInMinutes.value = calculateTimeInMinutes(distanceInMeters.value, speedNumber.value)
+
+        updateDisplayedText()
+    }
 }
 
 /* TODO: Når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den assignes på nytt. */
@@ -321,6 +346,8 @@ fun calculateRadius(minutes: Int): Double {
     else if (newRadius < 25.0) 25.0
     else newRadius
 }
+
+
 
 
 

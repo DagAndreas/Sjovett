@@ -18,6 +18,7 @@ import com.in2000_project.BoatApp.ui.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
@@ -33,13 +34,15 @@ fun EndSearch(
     modifier: Modifier,
     cameraPositionState: CameraPositionState,
     cameraZoom: Float,
-    connection: CheckInternet
+    connection: CheckInternet,
+    internetPopupState: InternetPopupState
 ) {
     val quitText = stringResource(R.string.QuitSearch)
     Button(
         onClick = {
             if (!connection.checkNetwork()) {
                 Log.e("Internet connection", "Not connected!")
+                internetPopupState.checkInternetPopup.value = true
             } else {
                 mapViewModel.updateLocation()
                 val pos = locationToLatLng(state.lastKnownLocation)

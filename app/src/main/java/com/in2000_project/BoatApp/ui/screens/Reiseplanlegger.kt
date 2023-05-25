@@ -195,28 +195,10 @@ fun TidsbrukScreen(
                     Checkbox(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
-                            viewModel.usingMyPositionTidsbruk.value = !viewModel.usingMyPositionTidsbruk.value
 
-                            if(!viewModel.usingMyPositionTidsbruk.value){
-                                viewModel.markerPositions.removeFirst()
-                                viewModel.coordinatesToFindDistanceBetween.removeFirst()
+                            viewModel.updateLocation()
+                            viewModel.updateUseOfCurrentLocation(state)
 
-                                if (viewModel.polyLines.isNotEmpty()) {
-                                    viewModel.polyLines.removeFirst()
-                                }
-                            }
-                            else{
-                                viewModel.markerPositions.add(0, locationToLatLng(state.lastKnownLocation))
-                                viewModel.coordinatesToFindDistanceBetween.add(0,viewModel.markerPositions[0])
-                                if (viewModel.coordinatesToFindDistanceBetween.size >=2){
-                                    val polyLine = PolylineOptions().add(viewModel.markerPositions[0], viewModel.markerPositions[1]).color(android.graphics.Color.BLACK)
-                                    viewModel.polyLines.add(0, polyLine)
-                                }
-                            }
-                            viewModel.distanceInMeters.value = calculateDistance(viewModel.coordinatesToFindDistanceBetween)
-                            viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
-
-                            viewModel.updateDisplayedText()
                         },
                         modifier = Modifier
                             .align(Alignment.CenterVertically),

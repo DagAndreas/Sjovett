@@ -1,6 +1,7 @@
 <resources>
     <string name="Search">Søk på sted</string>
     <string name="WeatherNext24H">Været de neste 24 timene</string>
+    <string name="InfoTextStormvarsel">Denne funksjonen gir deg innsikt i været på din lokasjon. For å endre sted kan du skrive inn ønsket by i søkefeltet. «Slide» bortover på skjermen for å se værvarsel for de neste 24 timene. Nederst på skjermen har du en oversikt over stormer i området. Trykk på en storm for å lese informasjon</string>
     <string-array name="city_list">
         <item>Aksdal</item>
         <item>Alsvåg</item>

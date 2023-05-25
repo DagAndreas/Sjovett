@@ -10,7 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -21,6 +21,7 @@ import androidx.navigation.compose.rememberNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.in2000_project.BoatApp.launch.CheckInternet
+import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.ui.screens.Livredning
 import com.in2000_project.BoatApp.ui.screens.MannOverbord
 import com.in2000_project.BoatApp.ui.screens.StormWarning
@@ -52,6 +53,7 @@ class MapActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val searchViewModel = SearchViewModel(context)
                 val internet = CheckInternet(cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
+                var internetPopupState = InternetPopupState()
 
                 Surface(color = MaterialTheme.colors.background) {
                     val drawerState = rememberDrawerState(DrawerValue.Closed)
@@ -90,7 +92,8 @@ class MapActivity : ComponentActivity() {
                                     openDrawer = {
                                         openDrawer()
                                     },
-                                    connection = internet
+                                    connection = internet,
+                                    internetPopupState = internetPopupState
                                 )
                             }
                             composable(DrawerScreens.StormWarning.route) {
@@ -104,7 +107,8 @@ class MapActivity : ComponentActivity() {
                                     openDrawer = {
                                         openDrawer()
                                     },
-                                    connection = internet
+                                    connection = internet,
+                                    internetPopupState = internetPopupState
                                 )
                             }
                             composable(DrawerScreens.TidsbrukScreen.route) {
