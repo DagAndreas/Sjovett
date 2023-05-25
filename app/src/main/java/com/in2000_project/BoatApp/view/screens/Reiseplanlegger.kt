@@ -56,7 +56,7 @@ fun TidsbrukScreen(
     openMenu: () -> Unit
 ) {
     viewModel.updateLocation()
-
+    
     // Collect the current state from the view model
     val state by viewModel.state.collectAsState()
 
@@ -64,7 +64,6 @@ fun TidsbrukScreen(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
     }
-
     val mapProperties = MapProperties(isMyLocationEnabled = true)
 
     // The sheet that is on the bottom of the screen
@@ -118,10 +117,8 @@ fun TidsbrukScreen(
                             .height(30.dp)
                             .background(
                                 color = LightGrey,
-                                shape = RoundedCornerShape(40.dp)
-                            )
+                                shape = RoundedCornerShape(40.dp))
                             .align(Alignment.CenterVertically)
-
                     ) {
                         // choose knots
                         Slider(
@@ -147,9 +144,7 @@ fun TidsbrukScreen(
                     Checkbox(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
-
                             useOwnLocation(state, viewModel)
-
                         },
                         modifier = Modifier
                             .align(Alignment.CenterVertically),
@@ -276,29 +271,24 @@ fun TidsbrukScreen(
                     else{
                         viewModel.displayedText.value = stringResource(R.string.AddMarkers)
                     }
-
                 }
-
                 viewModel.polyLines.forEach { options ->
                     val points = options.points
                     Polyline(points)
                 }
             }
-
             if (viewModel.reiseplanleggerInfoPopup) {
                 InfoPopup(
                     mapViewModel = viewModel,
                     screen = stringResource(R.string.ReiseplanleggerScreenName)
                 )
             }
-
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.16f)
                     .wrapContentWidth(CenterHorizontally)
                     .padding(top = 10.dp)
             ) {
-
                 MenuButton(
                     buttonIcon = Icons.Filled.Menu,
                     onButtonClicked = { openMenu() },
@@ -311,6 +301,7 @@ fun TidsbrukScreen(
                         .padding(10.dp)
                         .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
                 )
+
                 Spacer(Modifier.height(10.dp))
 
                 InfoButton(
@@ -318,31 +309,10 @@ fun TidsbrukScreen(
                     screen = stringResource(R.string.ReiseplanleggerScreenName)
                 )
             }
-
         }
     }
 }
 
-// Calculate distance between coordinates
-fun calculateDistance(coordinates: List<LatLng>): Double {
-    var distance = 0.0
-
-    // iterates through the list
-    for (i in 0 until coordinates.lastIndex) {
-        val from = coordinates[i]
-        val to = coordinates[i + 1]
-        val results = FloatArray(1)
-        Location.distanceBetween(
-            from.latitude,
-            from.longitude,
-            to.latitude,
-            to.longitude,
-            results
-        )
-        distance += results[0]
-    }
-    return distance
-}
 
 fun useOwnLocation(state: MapState, viewModel: MapViewModel){
     viewModel.updateLocation()
@@ -350,24 +320,4 @@ fun useOwnLocation(state: MapState, viewModel: MapViewModel){
 }
 
 
-// Calculate time in minutes based on distance and speed
-fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Double {
-    val metersInNauticalMile = 1853
-    val minutesInHour = 60
-    return (distanceInMeters / (speedInKnots * metersInNauticalMile )) * minutesInHour
-}
 
-// Format time in minutes to display as text
-fun formatTime(timeInMinutes: Double): String {
-    return if (timeInMinutes < 1) {
-        "Under 1 minutt"
-    } else {
-        val hours = (timeInMinutes / 60).toInt()
-        val minutes = (timeInMinutes % 60).toInt()
-        if (hours == 0) {
-            "$minutes minutter"
-        } else {
-            "$hours timer og $minutes minutter"
-        }
-    }
-}

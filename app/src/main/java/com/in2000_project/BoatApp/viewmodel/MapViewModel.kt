@@ -10,9 +10,6 @@ import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
-import com.in2000_project.BoatApp.view.screens.calculateDistance
-import com.in2000_project.BoatApp.view.screens.calculateTimeInMinutes
-import com.in2000_project.BoatApp.view.screens.formatTime
 import com.in2000_project.BoatApp.data.CircleState
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
@@ -282,6 +279,28 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
 }
 
+// Calculate distance between coordinates
+fun calculateDistance(coordinates: List<LatLng>): Double {
+    var distance = 0.0
+
+    // iterates through the list
+    for (i in 0 until coordinates.lastIndex) {
+        val from = coordinates[i]
+        val to = coordinates[i + 1]
+        val results = FloatArray(1)
+        Location.distanceBetween(
+            from.latitude,
+            from.longitude,
+            to.latitude,
+            to.longitude,
+            results
+        )
+        distance += results[0]
+    }
+    return distance
+}
+
+
 /** Calculates the new position of the center in projected search-area in Mann-over-bord  */
 fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
     Log.i("MapScreen", "New Pos from $personCoordinate")
@@ -348,7 +367,7 @@ fun calculatePosition(
     timeCheckingFor: Double
 ): LatLng {
 
-    // Convert degrees to radians
+    // Convert coordinate-degrees to radians
     val waveFromInRadians = Math.toRadians(seaSurfaceWaveToDegrees)
     val earthRadiusInKm = 6371
     val startLatInRadians = Math.toRadians(coordinatesStart[0])
@@ -383,7 +402,28 @@ fun calculateRadius(minutes: Int): Double {
 }
 
 
+// Calculate time in minutes based on distance and speed
+fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Double {
+    val metersInNauticalMile = 1853
+    val minutesInHour = 60
+    return (distanceInMeters / (speedInKnots * metersInNauticalMile )) * minutesInHour
+}
 
+
+// Format time in minutes to display as text
+fun formatTime(timeInMinutes: Double): String {
+    return if (timeInMinutes < 1) {
+        "Under 1 minutt"
+    } else {
+        val hours = (timeInMinutes / 60).toInt()
+        val minutes = (timeInMinutes % 60).toInt()
+        if (hours == 0) {
+            "$minutes minutter"
+        } else {
+            "$hours timer og $minutes minutter"
+        }
+    }
+}
 
 
 
