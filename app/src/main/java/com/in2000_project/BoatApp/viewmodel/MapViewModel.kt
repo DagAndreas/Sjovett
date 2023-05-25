@@ -100,7 +100,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 
     /** Resets search-area data */
-    fun restartButton(text: String){
+    fun restartButton(){
         mapUpdateThread.isRunning = false
         circleCenter.value = state.value.circle.coordinates
         circleRadius.value = 25.0
@@ -112,7 +112,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 
     /** Starts the thread that updates the projected search-area */
-    fun startButton(state: Location?, pos: LatLng, text: String){
+    fun startButton(state: Location?, pos: LatLng){
         circleCenter.value = locationToLatLng(state)
         oceanViewModel.setPath(circleCenter.value)
         oceanViewModel.getOceanForecastResponse()

@@ -42,6 +42,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
         viewModel.setClient(fusedLocationProviderClient)
+        alertsMapViewModel.setClient(fusedLocationProviderClient)
+        alertsMapViewModel.updateLocation()
 
         setContent {
             window.statusBarColor = ContextCompat.getColor(this, R.color.black)
