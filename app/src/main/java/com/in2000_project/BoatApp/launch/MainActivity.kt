@@ -1,6 +1,6 @@
 package com.in2000_project.BoatApp
 
-import Drawer
+import Menu
 import Sjoemerkesystemet
 import Sjovettreglene
 import android.net.ConnectivityManager
@@ -22,20 +22,20 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
-import com.in2000_project.BoatApp.ui.screens.Livredning
-import com.in2000_project.BoatApp.ui.screens.MannOverbord
-import com.in2000_project.BoatApp.ui.screens.StormWarning
-import com.in2000_project.BoatApp.ui.screens.TidsbrukScreen
+import com.in2000_project.BoatApp.view.screens.Livredning
+import com.in2000_project.BoatApp.view.screens.MannOverbord
+import com.in2000_project.BoatApp.view.screens.Stormvarsel
+import com.in2000_project.BoatApp.view.screens.TidsbrukScreen
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 
 @AndroidEntryPoint
-class MapActivity : ComponentActivity() {
+class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-    private val viewModel: MapViewModel by viewModels()
 
+    private val viewModel: MapViewModel by viewModels()
     private val alertsMapViewModel = AlertsMapViewModel()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -48,7 +48,7 @@ class MapActivity : ComponentActivity() {
 
             AppTheme {
                 val navController = rememberNavController()
-                val stormWarningViewModels = MetAlertsViewModel()
+                val stormvarselViewModels = MetAlertsViewModel()
                 val temperatureViewModel = LocationForecastViewModel()
                 val context = LocalContext.current
                 val searchViewModel = SearchViewModel(context)
@@ -56,22 +56,22 @@ class MapActivity : ComponentActivity() {
                 var internetPopupState = InternetPopupState()
 
                 Surface(color = MaterialTheme.colors.background) {
-                    val drawerState = rememberDrawerState(DrawerValue.Closed)
+                    val menuState = rememberDrawerState(DrawerValue.Closed)
                     val scope = rememberCoroutineScope()
-                    val openDrawer = {
+                    val openMenu = {
                         scope.launch {
-                            drawerState.open()
+                            menuState.open()
                         }
                     }
 
                     ModalDrawer(
-                        drawerState = drawerState,
-                        gesturesEnabled = drawerState.isOpen,
+                        drawerState = menuState,
+                        gesturesEnabled = menuState.isOpen,
                         drawerContent = {
-                            Drawer(
+                            Menu(
                                 onDestinationClicked = { route ->
                                     scope.launch {
-                                        drawerState.close()
+                                        menuState.close()
                                     }
                                     navController.navigate(route) {
                                         launchSingleTop = true
@@ -84,62 +84,62 @@ class MapActivity : ComponentActivity() {
                     ) {
                         NavHost(
                             navController = navController,
-                            startDestination = DrawerScreens.MannOverBord.route
+                            startDestination = MenuScreens.MannOverBord.route
                         ) {
-                            composable(DrawerScreens.MannOverBord.route) {
+                            composable(MenuScreens.MannOverBord.route) {
                                 MannOverbord(
                                     mapViewModel = viewModel,
-                                    openDrawer = {
-                                        openDrawer()
+                                    openMenu = {
+                                        openMenu()
                                     },
                                     connection = internet,
                                     internetPopupState = internetPopupState
                                 )
                             }
-                            composable(DrawerScreens.StormWarning.route) {
-                                StormWarning(
-                                    viewModelAlerts = stormWarningViewModels,
+                            composable(MenuScreens.Stormvarsel.route) {
+                                Stormvarsel(
+                                    viewModelAlerts = stormvarselViewModels,
                                     viewModelForecast = temperatureViewModel,
                                     viewModelMap = alertsMapViewModel,
                                     viewModelSearch = searchViewModel,
                                     setupClusterManager = alertsMapViewModel::setupClusterManager,
                                     modifier = Modifier,
-                                    openDrawer = {
-                                        openDrawer()
+                                    openMenu = {
+                                        openMenu()
                                     },
                                     connection = internet,
                                     internetPopupState = internetPopupState
                                 )
                             }
-                            composable(DrawerScreens.TidsbrukScreen.route) {
+                            composable(MenuScreens.TidsbrukScreen.route) {
                                 TidsbrukScreen(
                                     viewModel = viewModel,
-                                    openDrawer = {
-                                        openDrawer()
+                                    openMenu = {
+                                        openMenu()
                                     }
                                 )
                             }
 
-                            composable(DrawerScreens.Livredning.route) {
+                            composable(MenuScreens.Livredning.route) {
                                 Livredning(
-                                    openDrawer = {
-                                        openDrawer()
+                                    openMenu = {
+                                        openMenu()
                                     }
                                 )
                             }
 
-                            composable(DrawerScreens.Sjomerkesystemet.route) {
+                            composable(MenuScreens.Sjomerkesystemet.route) {
                                 Sjoemerkesystemet(
-                                    openDrawer = {
-                                        openDrawer()
+                                    openMenu = {
+                                        openMenu()
                                     }
                                 )
                             }
 
-                            composable(DrawerScreens.Sjovettreglene.route) {
+                            composable(MenuScreens.Sjovettreglene.route) {
                                 Sjovettreglene(
-                                    openDrawer = {
-                                        openDrawer()
+                                    openMenu = {
+                                        openMenu()
                                     }
                                 )
                             }
@@ -152,13 +152,13 @@ class MapActivity : ComponentActivity() {
 }
 
 
-sealed class DrawerScreens(val title: String, val route: String) {
-    object MannOverBord : DrawerScreens("Mann over bord", "mannoverbord")
-    object StormWarning : DrawerScreens("Stormvarsel", "stormvarsel")
-    object TidsbrukScreen : DrawerScreens( "Reiseplanlegger", "reiseplanlegger")
-    object Livredning : DrawerScreens("Livredning", "livredning")
-    object Sjomerkesystemet : DrawerScreens("Sjømerkesystemet", "sjomerkesystemet")
-    object Sjovettreglene : DrawerScreens("Sjøvettreglene", "sjovettreglene")
+sealed class MenuScreens(val title: String, val route: String) {
+    object MannOverBord : MenuScreens("Mann over bord", "mannoverbord")
+    object Stormvarsel : MenuScreens("Stormvarsel", "stormvarsel")
+    object TidsbrukScreen : MenuScreens( "Reiseplanlegger", "reiseplanlegger")
+    object Livredning : MenuScreens("Livredning", "livredning")
+    object Sjomerkesystemet : MenuScreens("Sjømerkesystemet", "sjomerkesystemet")
+    object Sjovettreglene : MenuScreens("Sjøvettreglene", "sjovettreglene")
 }
 
 

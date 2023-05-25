@@ -9,7 +9,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.in2000_project.BoatApp.MapActivity
+import com.in2000_project.BoatApp.MainActivity
 import com.in2000_project.BoatApp.R
 
 class SplashActivity : AppCompatActivity() {
@@ -38,7 +38,7 @@ class SplashActivity : AppCompatActivity() {
                 Log.d("HAR DU IKKE SAMTYKKE?", "fette")
                 Intent(this, NoUserLocation::class.java)
             } else {
-                Intent(this, MapActivity::class.java)
+                Intent(this, MainActivity::class.java)
             }
             startActivity(intent)
             finish()

@@ -1,5 +1,7 @@
-package com.in2000_project.BoatApp.ui.screens
+package com.in2000_project.BoatApp.screens
 
+import com.in2000_project.BoatApp.view.screens.calculateTimeInMinutes
+import com.in2000_project.BoatApp.view.screens.formatTime
 import org.junit.Assert.*
 
 import org.junit.Test

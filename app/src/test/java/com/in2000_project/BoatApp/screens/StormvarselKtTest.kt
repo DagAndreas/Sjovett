@@ -1,8 +1,7 @@
-import com.in2000_project.BoatApp.ui.screens.compareTimes
-import com.in2000_project.BoatApp.ui.screens.getColor
+import com.in2000_project.BoatApp.view.screens.compareTimes
+import com.in2000_project.BoatApp.view.screens.getColor
 import org.junit.Assert.assertEquals
 import org.junit.Test
-import java.time.Instant
 import java.util.*
 
 class StormvarselKtTest {

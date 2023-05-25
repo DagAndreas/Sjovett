@@ -1,3 +1,5 @@
+package com.in2000_project.BoatApp.view.components.mann_over_bord
+
 import android.util.Log
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Button
@@ -14,7 +16,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.CameraPositionState
-import com.in2000_project.BoatApp.ui.screens.seaOrLandUrl
+import com.in2000_project.BoatApp.view.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.R
@@ -26,8 +28,9 @@ import com.plcoding.bottomnavwithbadges.ui.theme.Red
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/** Represents the Button in the bottom of the Mann-over-bord screen */
 @Composable
-fun EndSearch(
+fun MannOverBordButton(
     mapViewModel: MapViewModel,
     state: MapState,
     locationObtained: MutableState<Boolean>,
@@ -50,6 +53,7 @@ fun EndSearch(
                     SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
 
                 mapViewModel.viewModelScope.launch {
+                    // Checks if the coordinate of the user is on land or not.
                     var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
                     while (seaOrLandResponse == null) {
                         delay(100)
@@ -57,6 +61,7 @@ fun EndSearch(
                         seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
                     }
 
+                    // Continues if the users coordinate returns true on water
                     if (seaOrLandResponse.water) {
                         mapViewModel.oceanViewModel.setPath(pos)
                         mapViewModel.oceanViewModel.getOceanForecastResponse()

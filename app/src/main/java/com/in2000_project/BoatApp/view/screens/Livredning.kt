@@ -1,7 +1,7 @@
-package com.in2000_project.BoatApp.ui.screens
+package com.in2000_project.BoatApp.view.screens
 
-import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
-import com.in2000_project.BoatApp.ui.components.zoom.ZoomableBox
+import com.in2000_project.BoatApp.view.components.navigation.MenuButton
+import com.in2000_project.BoatApp.view.components.zoom.ZoomableBox
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -27,17 +27,15 @@ import com.plcoding.bottomnavwithbadges.ui.theme.Black
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 
-
+/** Represents the function that shows how to perform CPR */
 @Composable
 fun Livredning(
-    openDrawer: () -> Unit
+    openMenu: () -> Unit
 ) {
-
     val imageList = listOf(
         R.drawable.livredning_voksne,
         R.drawable.livredning_barn
     )
-
     ZoomableBox(
         modifier = Modifier
             .background(color = LightGrey)
@@ -51,8 +49,8 @@ fun Livredning(
                     translationY = offsetY
                 ),
         ) {
+            // Shows images from imageList in Cards
             items(imageList) { image ->
-
                 ElevatedCard(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -75,9 +73,9 @@ fun Livredning(
             modifier = Modifier
                 .padding(10.dp)
         ) {
-            NavigationMenuButton(
+            MenuButton(
                 buttonIcon = Icons.Filled.Menu,
-                onButtonClicked = { openDrawer() },
+                onButtonClicked = { openMenu() },
                 modifier = Modifier
                     .background(
                         color = White,

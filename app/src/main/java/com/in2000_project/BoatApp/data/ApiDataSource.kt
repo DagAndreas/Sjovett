@@ -21,6 +21,7 @@ class ApiDataSource {
         }
     }
 
+    /** Fetches the data from the given path and converts it into a LocationForecastResponse object */
     suspend fun fetchLocationForecastData(path: String): LocationForecastResponse {
         Log.i("Fetching LocationData", "fra $path")
         val response = try {
@@ -43,7 +44,7 @@ class ApiDataSource {
         return response
     }
 
-
+    /** Fetches the data from the given path and converts it into a MetAlertsResponse object */
     suspend fun fetchMetAlertsData(path: String): MetAlertsResponse {
         Log.d("API_request", "attempting fetchMetAlertsData.launch")
         val response = try {
@@ -60,12 +61,13 @@ class ApiDataSource {
             // General exception
             Log.e("API_request xxx", path)
             Log.e("API_request xxx", e.message.toString())
-            exitProcess(0) // Avslutter appen?
+            exitProcess(0)
         }
         Log.d("API_request", "fetchMetAlertsData.launch success, response: $response")
         return response
     }
 
+    /** Fetches the data from the given path and converts it into a OceanForecastResponse object */
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
         Log.d("API_request", "attempting fetchOceanForecastData.launch")
         val response = try {
@@ -88,6 +90,8 @@ class ApiDataSource {
         Log.d("API_request", "fetchOceanForecastData.launch success, response: $response")
         return response
     }
+
+    /** Fetches the data from the given path and converts it into a list of cities */
     suspend fun fetchGeoCodeData(path: String): List<City> {
         Log.i("API_request", "Fetching geodata from $path")
         val response = try {
@@ -110,6 +114,8 @@ class ApiDataSource {
         Log.d("API_request", "fetchGeoCodeData success, response: $response")
         return response
     }
+
+    /** Fetches the data from the given path and converts it into a SeaOrLandResponse object */
     suspend fun fetchSeaOrLandResponse(path: String): SeaOrLandResponse {
         Log.i("Fetching SeaOrLand data", "fra $path")
         val response = try {

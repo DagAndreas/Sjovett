@@ -20,25 +20,25 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
-import com.in2000_project.BoatApp.DrawerScreens
+import com.in2000_project.BoatApp.MenuScreens
 import com.in2000_project.BoatApp.R
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.Transparent
 
 
 @Composable
-fun Drawer(
+fun Menu(
     modifier: Modifier = Modifier,
     onDestinationClicked: (route: String) -> Unit,
     navController: NavController
 ) {
-    val screenMap: Map<DrawerScreens, ImageVector> = mapOf(
-        DrawerScreens.MannOverBord to Icons.Outlined.Support,
-        DrawerScreens.StormWarning to Icons.Outlined.WbSunny,
-        DrawerScreens.TidsbrukScreen to Icons.Rounded.Timer,
-        DrawerScreens.Livredning to Icons.Outlined.MedicalServices,
-        DrawerScreens.Sjomerkesystemet to Icons.Outlined.Book,
-        DrawerScreens.Sjovettreglene to Icons.Outlined.List
+    val screenMap: Map<MenuScreens, ImageVector> = mapOf(
+        MenuScreens.MannOverBord to Icons.Outlined.Support,
+        MenuScreens.Stormvarsel to Icons.Outlined.WbSunny,
+        MenuScreens.TidsbrukScreen to Icons.Rounded.Timer,
+        MenuScreens.Livredning to Icons.Outlined.MedicalServices,
+        MenuScreens.Sjomerkesystemet to Icons.Outlined.Book,
+        MenuScreens.Sjovettreglene to Icons.Outlined.List
     )
 
     Column(

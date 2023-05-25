@@ -6,6 +6,7 @@ import com.google.maps.android.clustering.ClusterManager
 import com.google.maps.android.collections.MarkerManager
 import com.in2000_project.BoatApp.maps.ZoneClusterItem
 
+/** Is supposed to help us manage the zoneClusters */
 class ZoneClusterManager(
     context: Context,
     googleMap: GoogleMap,

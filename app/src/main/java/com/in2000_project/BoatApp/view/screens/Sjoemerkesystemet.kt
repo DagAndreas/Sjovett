@@ -18,15 +18,16 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
-import com.in2000_project.BoatApp.ui.components.zoom.ZoomableBox
+import com.in2000_project.BoatApp.view.components.navigation.MenuButton
+import com.in2000_project.BoatApp.view.components.zoom.ZoomableBox
 import com.plcoding.bottomnavwithbadges.ui.theme.Black
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 
+/** Represents the function that shows images of signals and marks at sea and how to handle them */
 @Composable
 fun Sjoemerkesystemet(
-    openDrawer: () -> Unit
+    openMenu: () -> Unit
 ) {
 
     val imageList = listOf(
@@ -73,9 +74,9 @@ fun Sjoemerkesystemet(
             modifier = Modifier
                 .padding(10.dp)
         ) {
-            NavigationMenuButton(
+            MenuButton(
                 buttonIcon = Icons.Filled.Menu,
-                onButtonClicked = { openDrawer() },
+                onButtonClicked = { openMenu() },
                 modifier = Modifier
                     .background(
                         color = White,

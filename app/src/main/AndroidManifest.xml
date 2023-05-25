@@ -24,7 +24,7 @@
             android:exported="false"
             android:theme="@style/Theme.Design.NoActionBar" />
         <activity
-            android:name=".MapActivity"
+            android:name=".MainActivity"
             android:exported="false" />
         <activity
             android:name=".launch.NoNetworkActivity"
