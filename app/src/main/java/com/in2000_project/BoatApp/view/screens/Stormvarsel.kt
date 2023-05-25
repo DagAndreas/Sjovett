@@ -105,7 +105,7 @@ fun Stormvarsel(
     var openSearch by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    viewModelForecast.updateUserCoord(userLat, userLng, connection, internetPopupState)
+    viewModelForecast.updateWeatherDataBasedOnCoordinate(userLat, userLng, connection, internetPopupState)
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
 
     Column(modifier = modifier,
@@ -219,7 +219,7 @@ fun Stormvarsel(
                                                 if (cityData.isNotEmpty()) {
                                                     userLat = cityData[0].latitude
                                                     userLng = cityData[0].longitude
-                                                    viewModelForecast.updateUserCoord(
+                                                    viewModelForecast.updateWeatherDataBasedOnCoordinate(
                                                         userLat,
                                                         userLng,
                                                         connection,
@@ -346,6 +346,7 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
             }
         }
     }
+
     return returnMap
 }
 
