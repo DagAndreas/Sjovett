@@ -6,8 +6,10 @@ import com.in2000_project.BoatApp.view.components.stormvarsel.WeatherCard
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.os.Build
 import android.util.Log
 import android.view.KeyEvent
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -58,6 +60,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 /** Represents the function that shows weather- and storm-reports */
+@RequiresApi(Build.VERSION_CODES.M)
 @SuppressLint("PotentialBehaviorOverride")
 @OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
