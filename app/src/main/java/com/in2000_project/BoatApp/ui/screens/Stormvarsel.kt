@@ -46,7 +46,9 @@ import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.maps.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.launch.CheckInternet
+import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.ui.components.InfoPopupStorm
+import com.in2000_project.BoatApp.ui.components.info.NoInternetPopup
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White
@@ -67,7 +69,8 @@ fun StormWarning(
     setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
     modifier: Modifier,
     openDrawer: () -> Unit,
-    connection: CheckInternet
+    connection: CheckInternet,
+    internetPopupState: InternetPopupState
 ){
     /*
     isMyLocationEnabled is set to always true in this version of the code,
@@ -102,7 +105,7 @@ fun StormWarning(
     var openSearch by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    viewModelForecast.updateUserCoord(userLat, userLng, connection)
+    viewModelForecast.updateUserCoord(userLat, userLng, connection, internetPopupState)
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
 
 
@@ -112,6 +115,12 @@ fun StormWarning(
         if (viewModelMap.stormvarselInfoPopUp) {
             InfoPopupStorm(
                 alertsMapViewModel = viewModelMap
+            )
+        }
+
+        if (internetPopupState.checkInternetPopup.value) {
+            NoInternetPopup(
+                internetPopupState = internetPopupState
             )
         }
 
@@ -203,7 +212,7 @@ fun StormWarning(
                                             cityData = emptyList()
 
                                             CoroutineScope(Dispatchers.IO).launch {
-                                                viewModelSearch.fetchCityData(CityName.name, connection)
+                                                viewModelSearch.fetchCityData(CityName.name, connection, internetPopupState )
                                                 while (geoCodeUiState.value.cityList.isEmpty()) {
                                                     delay(100) // Wait for 100 milliseconds before checking again
                                                 }
@@ -214,7 +223,8 @@ fun StormWarning(
                                                     viewModelForecast.updateUserCoord(
                                                         userLat,
                                                         userLng,
-                                                        connection
+                                                        connection,
+                                                        internetPopupState
                                                     )
                                                 }
                                                 viewModelSearch.resetCityData()

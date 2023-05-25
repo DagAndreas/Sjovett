@@ -2,7 +2,7 @@ package com.in2000_project.BoatApp.ui.components
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.res.stringResource
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
@@ -13,6 +13,10 @@ fun InfoPopup(
     mapViewModel: MapViewModel,
     screen: String
 ) {
+
+    val infoTextMannOverBord = stringResource(R.string.InfoTextMannOverBord)
+    val infoTextReiseplanlegger = stringResource(R.string.InfoTextReiseplanlegger)
+
 
     AlertDialog(
         onDismissRequest = {
@@ -45,6 +49,9 @@ fun InfoPopup(
 fun InfoPopupStorm(
     alertsMapViewModel: AlertsMapViewModel
 ) {
+
+    val infoTextStormVarsel = stringResource(R.string.InfoTextStormvarsel)
+
     AlertDialog(
         onDismissRequest = {
             alertsMapViewModel.stormvarselInfoPopUp = false

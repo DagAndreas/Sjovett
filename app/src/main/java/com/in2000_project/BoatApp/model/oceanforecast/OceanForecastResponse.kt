@@ -5,3 +5,17 @@ data class OceanForecastResponse(
     val properties: Properties,
     val type: String
 )
+
+fun getEmptyOceanForecastResponse(): OceanForecastResponse {
+    return OceanForecastResponse(
+        geometry = Geometry(listOf(), ""),
+        properties = Properties(
+            meta = Meta(
+                units = Units("", "", "", "", ""),
+                updated_at = ""
+            ),
+            timeseries = listOf()
+        ),
+        type = ""
+    )
+}

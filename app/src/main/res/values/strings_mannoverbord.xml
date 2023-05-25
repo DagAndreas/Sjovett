@@ -7,6 +7,10 @@
     <string name="StartSearch">Start søk</string>
     <string name="RestartSearch">Trykk på \'Start søk\' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.</string>
     <string name="QuitSearch">Trykk på \'Avslutt søk\' for å avslutte søket. Søkeområdet vil ikke lenger være synlig.</string>
+    
+    <string name="InfoTextMannOverBord">Denne funksjonen lar deg finne den estimerte posisjonen til en person som har havnet i sjøen. Trykk på «Start Søk» dersom en person faller i sjøen og søkeområdet vil bli synlig. Etter søket er aktivert, kan du trykke på «Avslutt søk» for å stoppe søket.</string>
+
     <string name="TextBoxMannOverBordOnLand">Vi kan ikke ta inn bølgedata når du er på land.</string>
     <string name="TextBoxMannOverBordDefault">Trykk på \'Start søk\' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.</string>
+
 </resources>

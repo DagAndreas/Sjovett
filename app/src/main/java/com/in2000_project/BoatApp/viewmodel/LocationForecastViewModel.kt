@@ -6,6 +6,7 @@ import androidx.annotation.RequiresApi
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.TemperatureUiState
 import com.in2000_project.BoatApp.launch.CheckInternet
+import com.in2000_project.BoatApp.launch.InternetPopupState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -33,10 +34,12 @@ class LocationForecastViewModel {
     }
 
     @RequiresApi(Build.VERSION_CODES.M)
-    fun updateUserCoord(lat: Double, lng: Double, connection: CheckInternet){
+    fun updateUserCoord(lat: Double, lng: Double, connection: CheckInternet, internetPopupState: InternetPopupState){
         if (!connection.checkNetwork()) {
             Log.e("Internet connection", "Not connected!")
+            internetPopupState.checkInternetPopup.value = true
         } else {
+            internetPopupState.checkInternetPopup.value = false
             fetchLocationForecastData(lat, lng)
         }
     }
