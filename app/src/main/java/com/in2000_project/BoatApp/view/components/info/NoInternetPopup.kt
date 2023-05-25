@@ -1,12 +1,11 @@
-package com.in2000_project.BoatApp.ui.components.info
+package com.in2000_project.BoatApp.view.components.info
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import com.in2000_project.BoatApp.launch.InternetPopupState
 
-//TODO: Her trenger vi en popup som sier til brukeren at de ikke er koblet til nett
-
+/** Shows a Popup that the device does not have Internet connection */
 @Composable
 fun NoInternetPopup(
     internetPopupState: InternetPopupState

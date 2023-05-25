@@ -1,13 +1,12 @@
-package com.in2000_project.BoatApp.ui.screens
+package com.in2000_project.BoatApp.view.screens
 
 import InfoButton
-import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
+import com.in2000_project.BoatApp.view.components.navigation.MenuButton
 import android.R.attr.*
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.location.Location
-import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -42,11 +41,10 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.ui.components.InfoPopup
+import com.in2000_project.BoatApp.view.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import com.plcoding.bottomnavwithbadges.ui.theme.*
-import java.lang.Thread.sleep
 import kotlin.math.*
 
 
@@ -54,21 +52,21 @@ import kotlin.math.*
 @Composable
 fun TidsbrukScreen(
     viewModel: MapViewModel = viewModel(),
-    openDrawer: () -> Unit
+    openMenu: () -> Unit
 ) {
     viewModel.updateLocation()
 
     // Collect the current state from the view model
     val state by viewModel.state.collectAsState()
 
-// Remember the camera position state so that it persists across recompositions
+    // Remember the camera position state so that it persists across recompositions
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
     }
 
     val mapProperties = MapProperties(isMyLocationEnabled = true)
 
-    // Define a function to handle changes to the speed slider
+    // Handles changes to the speed slider
     val onSpeedChanged: (Float) -> Unit = { value ->
         viewModel.speedNumber.value = value.roundToInt().toFloat()
         viewModel.lengthInMinutes.value = calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
@@ -76,17 +74,17 @@ fun TidsbrukScreen(
         viewModel.updateLocation()
     }
 
-    // Define a function to handle long presses on the map
+    // Handles long presses on the map
     val onLongPress: (LatLng) -> Unit = { position ->
         if (!viewModel.lockMarkers.value) {
-            // Update the current location
+            // Updates the current location
             viewModel.updateLocation()
             if(viewModel.markerPositions.isEmpty()){
                 viewModel.markerPositions += position
                 viewModel.coordinatesToFindDistanceBetween.add(position)
             }
             else{
-                // Update the first marker position to the current location
+                // Updates the first marker position to the current location
                 if(viewModel.usingMyPositionTidsbruk.value){
                     viewModel.markerPositions[0] = locationToLatLng(state.lastKnownLocation!!)
                     if(viewModel.polyLines.size>=1){
@@ -96,17 +94,16 @@ fun TidsbrukScreen(
                         viewModel.polyLines[0] = updatedFirstPolyLine
                     }
                 }
-                // Add the new marker position and coordinate for calculating distance
+                // Adds the new marker position and coordinate for calculating distance
                 viewModel.markerPositions.add(position)
                 viewModel.coordinatesToFindDistanceBetween.add(position)
 
 
-                // Add a new polyline between the last two markers
+                // Adds a new polyline between the last two markers
                 val lastPosition = viewModel.markerPositions[viewModel.markerPositions.size - 2]
                 val options = PolylineOptions()
                     .add(lastPosition, position)
                     .color(android.graphics.Color.RED)
-
 
                 viewModel.polyLines.add(options)
 
@@ -119,7 +116,7 @@ fun TidsbrukScreen(
         }
     }
 
-    // the sheet that is on the bottom of the screen
+    // The sheet that is on the bottom of the screen
     BottomSheetScaffold(
         sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetBackgroundColor = White,
@@ -195,7 +192,7 @@ fun TidsbrukScreen(
                     }
 
                     viewModel.updateLocation()
-                    // use my location for route or not
+                    // Use my location for route or not
                     Checkbox(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
@@ -226,7 +223,6 @@ fun TidsbrukScreen(
                 ) {
 
                     if(!viewModel.lockMarkers.value) {
-
                         Button(
                             onClick = { viewModel.lockMarkers.value = !viewModel.lockMarkers.value },
                             modifier = Modifier
@@ -339,7 +335,7 @@ fun TidsbrukScreen(
                 }
             }
 
-            if (viewModel.reiseplanleggerInfoPopUp) {
+            if (viewModel.reiseplanleggerInfoPopup) {
                 InfoPopup(
                     mapViewModel = viewModel,
                     screen = stringResource(R.string.ReiseplanleggerScreenName)
@@ -353,9 +349,9 @@ fun TidsbrukScreen(
                     .padding(top = 10.dp)
             ) {
 
-                NavigationMenuButton(
+                MenuButton(
                     buttonIcon = Icons.Filled.Menu,
-                    onButtonClicked = { openDrawer() },
+                    onButtonClicked = { openMenu() },
                     modifier = Modifier
                         .align(CenterHorizontally)
                         .background(

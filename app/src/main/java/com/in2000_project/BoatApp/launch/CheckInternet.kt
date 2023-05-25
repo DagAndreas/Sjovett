@@ -8,6 +8,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import kotlinx.coroutines.*
 
+/** Is used to check id the device is connected to the Internet */
 class CheckInternet(private val cm: ConnectivityManager) {
     fun checkNetwork(): Boolean {
         val currentNetwork = cm.activeNetwork

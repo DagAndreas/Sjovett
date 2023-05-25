@@ -1,8 +1,9 @@
-package com.in2000_project.BoatApp.ui.screens
+package com.in2000_project.BoatApp.view.screens
 
-import EndSearch
+import com.in2000_project.BoatApp.view.components.mann_over_bord.EndSearchPopup
 import InfoButton
-import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
+import com.in2000_project.BoatApp.view.components.mann_over_bord.MannOverBordButton
+import com.in2000_project.BoatApp.view.components.navigation.MenuButton
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
@@ -28,21 +29,21 @@ import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
-import com.in2000_project.BoatApp.ui.components.InfoPopup
-import com.in2000_project.BoatApp.ui.components.info.NoInternetPopup
-import com.in2000_project.BoatApp.ui.components.manoverboard.EndSearchPopup
+import com.in2000_project.BoatApp.view.components.InfoPopup
+import com.in2000_project.BoatApp.view.components.info.NoInternetPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.OpacityRed
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 import java.util.*
 
 const val seaOrLandUrl = "https://isitwater-com.p.rapidapi.com/"
+/** Represents the function that shows Mann-over-bord screen */
 
 @RequiresApi(Build.VERSION_CODES.M)
 @Composable
 fun MannOverbord(
     mapViewModel: MapViewModel,
-    openDrawer: () -> Unit,
+    openMenu: () -> Unit,
     connection: CheckInternet,
     internetPopupState: InternetPopupState
 ) {
@@ -50,23 +51,24 @@ fun MannOverbord(
     mapViewModel.updateLocation()
 
     val state by mapViewModel.state.collectAsState()
-    /*
-    isMyLocationEnabled is set to always true in this version of the code,
-    this is due to some of our emulators inconsistency to remember that
-    "allow use of location" was enabled
+    /**
+        isMyLocationEnabled is set to always true in this version of the code,
+        this is due to some of our emulators inconsistency to remember that
+        "allow use of location" was enabled
 
-    This is the line that would be in the finished product:
-    isMyLocationEnabled = mapState.lastKnownLocation != null
+        This is the line that would be in the finished product:
+        isMyLocationEnabled = mapState.lastKnownLocation != null
      */
     val mapProperties = MapProperties(isMyLocationEnabled = true)
 
     val locationObtained = remember { mutableStateOf(false) }
+
     mapViewModel.updateLocation()
+
     if(state.lastKnownLocation!=null && !locationObtained.value){
         locationObtained.value = true
         Log.i("galksjd", "headsd")
     }
-
 
 
     val cameraZoom = 15f
@@ -112,9 +114,9 @@ fun MannOverbord(
                 .fillMaxHeight(0.09f)
             ) {
 
-                NavigationMenuButton(
+                MenuButton(
                     buttonIcon = Icons.Filled.Menu,
-                    onButtonClicked = { openDrawer() },
+                    onButtonClicked = { openMenu() },
                     modifier = Modifier
                         .align(Alignment.TopStart)
                         .background(
@@ -154,7 +156,7 @@ fun MannOverbord(
             )
         }
 
-        EndSearch(
+        MannOverBordButton(
             mapViewModel = mapViewModel,
             state = state,
             locationObtained = locationObtained,

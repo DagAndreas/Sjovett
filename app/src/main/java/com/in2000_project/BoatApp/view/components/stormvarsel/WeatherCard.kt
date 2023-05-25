@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp.ui.components.stormwarning
+package com.in2000_project.BoatApp.view.components.stormvarsel
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import com.in2000_project.BoatApp.R
 import com.plcoding.bottomnavwithbadges.ui.theme.*
-
+/** Represents the weather-cards that are displayed in Stormvarsel */
 @Composable
 fun WeatherCard(
     time: String,
@@ -48,6 +48,7 @@ fun WeatherCard(
         else -> DarkBlue
     }
 
+    // icons
     when(weatherIcon){
         "clearsky_day" -> {icon = R.drawable.clearsky_day; iconDesc = "Clear sky"}
         "clearsky_night" -> {icon = R.drawable.clearsky_night; iconDesc = "Clear sky"}

@@ -16,7 +16,7 @@ import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.Black
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 
-// TODO: Bytte navn på ui-mappe til view
+/** Represents the information buttons in the top left corner of the screens */
 @Composable
 fun InfoButton(
     mapViewModel: MapViewModel,
@@ -24,11 +24,14 @@ fun InfoButton(
 ) {
     IconButton(
         onClick = {
-            if (screen == "Reiseplanlegger") {
-                mapViewModel.reiseplanleggerInfoPopUp = true
-            }
-            else if (screen == "Mann-over-bord") {
-                mapViewModel.manIsOverboardInfoPopup = true
+            //
+            when(screen){
+                "Reiseplanlegger"->{
+                    mapViewModel.reiseplanleggerInfoPopup = true
+                }
+                "Mann-over-bord"->{
+                    mapViewModel.manIsOverboardInfoPopup = true
+                }
             }
         },
         modifier = Modifier
@@ -37,7 +40,6 @@ fun InfoButton(
                 color = White,
                 shape = CircleShape
             ),
-
     ) {
         Icon(
             Icons.Outlined.Info,

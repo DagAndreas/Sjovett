@@ -9,7 +9,7 @@ import android.util.Log
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import com.in2000_project.BoatApp.MapActivity
+import com.in2000_project.BoatApp.MainActivity
 import com.in2000_project.BoatApp.R
 
 
@@ -58,7 +58,7 @@ class NoUserLocation : AppCompatActivity() {
 
         Log.e("HAR DU SAMTYKKE?", "Ja nå har du det, din gris")
 
-        startActivity(Intent(this, MapActivity::class.java))
+        startActivity(Intent(this, MainActivity::class.java))
         finish()
     }
 }

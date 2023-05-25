@@ -2,8 +2,8 @@ package com.in2000_project.BoatApp.maps
 
 import com.google.android.gms.maps.model.PolygonOptions
 import com.google.maps.android.clustering.ClusterItem
-import com.in2000_project.BoatApp.maps.getCenterOfPolygon
 
+/** This data class holds the items in a zoneCluster */
 data class ZoneClusterItem(
     val id: String,
     private val title: String,

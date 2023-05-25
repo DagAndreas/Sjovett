@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp.ui.components.zoom
+package com.in2000_project.BoatApp.view.components.zoom
 
 import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
@@ -9,7 +9,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
-
+/** Represents a box that is zoomable */
 @Composable
 fun ZoomableBox(
     modifier: Modifier = Modifier,

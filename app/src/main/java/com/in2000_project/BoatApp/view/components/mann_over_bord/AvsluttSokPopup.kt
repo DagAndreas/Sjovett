@@ -1,8 +1,6 @@
-package com.in2000_project.BoatApp.ui.components.manoverboard
+package com.in2000_project.BoatApp.view.components.mann_over_bord
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -11,16 +9,14 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.Black
-import com.plcoding.bottomnavwithbadges.ui.theme.Red
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 
+/** Represents the Popup that is displayed when the user tries to stop the search in Mann-over-bord */
 @Composable
 fun EndSearchPopup(
     mapViewModel: MapViewModel

@@ -1,4 +1,4 @@
-package com.in2000_project.BoatApp.ui.components
+package com.in2000_project.BoatApp.view.components
 
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Text
@@ -7,7 +7,7 @@ import androidx.compose.ui.res.stringResource
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.viewmodel.AlertsMapViewModel
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
-
+/** Represents the information Popup that is displayed when the information button in the top left corner is pushed */
 @Composable
 fun InfoPopup(
     mapViewModel: MapViewModel,
@@ -21,7 +21,7 @@ fun InfoPopup(
     AlertDialog(
         onDismissRequest = {
             if (screen == "Reiseplanlegger") {
-                mapViewModel.reiseplanleggerInfoPopUp = false
+                mapViewModel.reiseplanleggerInfoPopup = false
             }
             else if (screen == "Mann-over-bord") {
                 mapViewModel.manIsOverboardInfoPopup = false

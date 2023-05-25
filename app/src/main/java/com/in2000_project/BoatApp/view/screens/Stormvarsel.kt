@@ -1,8 +1,8 @@
-package com.in2000_project.BoatApp.ui.screens
+package com.in2000_project.BoatApp.view.screens
 
 import InfoButtonStorm
-import com.in2000_project.BoatApp.ui.components.navigation.NavigationMenuButton
-import com.in2000_project.BoatApp.ui.components.stormwarning.WeatherCard
+import com.in2000_project.BoatApp.view.components.navigation.MenuButton
+import com.in2000_project.BoatApp.view.components.stormvarsel.WeatherCard
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -47,8 +47,8 @@ import com.in2000_project.BoatApp.maps.ZoneClusterManager
 import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
-import com.in2000_project.BoatApp.ui.components.InfoPopupStorm
-import com.in2000_project.BoatApp.ui.components.info.NoInternetPopup
+import com.in2000_project.BoatApp.view.components.InfoPopupStorm
+import com.in2000_project.BoatApp.view.components.info.NoInternetPopup
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White
@@ -57,22 +57,22 @@ import kotlinx.coroutines.*
 import java.text.SimpleDateFormat
 import java.util.*
 
-
+/** Represents the function that shows weather- and storm-reports */
 @SuppressLint("PotentialBehaviorOverride")
 @OptIn(ExperimentalMaterial3Api::class, MapsComposeExperimentalApi::class)
 @Composable
-fun StormWarning(
+fun Stormvarsel(
     viewModelAlerts: MetAlertsViewModel,
     viewModelForecast: LocationForecastViewModel,
     viewModelMap: AlertsMapViewModel,
     viewModelSearch: SearchViewModel,
     setupClusterManager: (Context, GoogleMap) -> ZoneClusterManager,
     modifier: Modifier,
-    openDrawer: () -> Unit,
+    openMenu: () -> Unit,
     connection: CheckInternet,
     internetPopupState: InternetPopupState
 ){
-    /*
+    /**
     isMyLocationEnabled is set to always true in this version of the code,
     this is due to some of our emulators inconsistency to remember that
     "allow use of location" was enabled
@@ -91,13 +91,13 @@ fun StormWarning(
     val myPosition = viewModelMap.alertsMapUiState.collectAsState()
     var userLat by remember{ mutableStateOf(myPosition.value.latitude) }
     var userLng by remember{ mutableStateOf(myPosition.value.longitude) }
-    val stormWarningUiState = viewModelAlerts.stormWarningUiState.collectAsState()
+    val stormvarselUiState = viewModelAlerts.stormvarselUiState.collectAsState()
     val temperatureUiState = viewModelForecast.temperatureUiState.collectAsState()
     val geoCodeUiState = viewModelSearch.geoCodeUiState.collectAsState()
     val locationSearch = viewModelSearch.locationSearch.collectAsState()
     val cities = viewModelSearch.cities.collectAsState()
     val searchInProgress = viewModelSearch.searchInProgress.collectAsState().value
-    val warnings = stormWarningUiState.value.warningList
+    val warnings = stormvarselUiState.value.warningList
     val temperatureData = temperatureUiState.value.timeList
     var cityData: List<City>
     val configuration = LocalConfiguration.current
@@ -107,7 +107,6 @@ fun StormWarning(
 
     viewModelForecast.updateUserCoord(userLat, userLng, connection, internetPopupState)
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
-
 
     Column(modifier = modifier,
         horizontalAlignment = CenterHorizontally
@@ -139,9 +138,9 @@ fun StormWarning(
                         .padding(start = 8.dp)
                         .padding(top = 10.dp)
                 ) {
-                    NavigationMenuButton(
+                    MenuButton(
                         buttonIcon = Icons.Filled.Menu,
-                        onButtonClicked = { openDrawer() },
+                        onButtonClicked = { openMenu() },
                         modifier = Modifier
                             .align(CenterHorizontally)
                             .background(
@@ -314,6 +313,7 @@ fun StormWarning(
     }
 }
 
+/** Creates a Calendar-object based on the date-string */
 fun createCalendar(date: String): Calendar? {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.US)
     sdf.timeZone = TimeZone.getTimeZone("UTC")
@@ -323,6 +323,7 @@ fun createCalendar(date: String): Calendar? {
     return calendar
 }
 
+/** Finds the data from the Timesery that is closest to "now" */
 @SuppressLint("SimpleDateFormat")
 fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
     val returnMap = mutableMapOf<Int, Date>()
@@ -348,11 +349,13 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
     return returnMap
 }
 
+/** Compares two Calendars and returns the difference between them in seconds */
 fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
     val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
     return diffMillis / (1000 * 60)
 }
 
+/** Formats the awarnessLevel into the right color-code */
 fun getColor(awarenessLevel: String): String {
     return when (awarenessLevel.split("; ")[1]) {
         "green" -> "#803AF93C"
@@ -363,6 +366,7 @@ fun getColor(awarenessLevel: String): String {
     }
 }
 
+/** Adds stormClusters to the viewModelMap at the right coordinates */
 fun addStormClusters(
     viewModelMap: AlertsMapViewModel,
     warnings: List<Feature>

@@ -10,9 +10,9 @@ import com.in2000_project.BoatApp.data.MapState
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
-import com.in2000_project.BoatApp.ui.screens.calculateDistance
-import com.in2000_project.BoatApp.ui.screens.calculateTimeInMinutes
-import com.in2000_project.BoatApp.ui.screens.formatTime
+import com.in2000_project.BoatApp.view.screens.calculateDistance
+import com.in2000_project.BoatApp.view.screens.calculateTimeInMinutes
+import com.in2000_project.BoatApp.view.screens.formatTime
 import com.in2000_project.BoatApp.data.CircleState
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
@@ -72,7 +72,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     // PopUp
     var manIsOverboardInfoPopup by mutableStateOf(true)
-    var reiseplanleggerInfoPopUp by mutableStateOf(true)
+    var reiseplanleggerInfoPopup by mutableStateOf(true)
 
     //var infoTextMannOverBord by mutableStateOf("")
     //var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.\n" +
@@ -257,7 +257,7 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
     val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
     val dataLatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
 
-    if (personHarDriftetTilNesteGrid(dataLatLng, personCoordinate)){
+    if (hasChangedGrid(dataLatLng, personCoordinate)){
         ovm.setPath(personCoordinate)
         ovm.getOceanForecastResponse()
     }
