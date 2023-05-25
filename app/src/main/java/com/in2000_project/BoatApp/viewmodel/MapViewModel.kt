@@ -91,10 +91,10 @@ class MapViewModel @Inject constructor(): ViewModel() {
             val sleepDelay:Long = 2 // seconds
             while(isRunning){
                 // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
-                mapViewModel.updateMap(sleepDelay*200)
+                mapViewModel.updateMap(sleepDelay)
                 mapViewModel.updateMarkerAndPolyLines()
                 // in milliseconds, this function waits 2 seconds between each update
-                sleep(sleepDelay*50)
+                sleep(sleepDelay*1000)
             }
         }
     }
