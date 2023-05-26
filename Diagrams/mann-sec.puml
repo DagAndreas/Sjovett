@@ -1,0 +1,50 @@
+@startuml
+
+actor User
+participant "MannOverBord" as MOB
+participant "MapViewModel" as MVM
+participant "Location Provider" as LP
+participant "ApiDataSource" as ADS
+participant "MetApi" as Met
+participant "MapUpdateThread" as MUT
+
+activate User
+activate MOB
+activate MVM
+activate ADS
+User -> MOB: User opens the app
+MOB -> MVM: startButtonPressed(state, pos)
+MVM -> LP: requestUserPosition()
+    activate LP
+    LP --> MVM: return user position
+    deactivate LP
+MVM -> ADS: fetchOceanForecast()
+ADS -> Met: getOceanForecast()
+activate Met
+Met --> ADS: json response
+deactivate Met
+ADS --> MVM: OceanForecastResponse
+MVM -> MUT: start()
+activate MUT
+MVM --> MOB: updated buttontext
+mob -> User: display updated button
+
+loop while isRunning
+    MUT -> MUT: sleep(2 seconds)
+    MUT -> MVM: updateMap() 
+    MOB -> User: Updated circle-location and size
+    alt Bruker avslutter søk
+        User -> MOB: trykker på stop-knappen
+        MOB -> MVM: startButtonPressed()
+        MVM -> MUT: stopLoop()
+        MUT --> MVM
+        deactivate MUT
+        MVM --> MOB
+        MOB -> User: 
+    end
+end
+
+deactivate ADS
+deactivate MOB
+
+@enduml
