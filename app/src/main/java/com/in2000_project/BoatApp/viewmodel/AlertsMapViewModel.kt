@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.PolygonOptions
-import com.in2000_project.BoatApp.data.AlertsMapUiState
 import com.in2000_project.BoatApp.data.MapStateCluster
 import com.in2000_project.BoatApp.maps.ZoneClusterItem
 import com.in2000_project.BoatApp.maps.ZoneClusterManager
@@ -92,7 +91,6 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
                 }
             }
         } catch (e: SecurityException) {
-            Log.e("updateLocation", e.toString())
             exitProcess(-1)
         }
     }

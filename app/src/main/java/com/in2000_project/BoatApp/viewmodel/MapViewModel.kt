@@ -67,7 +67,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var circleVisibility = mutableStateOf(false)
     var enabled = mutableStateOf(true)
     var timePassedInSeconds = mutableStateOf( 0 )
-    private var manIsOverboard = mutableStateOf(false)
+    var manIsOverboard = mutableStateOf(false)
     var buttonText = "Start søk"
 
     // PopUp
