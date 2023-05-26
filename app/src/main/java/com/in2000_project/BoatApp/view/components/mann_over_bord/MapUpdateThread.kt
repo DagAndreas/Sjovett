@@ -11,7 +11,7 @@ class MapUpdateThread(
         Log.i("thread start pos", "${mapViewModel.circleCenter.value}")
         isRunning = true
         sleep(800) // Sleeps to ensure that data has been collected from oceanforecastobject
-        val sleepDelay: Long = 2 // seconds
+        val sleepDelay: Long = 1 // seconds
         while (isRunning) {
             // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
             mapViewModel.updateMap(sleepDelay)
