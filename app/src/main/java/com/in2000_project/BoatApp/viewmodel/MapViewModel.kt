@@ -74,10 +74,6 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var manIsOverboardInfoPopup by mutableStateOf(true)
     var reiseplanleggerInfoPopup by mutableStateOf(true)
 
-    //var infoTextMannOverBord by mutableStateOf("")
-    //var infoTextReiseplanlegger by mutableStateOf("Hold inne på kartet for å legge til markører. Sveip opp for å planlegge reisen.\n" +
-            //"NB! Denne reiseplanleggeren tar ikke hensyn til skjær og grunner. Rute planlegges på eget ansvar.")
-
     var showDialog by mutableStateOf(false)
 
     val oceanViewModel = OceanViewModel("$oceanURL?lat=${circleCenter.value.latitude}&lon=${circleCenter.value.longitude}")
@@ -90,12 +86,12 @@ class MapViewModel @Inject constructor(): ViewModel() {
         override fun run() {
             mapViewModel.oceanViewModel.setPath(mapViewModel.circleCenter.value)
             mapViewModel.oceanViewModel.getOceanForecastResponse()
-            sleep(100) // Sleeps to ensure that data has been collected from oceanforecastobject
+            sleep(400) // Sleeps to ensure that data has been collected from oceanforecastobject
             isRunning = true
             val sleepDelay:Long = 2 // seconds
             while(isRunning){
                 // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
-                mapViewModel.updateMap(sleepDelay*60)
+                mapViewModel.updateMap(sleepDelay)
                 mapViewModel.updateMarkerAndPolyLines()
                 // in milliseconds, this function waits 2 seconds between each update
                 sleep(sleepDelay*1000)
@@ -103,7 +99,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         }
     }
 
-
+    /** Resets search-area data */
     fun restartButton(){
         mapUpdateThread.isRunning = false
         circleCenter.value = state.value.circle.coordinates
@@ -115,6 +111,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         polyLinesMap.clear()
     }
 
+    /** Starts the thread that updates the projected search-area */
     fun startButton(state: Location?, pos: LatLng){
         circleCenter.value = locationToLatLng(state)
         oceanViewModel.setPath(circleCenter.value)
@@ -128,12 +125,14 @@ class MapViewModel @Inject constructor(): ViewModel() {
         mapUpdateThread.start()
     }
 
+
     fun updateMap(waittime: Long){
         timePassedInSeconds.value += waittime.toInt()
         circleCenter.value = calculateNewPosition(circleCenter.value, oceanViewModel, waittime.toDouble()/60.0)
         circleRadius.value = calculateRadius(timePassedInSeconds.value/60)
     }
 
+    /** Updates the lines that show where the projected search-area has moved  */
     fun updateMarkerAndPolyLines(){
         markersMapScreen.add(circleCenter.value)
         if(markersMapScreen.size>1){
@@ -145,6 +144,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         }
     }
 
+    /** Updates the variable of lastKnownLocation to the units coordinate */
     fun updateLocation() {
         try {
             val locationResult = locationProviderClient.lastLocation
@@ -165,6 +165,8 @@ class MapViewModel @Inject constructor(): ViewModel() {
             exitProcess(-1)
         }
     }
+
+    /** Removes the last marker in Reiseplanlegger. Is called upon when the user removes a marker */
     fun removeLastMarker() {
         if (markerPositions.size >= 2) {
             // Remove the last marker position
@@ -188,7 +190,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
         updateDisplayedText()
     }
 
-    // Updates the displayed text for the user
+    /** Updates the displayed text for the user */
     fun updateDisplayedText() {
         if (speedNumber.value == 0f) {
             displayedText.value = "Du vil ikke komme fram hvis du kjører 0 knop"
@@ -201,7 +203,8 @@ class MapViewModel @Inject constructor(): ViewModel() {
             }
         }
     }
-    
+
+    /** Updates whether the user wants to use his or hers position or not in Reiseplanlegger  */
     fun updateUseOfCurrentLocation(state: MapState) {
         usingMyPositionTidsbruk.value = !usingMyPositionTidsbruk.value
 
@@ -228,7 +231,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
     }
 }
 
-/* TODO: Når det hentes ny oceanforecdast, så må det sjekkes om det er en null, før den assignes på nytt. */
+/** Calculates the new position of the center in projected search-area in Mann-over-bord  */
 fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng{
     Log.i("MapScreen", "New Pos from $personCoordinate")
     val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
@@ -245,7 +248,7 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
     return calculatePosition(listOf(personCoordinate.latitude, personCoordinate.longitude), forecastDetails.sea_surface_wave_from_direction, forecastDetails.sea_water_speed, time)
 }
 
-/** henter den listen med bølgedata som er nærmest nåværende klokkeslett */
+/** Fetches the list of wave data closest to the current time. */
 @SuppressLint("SimpleDateFormat")
 fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
@@ -272,6 +275,7 @@ fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
 
     return listOfTime[smallestIndex].data.instant.details
 }
+
 fun getSecondsBetween(date1: Date, date2: Date): Long {
     val diffInMilliseconds = abs(date1.time - date2.time)
     return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
@@ -284,7 +288,8 @@ fun locationToLatLng(loc: Location?): LatLng {
     return LatLng(59.0, 11.0) //default val i oslofjorden
 }
 
-// Take into account that we assume timeCheckingFor is given in minutes
+/** Returns a coordinate given a coordinate, how fast the water is moving at the coordinate, which way the water is moving and how long it has been since last iteration.
+ * Uses trigonometrics to calculate the new coordinate */
 fun calculatePosition(
     coordinatesStart:List<Double>,
     seaSurfaceWaveToDegrees: Double,
@@ -318,7 +323,7 @@ fun calculatePosition(
     return LatLng(newLat, newLng)
 }
 
-// Calculates the radius of the search-area
+/** Calculates the radius of the search-area */
 fun calculateRadius(minutes: Int): Double {
     val newRadius: Double = minutes * 5.0
     return if (newRadius > 200.0) 200.0

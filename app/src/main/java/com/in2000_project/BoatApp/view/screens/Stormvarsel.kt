@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Feature
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -72,6 +71,7 @@ fun Stormvarsel(
     connection: CheckInternet,
     internetPopupState: InternetPopupState
 ){
+    viewModelMap.updateLocation()
     /**
     isMyLocationEnabled is set to always true in this version of the code,
     this is due to some of our emulators inconsistency to remember that
@@ -82,15 +82,8 @@ fun Stormvarsel(
     */
     val mapProperties = MapProperties(isMyLocationEnabled = true)
     val mapState by viewModelMap.state.collectAsState()
-    if (mapState.lastKnownLocation != null) {
-        viewModelMap.updateUserLocation(mapState.lastKnownLocation!!.latitude, mapState.lastKnownLocation!!.longitude)
-    }
-    val cameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
-    }
-    val myPosition = viewModelMap.alertsMapUiState.collectAsState()
-    var userLat by remember{ mutableStateOf(myPosition.value.latitude) }
-    var userLng by remember{ mutableStateOf(myPosition.value.longitude) }
+    var userLat = mapState.lastKnownLocation?.latitude ?: 0.0
+    var userLng = mapState.lastKnownLocation?.longitude ?: 0.0
     val stormvarselUiState = viewModelAlerts.stormvarselUiState.collectAsState()
     val temperatureUiState = viewModelForecast.temperatureUiState.collectAsState()
     val geoCodeUiState = viewModelSearch.geoCodeUiState.collectAsState()
@@ -105,7 +98,10 @@ fun Stormvarsel(
     var openSearch by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
-    viewModelForecast.updateUserCoord(userLat, userLng, connection, internetPopupState)
+    val cameraPositionState = rememberCameraPositionState{
+        position = CameraPosition.fromLatLngZoom(LatLng(userLat, userLng),7f)
+    }
+    viewModelForecast.updateWeatherDataBasedOnCoordinate(userLat, userLng, connection, internetPopupState)
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
 
     Column(modifier = modifier,
@@ -219,7 +215,7 @@ fun Stormvarsel(
                                                 if (cityData.isNotEmpty()) {
                                                     userLat = cityData[0].latitude
                                                     userLng = cityData[0].longitude
-                                                    viewModelForecast.updateUserCoord(
+                                                    viewModelForecast.updateWeatherDataBasedOnCoordinate(
                                                         userLat,
                                                         userLng,
                                                         connection,
@@ -274,15 +270,15 @@ fun Stormvarsel(
                 Box(
                     modifier = Modifier.height(0.5 * configuration.screenHeightDp.dp)
                 ){
-                    if (warnings.isNotEmpty()){
-                        GoogleMap(
-                            modifier = Modifier
-                                .height(configuration.screenWidthDp.dp),
-                            properties = mapProperties,
-                            cameraPositionState = cameraPositionState
-                        ) {
+
+                    GoogleMap(
+                        modifier = Modifier
+                            .height(configuration.screenWidthDp.dp),
+                        properties = mapProperties,
+                        cameraPositionState = cameraPositionState
+                    ) {
+                        if (warnings.isNotEmpty()) {
                             val context = LocalContext.current
-                            val scope = rememberCoroutineScope()
                             MapEffect(mapState.clusterItems) { map ->
                                 if (mapState.clusterItems.isNotEmpty()) {
                                     val clusterManager = setupClusterManager(context, map)
@@ -290,18 +286,6 @@ fun Stormvarsel(
                                     map.setOnMarkerClickListener(clusterManager)
                                     mapState.clusterItems.forEach { clusterItem ->
                                         map.addPolygon(clusterItem.polygonOptions)
-                                    }
-                                    map.setOnMapLoadedCallback {
-                                        if (mapState.clusterItems.isNotEmpty()) {
-                                            scope.launch {
-                                                cameraPositionState.animate(
-                                                    CameraUpdateFactory.newLatLngZoom(
-                                                        LatLng(myPosition.value.latitude, myPosition.value.longitude),
-                                                        7f
-                                                    ),1500
-                                                )
-                                            }
-                                        }
                                     }
                                 }
                             }
@@ -346,6 +330,7 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
             }
         }
     }
+
     return returnMap
 }
 

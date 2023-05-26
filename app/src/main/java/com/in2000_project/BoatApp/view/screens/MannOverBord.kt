@@ -14,17 +14,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.google.android.gms.maps.CameraUpdateFactory
+import com.google.android.gms.maps.model.BitmapDescriptor
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.launch.CheckInternet
@@ -49,8 +55,8 @@ fun MannOverbord(
 ) {
 
     mapViewModel.updateLocation()
-
     val state by mapViewModel.state.collectAsState()
+
     /**
         isMyLocationEnabled is set to always true in this version of the code,
         this is due to some of our emulators inconsistency to remember that
@@ -67,13 +73,15 @@ fun MannOverbord(
 
     if(state.lastKnownLocation!=null && !locationObtained.value){
         locationObtained.value = true
-        Log.i("galksjd", "headsd")
+        mapViewModel.circleCenter.value = LatLng(state.circle.coordinates.latitude, state.circle.coordinates.longitude)
     }
 
-
+    val markerstate = mapViewModel.enabled.value
     val cameraZoom = 15f
     val cameraPositionState = rememberCameraPositionState{}
     Log.i("Circlecenter", "${mapViewModel.circleCenter.value}")
+
+    val manIsOverboard = mapViewModel.manIsOverboard
 
     Box {
         GoogleMap(
@@ -82,6 +90,13 @@ fun MannOverbord(
             properties = mapProperties,
             cameraPositionState = cameraPositionState
         ) {
+
+            Marker(
+                state = MarkerState(mapViewModel.circleCenter.value),
+                icon = BitmapDescriptorFactory.defaultMarker(), // Your red icon
+                visible = manIsOverboard.value,
+            )
+
             Circle(
                 center = mapViewModel.circleCenter.value,
                 radius = mapViewModel.circleRadius.value,
@@ -165,7 +180,7 @@ fun MannOverbord(
                 .padding(
                     top = LocalConfiguration.current.screenHeightDp.dp * 0.66f
                 )
-                .size(LocalConfiguration.current.screenWidthDp.dp * 0.2f)
+                .size(LocalConfiguration.current.screenWidthDp.dp * 0.225f)
                 .shadow(
                     elevation = 5.dp,
                     shape = CircleShape

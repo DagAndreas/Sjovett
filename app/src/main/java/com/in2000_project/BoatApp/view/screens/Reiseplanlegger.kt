@@ -41,6 +41,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.maps.model.*
 import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.view.components.InfoPopup
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
@@ -197,8 +198,7 @@ fun TidsbrukScreen(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
 
-                            viewModel.updateLocation()
-                            viewModel.updateUseOfCurrentLocation(state)
+                            useOwnLocation(state, viewModel)
 
                         },
                         modifier = Modifier
@@ -394,6 +394,10 @@ fun calculateDistance(coordinates: List<LatLng>): Double {
     return distance
 }
 
+fun useOwnLocation(state: MapState, viewModel: MapViewModel){
+    viewModel.updateLocation()
+    viewModel.updateUseOfCurrentLocation(state)
+}
 
 
 // Calculate time in minutes based on distance and speed

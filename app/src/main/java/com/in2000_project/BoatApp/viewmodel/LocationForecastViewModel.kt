@@ -18,6 +18,7 @@ class LocationForecastViewModel {
     val temperatureUiState = _temperatureUiState.asStateFlow()
 
     init{
+        // sets the location to 0.0, 0.0 to avoid
         fetchLocationForecastData(0.0, 0.0)
     }
     private fun fetchLocationForecastData(lat: Double, lng: Double) {
@@ -31,7 +32,8 @@ class LocationForecastViewModel {
         }
     }
 
-    fun updateUserCoord(lat: Double, lng: Double, connection: CheckInternet, internetPopupState: InternetPopupState){
+    /** Collect new weatherData for the users coordinate */
+    fun updateWeatherDataBasedOnCoordinate(lat: Double, lng: Double, connection: CheckInternet, internetPopupState: InternetPopupState){
         if (!connection.checkNetwork()) {
             Log.e("Internet connection", "Not connected!")
             internetPopupState.checkInternetPopup.value = true

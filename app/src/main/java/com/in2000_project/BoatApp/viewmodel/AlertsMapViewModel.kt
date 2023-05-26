@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.PolygonOptions
 import com.in2000_project.BoatApp.data.AlertsMapUiState
@@ -17,14 +18,16 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import javax.inject.Inject
+import kotlin.system.exitProcess
 
 @HiltViewModel
 class AlertsMapViewModel @Inject constructor(): ViewModel() {
     private val listOfClusters = mutableListOf<ZoneClusterItem>()
 
-    private val _alertsMapUiState = MutableStateFlow(AlertsMapUiState())
-    val alertsMapUiState = _alertsMapUiState.asStateFlow()
-
+    lateinit var locationProviderClient: FusedLocationProviderClient
+    fun setClient(fusedLocationProviderClient: FusedLocationProviderClient) {
+        locationProviderClient = fusedLocationProviderClient
+    }
 
     private val _state = MutableStateFlow(
         MapStateCluster(
@@ -32,18 +35,13 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
             clusterItems = listOfClusters
         )
     )
+    val state: StateFlow<MapStateCluster> = _state.asStateFlow()
 
     //InfoCards
     var stormvarselInfoPopUp by mutableStateOf(true)
 
-    val state: StateFlow<MapStateCluster> = _state.asStateFlow()
 
-    fun updateUserLocation(lat: Double, lng: Double) {
-        _alertsMapUiState.update {
-            (it.copy(longitude = lng, latitude = lat))
-        }
-    }
-
+    /** Adds the clusters to _state */
     fun addCluster(
         id: String,
         title: String,
@@ -51,23 +49,23 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
         polygonOptions: PolygonOptions
     ){
         listOfClusters.add(ZoneClusterItem(id, title, description, polygonOptions))
-        _state.update{
-            MapStateCluster(
-                lastKnownLocation = null,
-                clusterItems = listOfClusters
+        _state.update {
+            it.copy(
+                clusterItems = listOfClusters,
+            )
+        }
+    }
+    /** Clears _state of clusters*/
+    fun resetCluster() {
+        listOfClusters.clear()
+        _state.update {
+            it.copy(
+                clusterItems = listOfClusters,
             )
         }
     }
 
-    fun resetCluster() {
-        listOfClusters.clear()
-        _state.update{
-            MapStateCluster(
-                lastKnownLocation = null,
-                clusterItems = listOfClusters
-            )
-        }
-    }
+    /** Sets up a cluster manager */
     fun setupClusterManager(
         context: Context,
         map: GoogleMap,
@@ -75,6 +73,28 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
         val clusterManager = ZoneClusterManager(context, map)
         clusterManager.addItems(state.value.clusterItems)
         return clusterManager
+    }
+
+    /** Updates the variable of lastKnownLocation to the units coordinate */
+    fun updateLocation() {
+        try {
+            val locationResult = locationProviderClient.lastLocation
+            locationResult.addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    val location = task.result
+                    if (location != null) {
+                        _state.update {
+                            it.copy(
+                                lastKnownLocation = location,
+                            )
+                        }
+                    }
+                }
+            }
+        } catch (e: SecurityException) {
+            Log.e("updateLocation", e.toString())
+            exitProcess(-1)
+        }
     }
 
 }

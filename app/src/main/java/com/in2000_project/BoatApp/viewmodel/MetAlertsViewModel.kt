@@ -19,7 +19,7 @@ class MetAlertsViewModel: ViewModel() {
     init {
         fetchMetAlerts()
     }
-
+    
     private fun fetchMetAlerts() {
         Log.d("API_request", "attempting fetchMetAlerts.launch")
         CoroutineScope(Dispatchers.IO).launch {
