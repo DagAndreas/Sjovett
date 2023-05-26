@@ -120,7 +120,7 @@ fun TidsbrukScreen(
                         // choose knots
                         Slider(
                             value = viewModel.speedNumber.value,
-                            onValueChange = viewModel::handleSpeedChange,
+                            onValueChange = viewModel::onSpeedChange,
                             valueRange = 0f..50f,
                             modifier = Modifier
                                 .padding(5.dp)
@@ -233,7 +233,7 @@ fun TidsbrukScreen(
                     start = 0.dp
                 ), //flytter knappene
                 cameraPositionState = cameraPositionState,
-                onMapLongClick = { latLng -> viewModel.longPressNewMarkerForTravel(latLng, state) }
+                onMapLongClick = { latLng -> viewModel.onLongPress(latLng, state) }
             ) {
                 val context: ProvidableCompositionLocal<Context> = LocalContext
                 if (!viewModel.lockMarkers.value) {

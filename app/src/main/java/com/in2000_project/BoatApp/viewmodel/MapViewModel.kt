@@ -264,7 +264,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
 
     /** Sets the new speed for the handle in Reiseplanlegger*/
-    fun handleSpeedChange(value: Float) {
+    fun onSpeedChange(value: Float) {
         speedNumber.value = value.roundToInt().toFloat()
         lengthInMinutes.value = calculateTimeInMinutes(distanceInMeters.value, speedNumber.value)
         updateDisplayedText()
@@ -272,7 +272,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
     }
 
     /** Adds a new marker to the map when user hold the map to select a destination-point */
-    fun longPressNewMarkerForTravel(position: LatLng, state: MapState) {
+    fun onLongPress(position: LatLng, state: MapState) {
         if (!lockMarkers.value) {
             // Updates the current location
             updateLocation()
