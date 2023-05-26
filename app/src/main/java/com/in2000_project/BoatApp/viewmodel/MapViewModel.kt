@@ -15,7 +15,7 @@ import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.model.oceanforecast.Details
-import com.in2000_project.BoatApp.model.oceanforecast.Timesery
+import com.in2000_project.BoatApp.model.oceanforecast.Timeseries
 import com.in2000_project.BoatApp.view.screens.calculateDistance
 import com.in2000_project.BoatApp.view.screens.calculateTimeInMinutes
 import com.in2000_project.BoatApp.view.screens.formatTime
@@ -118,16 +118,6 @@ class MapViewModel @Inject constructor() : ViewModel() {
         circleRadius.value = calculateRadius(timePassedInSeconds.value / 60)
     }
 
-    /** Updates the lines that show where the projected search-area has moved  */
-    fun updateMarkerAndPolyLines() {
-        markersMapScreen.add(circleCenter.value)
-        if (markersMapScreen.size > 1) {
-            val lastPosition = markersMapScreen[markersMapScreen.size - 2]
-            val options = PolylineOptions().add(lastPosition, markersMapScreen.last())
-                .color(android.graphics.Color.BLACK)
-            polyLinesMap.add(options)
-        }
-    }
 
     /** Updates the variable of lastKnownLocation to the units coordinate */
     fun updateLocation() {
@@ -151,6 +141,60 @@ class MapViewModel @Inject constructor() : ViewModel() {
         }
     }
 
+    /**This function is called when the user want to end the search */
+    fun stopSearchPopupYes(text: String) {
+        showDialog = false
+        restartButton()
+        buttonText = text
+    }
+
+
+    /**This function is called when the user pressed the button to start search in MannOverBord.kt*/
+    fun mannOverBordButtonPress(
+        connection: CheckInternet,
+        internetPopupState: InternetPopupState,
+        state: MapState,
+        seaOrLandUrl: String
+    ) {
+        if (!connection.checkNetwork()) {
+            internetPopupState.checkInternetPopup.value = true
+        } else {
+            updateLocation()
+            val pos = locationToLatLng(state.lastKnownLocation)
+            val seaOrLandViewModel =
+                SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}")
+
+            viewModelScope.launch {
+                if (!mapUpdateThread.isRunning) {
+                    // Checks if the coordinate of the user is on land or not.
+                    val seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
+
+                    // Continues if the users coordinate returns true on water
+                    if (seaOrLandResponse.water) {
+                        oceanViewModel.setPath(pos)
+                        oceanViewModel.getOceanForecastResponse()
+                        startButton(state.lastKnownLocation, pos)
+                        buttonText = "Stopp søk"
+                    } else {
+                        manIsOverboardInfoPopup = true
+                    }
+                } else {
+                    showDialog = true
+                }
+            }
+        }
+    }
+
+    /** Updates the lines that show where the projected search-area has moved  */
+    fun updateMarkerAndPolyLines() {
+        markersMapScreen.add(circleCenter.value)
+        if (markersMapScreen.size > 1) {
+            val lastPosition = markersMapScreen[markersMapScreen.size - 2]
+            val options = PolylineOptions().add(lastPosition, markersMapScreen.last())
+                .color(android.graphics.Color.BLACK)
+            polyLinesMap.add(options)
+        }
+    }
     /** Removes the last marker in Reiseplanlegger. Is called upon when the user removes a marker */
     fun removeLastMarker() {
         if (markerPositions.size >= 2) {
@@ -218,50 +262,58 @@ class MapViewModel @Inject constructor() : ViewModel() {
     }
 
 
-    /**This function is called when the user want to end the search */
-    fun stopSearchPopupYes(text: String) {
-        showDialog = false
-        restartButton()
-        buttonText = text
+    /** Sets the new speed for the handle in Reiseplanlegger*/
+    fun handleSpeedChange(value: Float) {
+        speedNumber.value = value.roundToInt().toFloat()
+        lengthInMinutes.value =
+            calculateTimeInMinutes(distanceInMeters.value, speedNumber.value)
+        updateDisplayedText()
+        updateLocation()
     }
 
-
-    /**This function is called when the user pressed the button to start search in MannOverBord.kt*/
-    fun mannOverBordButtonPress(
-        connection: CheckInternet,
-        internetPopupState: InternetPopupState,
-        state: MapState,
-        seaOrLandUrl: String
-    ) {
-        if (!connection.checkNetwork()) {
-            internetPopupState.checkInternetPopup.value = true
-        } else {
+    /** Adds a new marker to the map when user hold the map to select a destination-point */
+    fun longPressNewMarkerForTravel(position: LatLng, state: MapState) {
+        if (!lockMarkers.value) {
+            // Updates the current location
             updateLocation()
-            val pos = locationToLatLng(state.lastKnownLocation)
-            val seaOrLandViewModel =
-                SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}")
-
-            viewModelScope.launch {
-                if (!mapUpdateThread.isRunning) {
-                    // Checks if the coordinate of the user is on land or not.
-                    val seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-
-                    // Continues if the users coordinate returns true on water
-                    if (seaOrLandResponse.water) {
-                        oceanViewModel.setPath(pos)
-                        oceanViewModel.getOceanForecastResponse()
-                        startButton(state.lastKnownLocation, pos)
-                        buttonText = "Stopp søk"
-                    } else {
-                        manIsOverboardInfoPopup = true
+            if (markerPositions.isEmpty()) {
+                markerPositions += position
+                coordinatesToFindDistanceBetween.add(position)
+            } else {
+                // Updates the first marker position to the current location
+                if (usingMyPositionTidsbruk.value) {
+                    markerPositions[0] = locationToLatLng(state.lastKnownLocation!!)
+                    if (polyLines.size >= 1) {
+                        val updatedFirstPolyLine = PolylineOptions().add(
+                            markerPositions[0],
+                            markerPositions[1]
+                        ).color(android.graphics.Color.RED)
+                        polyLines[0] = updatedFirstPolyLine
                     }
-                } else {
-                    showDialog = true
+                }
+                // Adds the new marker position and coordinate for calculating distance
+                markerPositions.add(position)
+                coordinatesToFindDistanceBetween.add(position)
+
+                // Adds a new polyline between the last two markers
+                val lastPosition = markerPositions[markerPositions.size - 2]
+                val options =
+                    PolylineOptions().add(lastPosition, position).color(android.graphics.Color.RED)
+
+                polyLines.add(options)
+
+                if (coordinatesToFindDistanceBetween.size > 1) {
+                    distanceInMeters.value =
+                        calculateDistance(coordinatesToFindDistanceBetween)
+                    lengthInMinutes.value = calculateTimeInMinutes(
+                        distanceInMeters.value,
+                        speedNumber.value
+                    )
                 }
             }
+            updateDisplayedText()
         }
     }
-
 }
 
 
@@ -294,7 +346,7 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
 
 /** Fetches the list of wave data closest to the current time. */
 @SuppressLint("SimpleDateFormat")
-fun findClosestDataToTimestamp(listOfTime: List<Timesery>): Details {
+fun findClosestDataToTimestamp(listOfTime: List<Timeseries>): Details {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     val currentTime = Date()
     var i = 0

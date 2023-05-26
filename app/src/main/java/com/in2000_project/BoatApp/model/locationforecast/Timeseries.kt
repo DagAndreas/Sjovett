@@ -1,6 +1,6 @@
 package com.example.gruppe_16.model.locationforecast
 
-data class Timesery(
+data class Timeseries(
     val data: Data,
     val time: String
 )
