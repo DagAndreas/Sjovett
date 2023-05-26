@@ -15,7 +15,7 @@ import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.model.oceanforecast.Details
-import com.in2000_project.BoatApp.model.oceanforecast.Timeseries
+import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.view.components.mann_over_bord.MapUpdateThread
 import com.in2000_project.BoatApp.view.screens.calculateDistance
 import com.in2000_project.BoatApp.view.screens.calculateTimeInMinutes
@@ -115,9 +115,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
     fun updateMap(waittime: Long) {
         timePassedInSeconds.value += waittime.toInt()
         circleCenter.value = calculateNewDriftedPositionAndCircleSize(
-            circleCenter.value,
-            oceanViewModel,
-            waittime.toDouble() / 60.0
+            circleCenter.value, oceanViewModel, waittime.toDouble() / 60.0
         )
         circleRadius.value = calculateRadius(timePassedInSeconds.value / 60)
     }
@@ -321,9 +319,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
  *       If that is the case, also update the oceanforecast to the new grid's measures.
  * */
 fun calculateNewDriftedPositionAndCircleSize(
-    personCoordinate: LatLng,
-    ovm: OceanViewModel,
-    time: Double
+    personCoordinate: LatLng, ovm: OceanViewModel, time: Double
 ): LatLng {
     Log.i("MapScreen", "New Pos from $personCoordinate")
     val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
@@ -420,7 +416,7 @@ fun calculateRadius(minutes: Int): Double {
 
 /** Fetches the list of wave data closest to the current time. */
 @SuppressLint("SimpleDateFormat")
-fun findClosestDetailsToCurrentTime(listOfTime: List<Timeseries>): Details {
+fun findClosestDetailsToCurrentTime(listOfTime: List<Timesery>): Details {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     val currentTime = Date()
     var i = 0

@@ -37,7 +37,12 @@ fun MannOverBordButton(
 
     Button(
         onClick = {
-            mapViewModel.mannOverBordButtonPress(connection, internetPopupState, state, seaOrLandUrl)
+            mapViewModel.mannOverBordButtonPress(
+                connection,
+                internetPopupState,
+                state,
+                seaOrLandUrl
+            )
         },
         modifier = modifier,
         shape = CircleShape,
@@ -56,8 +61,7 @@ fun MannOverBordButton(
             if (locationObtained.value) {
                 cameraPositionState.animate(
                     CameraUpdateFactory.newLatLngZoom(
-                        locationToLatLng(state.lastKnownLocation),
-                        cameraZoom
+                        locationToLatLng(state.lastKnownLocation), cameraZoom
                     ), 1500
                 )
             }

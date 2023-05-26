@@ -14,10 +14,10 @@ class MapUpdateThread(
         val sleepDelay: Long = 2 // seconds
         while (isRunning) {
             // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
-            mapViewModel.updateMap(sleepDelay*10)
+            mapViewModel.updateMap(sleepDelay)
             mapViewModel.updateMarkerAndPolyLines()
             // in milliseconds, this function waits 2 seconds between each update
-            sleep(sleepDelay * 1000)
+            sleep(sleepDelay * 100)
         }
         isRunning = false
     }

@@ -2,7 +2,7 @@
 import com.in2000_project.BoatApp.model.oceanforecast.Data
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Instant
-import com.in2000_project.BoatApp.model.oceanforecast.Timeseries
+import com.in2000_project.BoatApp.model.oceanforecast.Timesery
 import com.in2000_project.BoatApp.viewmodel.calculateRadius
 import com.in2000_project.BoatApp.viewmodel.findClosestDetailsToCurrentTime
 import org.junit.Assert.assertEquals
@@ -39,15 +39,15 @@ class MannOverBordKtTest {
     fun testFindClosestDataToTimestamp1() {
         // TODO: Arrange
         val listOfTime = listOf(
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsA)),
                 sdf.format(Date(currentTime.time - 10*60000))
             ),
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsB)),
                 sdf.format(Date(currentTime.time - 5*60000))
             ),
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsC)),
                 sdf.format(Date(currentTime.time + 15*60000))
             )
@@ -64,16 +64,16 @@ class MannOverBordKtTest {
     fun testFindClosestDataToTimestamp2() {
         // TODO: Arrange
         val listOfTime = listOf(
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsA)),
                 // -6 where 6 is milliseconds. 6*60000 equals 6 minutes
                 sdf.format(Date(currentTime.time - 6*60000))
             ),
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsB)),
                 sdf.format(Date(currentTime.time - 5*60000))
             ),
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsC)),
                 sdf.format(Date(currentTime.time - 7*60000))
             )
@@ -91,16 +91,16 @@ class MannOverBordKtTest {
     fun testFindClosestDataToTimestamp3() {
         // TODO: Arrange
         val listOfTime = listOf(
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsA)),
                 // -6 where 6 is milliseconds. 6*60000 equals 6 minutes
                 sdf.format(Date(currentTime.time - 10*60000))
             ),
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsB)),
                 sdf.format(Date(currentTime.time + 4*60000))
             ),
-            Timeseries(
+            Timesery(
                 Data(Instant(detailsC)),
                 sdf.format(Date(currentTime.time))
             )

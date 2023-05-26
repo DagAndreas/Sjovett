@@ -61,8 +61,7 @@ fun StopSearchPopup(
                     Text(stringResource(R.string.Yes))
                 }
             }
-        }
-    )
+        })
 }
 
 

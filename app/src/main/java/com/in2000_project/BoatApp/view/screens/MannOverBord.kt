@@ -29,8 +29,8 @@ import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.view.components.InfoPopup
 import com.in2000_project.BoatApp.view.components.info.NoInternetPopup
-import com.in2000_project.BoatApp.view.components.mann_over_bord.StopSearchPopup
 import com.in2000_project.BoatApp.view.components.mann_over_bord.MannOverBordButton
+import com.in2000_project.BoatApp.view.components.mann_over_bord.StopSearchPopup
 import com.in2000_project.BoatApp.view.components.navigation.MenuButton
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.OpacityRed
@@ -69,8 +69,8 @@ fun MannOverbord(
     if (state.lastKnownLocation != null && !locationObtained.value) {
         locationObtained.value = true
         if (!mapViewModel.mapUpdateThread.isRunning)
-        mapViewModel.circleCenter.value =
-            LatLng(state.circle.coordinates.latitude, state.circle.coordinates.longitude)
+            mapViewModel.circleCenter.value =
+                LatLng(state.circle.coordinates.latitude, state.circle.coordinates.longitude)
     }
 
     val cameraZoom = 15f

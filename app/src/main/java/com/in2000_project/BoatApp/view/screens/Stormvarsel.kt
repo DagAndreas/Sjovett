@@ -32,7 +32,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
-import com.example.gruppe_16.model.locationforecast.Timeseries
+import com.example.gruppe_16.model.locationforecast.Timesery
 import com.example.gruppe_16.model.metalerts.Feature
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.CameraPosition
@@ -312,7 +312,7 @@ fun createCalendar(date: String): Calendar? {
 
 /** Finds the data from the Timesery that is closest to "now" */
 @SuppressLint("SimpleDateFormat")
-fun indexClosestTime(listOfTime: List<Timeseries>): MutableMap<Int, Date> {
+fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
     val returnMap = mutableMapOf<Int, Date>()
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'", Locale.GERMANY)
     sdf.timeZone = TimeZone.getTimeZone("UTC")

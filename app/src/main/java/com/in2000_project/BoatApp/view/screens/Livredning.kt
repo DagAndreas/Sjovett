@@ -40,8 +40,8 @@ fun Livredning(
     ) {
         LazyColumn(
             modifier = Modifier.graphicsLayer(
-                    scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY
-                ),
+                scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY
+            ),
         ) {
             // Shows images from imageList in Cards
             items(imageList) { image ->
