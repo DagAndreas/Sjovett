@@ -8,7 +8,6 @@ legg inn i local.properties:
 gradle.build:
 
     dependencies {
-
         implementation "androidx.core:core-ktx:1.9.0"
         implementation "androidx.core:core:1.9.0"
         implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
@@ -34,6 +33,8 @@ gradle.build:
 
         // Hilt
         implementation "com.google.dagger:hilt-android:2.42"
+        implementation 'junit:junit:4.12'
+        implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
         kapt "com.google.dagger:hilt-compiler:2.42"
 
         //Ikoner
@@ -77,6 +78,9 @@ gradle.build:
         implementation"io.ktor:ktor-client-content-negotiation:$ktor_version"
         implementation"io.ktor:ktor-serialization-gson:$ktor_version"
         implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
+
+        implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+
     }
 
 
