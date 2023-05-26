@@ -30,11 +30,12 @@ import kotlin.math.*
 import kotlin.system.exitProcess
 
 
-/** Update this variable to test the tracking of "Mann overbord"
+/** Update this variable to test the tracking of "MannOverbord"
  * mannoverbordOppdatering = 1 means tracking 2 seconds every other second
  * mannoverbordOppdatering = 60 simulates 120 seconds of tracking every other second.
  * */
-const val mannOverbordOppdatering = 60
+const val mannOverbordOppdatering = 1
+
 
 @HiltViewModel
 class MapViewModel @Inject constructor() : ViewModel() {
