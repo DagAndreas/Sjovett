@@ -61,7 +61,7 @@ class AlertsMapViewModel @Inject constructor() : ViewModel() {
         }
     }
 
-    /** Sets up a cluster manager */
+    /** Sets up a cluster manager to handle storms */
     fun setupClusterManager(
         context: Context,
         map: GoogleMap,
