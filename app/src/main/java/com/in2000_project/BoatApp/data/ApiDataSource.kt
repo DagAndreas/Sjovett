@@ -5,7 +5,8 @@ import com.example.gruppe_16.model.locationforecast.LocationForecastResponse
 import com.example.gruppe_16.model.metalerts.MetAlertsResponse
 import com.in2000_project.BoatApp.BuildConfig
 import com.in2000_project.BoatApp.model.geoCode.City
-import com.in2000_project.BoatApp.model.oceanforecast.*
+import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.oceanforecast.getEmptyOceanForecastResponse
 import com.in2000_project.BoatApp.model.seaOrLand.SeaOrLandResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -130,7 +131,7 @@ class ApiDataSource {
 }
 
 
-fun logError(path: String, e: Exception){
+fun logError(path: String, e: Exception) {
     Log.e("API_request error:", path)
     Log.e("API_request error:", e.message.toString())
 }
