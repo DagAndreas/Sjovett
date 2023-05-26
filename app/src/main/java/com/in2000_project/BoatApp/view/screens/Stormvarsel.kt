@@ -98,10 +98,15 @@ fun Stormvarsel(
     var openSearch by remember { mutableStateOf(false) }
     val focusManager = LocalFocusManager.current
 
+    var firstSearch by remember { mutableStateOf(true) }
+    if (firstSearch) {
+        viewModelForecast.updateWeatherDataBasedOnCoordinate(userLat, userLng, connection, internetPopupState)
+        firstSearch = false
+    }
+
     val cameraPositionState = rememberCameraPositionState{
         position = CameraPosition.fromLatLngZoom(LatLng(userLat, userLng),7f)
     }
-    viewModelForecast.updateWeatherDataBasedOnCoordinate(userLat, userLng, connection, internetPopupState)
     addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
 
     Column(modifier = modifier,

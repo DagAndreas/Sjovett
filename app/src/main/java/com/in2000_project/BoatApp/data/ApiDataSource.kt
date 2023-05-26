@@ -23,7 +23,7 @@ class ApiDataSource {
 
     /** Fetches the data from the given path and converts it into a LocationForecastResponse object */
     suspend fun fetchLocationForecastData(path: String): LocationForecastResponse {
-        Log.i("Fetching LocationData", "fra $path")
+        Log.i("Fetching LocationData", "from $path")
         val response = try {
             client.get {
                 url(path)
