@@ -5,11 +5,14 @@ import android.location.Location
 import android.util.Log
 import androidx.compose.runtime.*
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.PolylineOptions
 import com.in2000_project.BoatApp.data.CircleState
 import com.in2000_project.BoatApp.data.MapState
+import com.in2000_project.BoatApp.launch.CheckInternet
+import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timesery
@@ -21,6 +24,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -212,7 +216,54 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
         updateDisplayedText()
     }
+
+
+    /**This function is called when the user want to end the search */
+    fun stopSearchPopupYes(text: String) {
+        showDialog = false
+        restartButton()
+        buttonText = text
+    }
+
+
+    /**This function is called when the user pressed the button to start search in MannOverBord.kt*/
+    fun mannOverBordButtonPress(
+        connection: CheckInternet,
+        internetPopupState: InternetPopupState,
+        state: MapState,
+        seaOrLandUrl: String
+    ) {
+        if (!connection.checkNetwork()) {
+            internetPopupState.checkInternetPopup.value = true
+        } else {
+            updateLocation()
+            val pos = locationToLatLng(state.lastKnownLocation)
+            val seaOrLandViewModel =
+                SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}")
+
+            viewModelScope.launch {
+                if (!mapUpdateThread.isRunning) {
+                    // Checks if the coordinate of the user is on land or not.
+                    val seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
+
+                    // Continues if the users coordinate returns true on water
+                    if (seaOrLandResponse.water) {
+                        oceanViewModel.setPath(pos)
+                        oceanViewModel.getOceanForecastResponse()
+                        startButton(state.lastKnownLocation, pos)
+                        buttonText = "Stopp søk"
+                    } else {
+                        manIsOverboardInfoPopup = true
+                    }
+                } else {
+                    showDialog = true
+                }
+            }
+        }
+    }
+
 }
+
 
 /** Calculates the new position of the center in projected search-area in Mann-over-bord  */
 fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng {
@@ -232,14 +283,13 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
         "MapScreen Wave",
         "seawaterspeed: ${forecastDetails.sea_water_speed}, seawaterdirection: ${forecastDetails.sea_water_to_direction}, datapos: ${ovm.oceanForecastResponseObject.geometry.coordinates}"
     )
-    val newPosition = calculatePosition(
+
+    return calculatePosition(
         listOf(personCoordinate.latitude, personCoordinate.longitude),
         forecastDetails.sea_surface_wave_from_direction,
         forecastDetails.sea_water_speed,
         time
     )
-
-    return newPosition
 }
 
 /** Fetches the list of wave data closest to the current time. */
@@ -334,6 +384,7 @@ fun calculateRadius(minutes: Int): Double {
     else if (newRadius < 25.0) 25.0
     else newRadius
 }
+
 
 
 
