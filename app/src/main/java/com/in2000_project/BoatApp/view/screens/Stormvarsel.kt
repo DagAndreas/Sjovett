@@ -1,8 +1,6 @@
 package com.in2000_project.BoatApp.view.screens
 
 import InfoButtonStorm
-import com.in2000_project.BoatApp.view.components.navigation.MenuButton
-import com.in2000_project.BoatApp.view.components.stormvarsel.WeatherCard
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
@@ -42,12 +40,14 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.*
 import com.google.maps.android.ktx.model.polygonOptions
 import com.in2000_project.BoatApp.R
-import com.in2000_project.BoatApp.maps.ZoneClusterManager
-import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
+import com.in2000_project.BoatApp.maps.ZoneClusterManager
+import com.in2000_project.BoatApp.model.geoCode.City
 import com.in2000_project.BoatApp.view.components.InfoPopupStorm
 import com.in2000_project.BoatApp.view.components.info.NoInternetPopup
+import com.in2000_project.BoatApp.view.components.navigation.MenuButton
+import com.in2000_project.BoatApp.view.components.stormvarsel.WeatherCard
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White
@@ -70,7 +70,7 @@ fun Stormvarsel(
     openMenu: () -> Unit,
     connection: CheckInternet,
     internetPopupState: InternetPopupState
-){
+) {
     viewModelMap.updateLocation()
     /**
     isMyLocationEnabled is set to always true in this version of the code,
@@ -79,7 +79,7 @@ fun Stormvarsel(
 
     This is the line that would be in the finished product:
     isMyLocationEnabled = mapState.lastKnownLocation != null
-    */
+     */
     val mapProperties = MapProperties(isMyLocationEnabled = true)
     val mapState by viewModelMap.state.collectAsState()
     var userLat = mapState.lastKnownLocation?.latitude ?: 0.0
@@ -100,18 +100,23 @@ fun Stormvarsel(
 
     var firstSearch by remember { mutableStateOf(true) }
     if (firstSearch) {
-        viewModelForecast.updateWeatherDataBasedOnCoordinate(userLat, userLng, connection, internetPopupState)
+        viewModelForecast.updateWeatherDataBasedOnCoordinate(
+            userLat,
+            userLng,
+            connection,
+            internetPopupState
+        )
         firstSearch = false
+        addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
     }
 
-    val cameraPositionState = rememberCameraPositionState{
-        position = CameraPosition.fromLatLngZoom(LatLng(userLat, userLng),7f)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(LatLng(userLat, userLng), 7f)
     }
-    addStormClusters(viewModelMap = viewModelMap, warnings = warnings)
 
-    Column(modifier = modifier,
-        horizontalAlignment = CenterHorizontally
-    ){
+    Column(
+        modifier = modifier, horizontalAlignment = CenterHorizontally
+    ) {
         if (viewModelMap.stormvarselInfoPopUp) {
             InfoPopupStorm(
                 alertsMapViewModel = viewModelMap
@@ -128,11 +133,10 @@ fun Stormvarsel(
             modifier = modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = CenterHorizontally
-        ){
+        ) {
 
             Box(
-                modifier = Modifier
-                    .fillMaxWidth()
+                modifier = Modifier.fillMaxWidth()
             ) {
                 Column(
                     modifier = Modifier
@@ -145,8 +149,7 @@ fun Stormvarsel(
                         modifier = Modifier
                             .align(CenterHorizontally)
                             .background(
-                                color = White,
-                                shape = CircleShape
+                                color = White, shape = CircleShape
                             )
                             .padding(10.dp)
                             .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
@@ -169,8 +172,8 @@ fun Stormvarsel(
                     modifier = Modifier
                         .align(Alignment.Center)
                         .padding(top = 10.dp)
-                        .onKeyEvent{
-                            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER){
+                        .onKeyEvent {
+                            if (it.nativeKeyEvent.keyCode == KeyEvent.KEYCODE_ENTER) {
                                 focusManager.clearFocus()
                             }
                             true
@@ -179,68 +182,64 @@ fun Stormvarsel(
             }
 
             if (searchInProgress) {
-                    Box {
-                        CircularProgressIndicator(
-                            modifier = Modifier.align(Alignment.Center)
-                        )
-                    }
-                } else {
-                    if (openSearch) {
-                        LazyColumn(
-                            modifier = Modifier
-                                .align(CenterHorizontally)
-                                .fillMaxWidth()
-                                .background(
-                                    color = LightGrey,
-                                    shape = RoundedCornerShape(20.dp)
-                                )
-                        ) {
-
-
-                            items(cities.value) { CityName ->
-                                Text(
-                                    text = "${CityName.name}, ${CityName.country}",
-                                    modifier = Modifier
-                                        .padding(vertical = 16.dp)
-                                        .fillMaxWidth()
-                                        .clickable {
-
-                                            openSearch = false
-                                            focusManager.clearFocus()
-
-                                            location = CityName.name
-                                            cityData = emptyList()
-
-                                            CoroutineScope(Dispatchers.IO).launch {
-                                                viewModelSearch.fetchCityData(CityName.name, connection, internetPopupState )
-                                                while (geoCodeUiState.value.cityList.isEmpty()) {
-                                                    delay(100) // Wait for 100 milliseconds before checking again
-                                                }
-                                                cityData = geoCodeUiState.value.cityList
-                                                if (cityData.isNotEmpty()) {
-                                                    userLat = cityData[0].latitude
-                                                    userLng = cityData[0].longitude
-                                                    viewModelForecast.updateWeatherDataBasedOnCoordinate(
-                                                        userLat,
-                                                        userLng,
-                                                        connection,
-                                                        internetPopupState
-                                                    )
-                                                }
-                                                viewModelSearch.resetCityData()
-                                            }
-                                        }
-                                )
-                                Divider(color = Black, thickness = 0.9.dp)
-                            }
-                        }
-
-                    }
+                Box {
+                    CircularProgressIndicator(
+                        modifier = Modifier.align(Alignment.Center)
+                    )
                 }
+            } else {
+                if (openSearch) {
+                    LazyColumn(
+                        modifier = Modifier
+                            .align(CenterHorizontally)
+                            .fillMaxWidth()
+                            .background(
+                                color = LightGrey, shape = RoundedCornerShape(20.dp)
+                            )
+                    ) {
+
+
+                        items(cities.value) { CityName ->
+                            Text(text = "${CityName.name}, ${CityName.country}",
+                                modifier = Modifier
+                                    .padding(vertical = 16.dp)
+                                    .fillMaxWidth()
+                                    .clickable {
+
+                                        openSearch = false
+                                        focusManager.clearFocus()
+
+                                        location = CityName.name
+                                        cityData = emptyList()
+
+                                        CoroutineScope(Dispatchers.IO).launch {
+                                            viewModelSearch.fetchCityData(
+                                                CityName.name, connection, internetPopupState
+                                            )
+                                            while (geoCodeUiState.value.cityList.isEmpty()) {
+                                                delay(100) // Wait for 100 milliseconds before checking again
+                                            }
+                                            cityData = geoCodeUiState.value.cityList
+                                            if (cityData.isNotEmpty()) {
+                                                userLat = cityData[0].latitude
+                                                userLng = cityData[0].longitude
+                                                viewModelForecast.updateWeatherDataBasedOnCoordinate(
+                                                    userLat, userLng, connection, internetPopupState
+                                                )
+                                            }
+                                            viewModelSearch.resetCityData()
+                                        }
+                                    })
+                            Divider(color = Black, thickness = 0.9.dp)
+                        }
+                    }
+
+                }
+            }
 
             Column(
                 horizontalAlignment = CenterHorizontally
-            ){
+            ) {
                 Spacer(modifier = Modifier.height(0.025 * configuration.screenHeightDp.dp))
                 Text(
                     text = stringResource(R.string.WeatherNext24H),
@@ -250,10 +249,10 @@ fun Stormvarsel(
                 Spacer(modifier = Modifier.height(0.025 * configuration.screenHeightDp.dp))
                 Box(
                     modifier = Modifier.height(0.3 * configuration.screenHeightDp.dp)
-                ){
+                ) {
                     LazyRow(
                         Modifier.fillMaxHeight()
-                    ){
+                    ) {
                         val timeMap = indexClosestTime(temperatureData)
                         for (key in timeMap.keys) {
                             item {
@@ -274,11 +273,10 @@ fun Stormvarsel(
                 Spacer(modifier = Modifier.height(30.dp))
                 Box(
                     modifier = Modifier.height(0.5 * configuration.screenHeightDp.dp)
-                ){
+                ) {
 
                     GoogleMap(
-                        modifier = Modifier
-                            .height(configuration.screenWidthDp.dp),
+                        modifier = Modifier.height(configuration.screenWidthDp.dp),
                         properties = mapProperties,
                         cameraPositionState = cameraPositionState
                     ) {
@@ -358,15 +356,16 @@ fun getColor(awarenessLevel: String): String {
 
 /** Adds stormClusters to the viewModelMap at the right coordinates */
 fun addStormClusters(
-    viewModelMap: AlertsMapViewModel,
-    warnings: List<Feature>
+    viewModelMap: AlertsMapViewModel, warnings: List<Feature>
 ) {
     viewModelMap.resetCluster()
-    for(warning in warnings){
-        Log.i("Warning at location", "${warning.properties.area} - ${warning.properties.geographicDomain}")
-        if(warning.properties.geographicDomain == "marine") {
-            viewModelMap.addCluster(
-                id = warning.properties.area,
+    for (warning in warnings) {
+        Log.i(
+            "Warning at location",
+            "${warning.properties.area} - ${warning.properties.geographicDomain}"
+        )
+        if (warning.properties.geographicDomain == "marine") {
+            viewModelMap.addCluster(id = warning.properties.area,
                 title = warning.properties.area,
                 description = warning.properties.instruction,
                 polygonOptions = polygonOptions {
@@ -377,8 +376,7 @@ fun addStormClusters(
                     }
                     fillColor(Color.parseColor((getColor(warning.properties.awareness_level))))
                     strokeWidth(0.5f)
-                }
-            )
+                })
         }
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.times
 import com.in2000_project.BoatApp.R
 import com.plcoding.bottomnavwithbadges.ui.theme.*
+
 /** Represents the weather-cards that are displayed in Stormvarsel */
 @Composable
 fun WeatherCard(
@@ -141,13 +142,10 @@ fun WeatherCard(
             .height(0.35 * screenHeight)
             .width(0.8 * screenWidth)
             .padding(
-                start = 0.05 * screenWidth,
-                end = 0.05 * screenWidth,
-                bottom = 0.05 * screenWidth
+                start = 0.05 * screenWidth, end = 0.05 * screenWidth, bottom = 0.05 * screenWidth
             )
             .background(
-                color = White,
-                shape = RoundedCornerShape(cornerShape.dp)
+                color = White, shape = RoundedCornerShape(cornerShape.dp)
             )
     ) {
         Box( // Main box
@@ -162,16 +160,15 @@ fun WeatherCard(
         ) {
             Column(
                 modifier = Modifier.align(Alignment.Center)
-            ){
+            ) {
                 Row( // Top row
                     horizontalArrangement = Arrangement.SpaceEvenly
-                ){
+                ) {
                     Icon(
                         painter = painterResource(icon),
                         contentDescription = iconDesc,
                         tint = Color.Unspecified,
-                        modifier = Modifier
-                            .size(0.15 * screenWidth)
+                        modifier = Modifier.size(0.15 * screenWidth)
                     )
                     Text(
                         text = "$temperature C°",
@@ -189,18 +186,14 @@ fun WeatherCard(
                             painter = painterResource(R.drawable.baseline_air_24),
                             contentDescription = "Wind icon",
                             tint = Color.Unspecified,
-                            modifier = Modifier
-                                .size(0.06 * screenWidth)
+                            modifier = Modifier.size(0.06 * screenWidth)
                         )
                         Text(
-                            text = "$windSpeed",
-                            fontSize = (0.07 * screenWidthSp),
-                            color = Black
+                            text = "$windSpeed", fontSize = (0.07 * screenWidthSp), color = Black
                         )
                         Column(
-                            modifier = Modifier
-                                .align(Alignment.Top)
-                        ){
+                            modifier = Modifier.align(Alignment.Top)
+                        ) {
                             Image(
                                 painter = painterResource(id = R.drawable.baseline_arrow_right_alt_24),
                                 contentDescription = "Wind arrow",
@@ -227,8 +220,7 @@ fun WeatherCard(
                             painter = painterResource(R.drawable.water_drop_24),
                             contentDescription = "Rain icon",
                             tint = Color.Unspecified,
-                            modifier = Modifier
-                                .size(0.07 * screenWidth)
+                            modifier = Modifier.size(0.07 * screenWidth)
                         )
                         Text(
                             text = "$rainAmount",
@@ -257,12 +249,10 @@ fun WeatherCard(
                 .fillMaxHeight(0.2f)
                 .fillMaxWidth(0.5f)
                 .background(
-                    color = grayColor,
-                    shape = RoundedCornerShape(10.dp)
+                    color = grayColor, shape = RoundedCornerShape(10.dp)
                 )
                 .border(
-                    border = BorderStroke(1.dp, Black),
-                    shape = RoundedCornerShape(10.dp)
+                    border = BorderStroke(1.dp, Black), shape = RoundedCornerShape(10.dp)
                 )
         ) {
             Text(

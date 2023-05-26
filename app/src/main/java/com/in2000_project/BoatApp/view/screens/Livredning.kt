@@ -1,7 +1,5 @@
 package com.in2000_project.BoatApp.view.screens
 
-import com.in2000_project.BoatApp.view.components.navigation.MenuButton
-import com.in2000_project.BoatApp.view.components.zoom.ZoomableBox
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -23,6 +21,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.in2000_project.BoatApp.R
+import com.in2000_project.BoatApp.view.components.navigation.MenuButton
+import com.in2000_project.BoatApp.view.components.zoom.ZoomableBox
 import com.plcoding.bottomnavwithbadges.ui.theme.Black
 import com.plcoding.bottomnavwithbadges.ui.theme.LightGrey
 import com.plcoding.bottomnavwithbadges.ui.theme.White
@@ -33,20 +33,14 @@ fun Livredning(
     openMenu: () -> Unit
 ) {
     val imageList = listOf(
-        R.drawable.livredning_voksne,
-        R.drawable.livredning_barn
+        R.drawable.livredning_voksne, R.drawable.livredning_barn
     )
     ZoomableBox(
-        modifier = Modifier
-            .background(color = LightGrey)
+        modifier = Modifier.background(color = LightGrey)
     ) {
         LazyColumn(
-            modifier = Modifier
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offsetX,
-                    translationY = offsetY
+            modifier = Modifier.graphicsLayer(
+                    scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY
                 ),
         ) {
             // Shows images from imageList in Cards
@@ -70,20 +64,17 @@ fun Livredning(
         }
 
         Box(
-            modifier = Modifier
-                .padding(10.dp)
+            modifier = Modifier.padding(10.dp)
         ) {
             MenuButton(
                 buttonIcon = Icons.Filled.Menu,
                 onButtonClicked = { openMenu() },
                 modifier = Modifier
                     .background(
-                        color = White,
-                        shape = CircleShape
+                        color = White, shape = CircleShape
                     )
                     .border(
-                        border = BorderStroke(1.dp, Black),
-                        shape = CircleShape
+                        border = BorderStroke(1.dp, Black), shape = CircleShape
                     )
                     .padding(10.dp)
                     .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)

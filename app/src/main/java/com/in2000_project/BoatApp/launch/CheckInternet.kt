@@ -10,5 +10,4 @@ class CheckInternet(private val cm: ConnectivityManager) {
         Log.d("Internet connection", currentNetwork.toString())
         return currentNetwork != null
     }
-
 }

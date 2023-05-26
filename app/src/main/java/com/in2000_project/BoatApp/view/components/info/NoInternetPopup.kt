@@ -11,16 +11,12 @@ import com.in2000_project.BoatApp.launch.InternetPopupState
 @Composable
 fun NoInternetPopup(
     internetPopupState: InternetPopupState
-){
-    AlertDialog(
-        onDismissRequest = {
-            internetPopupState.checkInternetPopup.value = false
-        },
-        title = { Text(stringResource(R.string.NoInternet)) },
-        text = { Text(
+) {
+    AlertDialog(onDismissRequest = {
+        internetPopupState.checkInternetPopup.value = false
+    }, title = { Text(stringResource(R.string.NoInternet)) }, text = {
+        Text(
             text = stringResource(R.string.NoInternetMessage)
         )
-        },
-        buttons = {}
-    )
+    }, buttons = {})
 }
