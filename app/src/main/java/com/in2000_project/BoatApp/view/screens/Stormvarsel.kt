@@ -333,7 +333,6 @@ fun indexClosestTime(listOfTime: List<Timeseries>): MutableMap<Int, Date> {
             }
         }
     }
-
     return returnMap
 }
 

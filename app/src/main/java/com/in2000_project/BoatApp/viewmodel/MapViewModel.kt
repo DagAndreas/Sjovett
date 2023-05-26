@@ -16,6 +16,7 @@ import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.maps.*
 import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Timeseries
+import com.in2000_project.BoatApp.view.components.mann_over_bord.MapUpdateThread
 import com.in2000_project.BoatApp.view.screens.calculateDistance
 import com.in2000_project.BoatApp.view.screens.calculateTimeInMinutes
 import com.in2000_project.BoatApp.view.screens.formatTime
@@ -113,8 +114,11 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
     fun updateMap(waittime: Long) {
         timePassedInSeconds.value += waittime.toInt()
-        circleCenter.value =
-            calculateNewDriftedPosition(circleCenter.value, oceanViewModel, waittime.toDouble() / 60.0)
+        circleCenter.value = calculateNewDriftedPositionAndCircleSize(
+            circleCenter.value,
+            oceanViewModel,
+            waittime.toDouble() / 60.0
+        )
         circleRadius.value = calculateRadius(timePassedInSeconds.value / 60)
     }
 
@@ -171,8 +175,6 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
                     // Continues if the users coordinate returns true on water
                     if (seaOrLandResponse.water) {
-                        oceanViewModel.setPath(pos)
-                        oceanViewModel.getOceanForecastResponse()
                         startButton(state.lastKnownLocation, pos)
                         buttonText = "Stopp søk"
                     } else {
@@ -195,6 +197,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
             polyLinesMap.add(options)
         }
     }
+
     /** Removes the last marker in Reiseplanlegger. Is called upon when the user removes a marker */
     fun removeLastMarker() {
         if (markerPositions.size >= 2) {
@@ -284,8 +287,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
                     markerPositions[0] = locationToLatLng(state.lastKnownLocation!!)
                     if (polyLines.size >= 1) {
                         val updatedFirstPolyLine = PolylineOptions().add(
-                            markerPositions[0],
-                            markerPositions[1]
+                            markerPositions[0], markerPositions[1]
                         ).color(android.graphics.Color.RED)
                         polyLines[0] = updatedFirstPolyLine
                     }
@@ -302,11 +304,9 @@ class MapViewModel @Inject constructor() : ViewModel() {
                 polyLines.add(options)
 
                 if (coordinatesToFindDistanceBetween.size > 1) {
-                    distanceInMeters.value =
-                        calculateDistance(coordinatesToFindDistanceBetween)
+                    distanceInMeters.value = calculateDistance(coordinatesToFindDistanceBetween)
                     lengthInMinutes.value = calculateTimeInMinutes(
-                        distanceInMeters.value,
-                        speedNumber.value
+                        distanceInMeters.value, speedNumber.value
                     )
                 }
             }
@@ -318,9 +318,13 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
 /** Calculates the new position of the center in projected search-area in Mann-over-bord.
  *  Also checks if the person also has drifted more than 400 meters in  N/S/E/W direction.
- *      If that is the case, also update the oceanforecast to the new grid's measures.
+ *       If that is the case, also update the oceanforecast to the new grid's measures.
  * */
-fun calculateNewDriftedPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng {
+fun calculateNewDriftedPositionAndCircleSize(
+    personCoordinate: LatLng,
+    ovm: OceanViewModel,
+    time: Double
+): LatLng {
     Log.i("MapScreen", "New Pos from $personCoordinate")
     val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
     val dataLatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
@@ -341,47 +345,27 @@ fun calculateNewDriftedPosition(personCoordinate: LatLng, ovm: OceanViewModel, t
     )
 }
 
-/** Fetches the list of wave data closest to the current time. */
-@SuppressLint("SimpleDateFormat")
-fun findClosestDetailsToCurrentTime(listOfTime: List<Timeseries>): Details {
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
-    val currentTime = Date()
-    var i = 0
-    var smallestIndex = 0
-    var smallestSecondsBetween = Long.MAX_VALUE
-    for (item in listOfTime) {
-        val checkTime: Date
-        try {
-            checkTime = sdf.parse(item.time) as Date
-        } catch (e: ParseException) {
-            e.printStackTrace()
-            continue
-        }
+/**finds the center of coordinates given in list:
+ * Takes in 2 coordinates, the position of the measurement from ocean forecast and the person overboard.
+ * Calculates the change in longitude and latitude. The abs function removes the sign of the number. abs(-30) = 30, abs(30) = 30.
+ * Calculates the number of meters between the longitude and latitude.
+ * Returns true if the person has drifted either 400m in longitude or in latitude.  */
+fun hasChangedGrid(dataCoordinate: LatLng, personCoordinate: LatLng): Boolean {
+    // approx distance in meters per degree of latitude, adjusted for the earths curvature
+    val latDistancePerDegree = 111000
+    val latdiff = abs(dataCoordinate.latitude - personCoordinate.latitude) * latDistancePerDegree
 
-        val secondsBetween = getSecondsBetweenTwoDates(currentTime, checkTime)
-        if (secondsBetween in 0 until smallestSecondsBetween) {
-            smallestIndex = i
-            smallestSecondsBetween = secondsBetween
-        }
-        i++
-    }
+    val earthRadius = 6371e3 // Earth's radius in meters
+    val latRad = Math.toRadians(dataCoordinate.latitude)
+    val longdiff =
+        abs(dataCoordinate.longitude - personCoordinate.longitude) * PI / 180 * cos(latRad) * earthRadius
 
-    return listOfTime[smallestIndex].data.instant.details
+    val answer = latdiff > 400.0 || longdiff > 400.0
+    Log.i("DriftCheck:", "$dataCoordinate, $personCoordinate | data, person. New grid = $answer")
+    return answer
+
 }
 
-fun getSecondsBetweenTwoDates(date1: Date, date2: Date): Long {
-    val diffInMilliseconds = abs(date1.time - date2.time)
-    return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
-}
-
-/** brukes for å hente posisjonen fra state. default hvis null*/
-fun locationToLatLng(loc: Location?): LatLng {
-    if (loc != null) {
-        return LatLng(loc.latitude, loc.longitude)
-    }
-    Log.i("locationToLatLng", "Fant ingen location. Returnerer default LatLng(59.0, 11.0)")
-    return LatLng(59.0, 11.0) //default val i oslofjorden
-}
 
 /** Returns a coordinate given a coordinate, how fast the water is moving at the coordinate, which way the water is moving and how long it has been since last iteration.
  * Uses trigonometrics to calculate the new coordinate */
@@ -433,6 +417,49 @@ fun calculateRadius(minutes: Int): Double {
     else if (newRadius < 25.0) 25.0
     else newRadius
 }
+
+/** Fetches the list of wave data closest to the current time. */
+@SuppressLint("SimpleDateFormat")
+fun findClosestDetailsToCurrentTime(listOfTime: List<Timeseries>): Details {
+    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
+    val currentTime = Date()
+    var i = 0
+    var smallestIndex = 0
+    var smallestSecondsBetween = Long.MAX_VALUE
+    for (item in listOfTime) {
+        val checkTime: Date
+        try {
+            checkTime = sdf.parse(item.time) as Date
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            continue
+        }
+
+        val secondsBetween = getSecondsBetweenTwoDates(currentTime, checkTime)
+        if (secondsBetween in 0 until smallestSecondsBetween) {
+            smallestIndex = i
+            smallestSecondsBetween = secondsBetween
+        }
+        i++
+    }
+
+    return listOfTime[smallestIndex].data.instant.details
+}
+
+fun getSecondsBetweenTwoDates(date1: Date, date2: Date): Long {
+    val diffInMilliseconds = abs(date1.time - date2.time)
+    return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
+}
+
+/** brukes for å hente posisjonen fra state. default hvis null*/
+fun locationToLatLng(loc: Location?): LatLng {
+    if (loc != null) {
+        return LatLng(loc.latitude, loc.longitude)
+    }
+    Log.i("locationToLatLng", "Fant ingen location. Returnerer default LatLng(59.0, 11.0)")
+    return LatLng(59.0, 11.0) //default val i oslofjorden
+}
+
 
 
 

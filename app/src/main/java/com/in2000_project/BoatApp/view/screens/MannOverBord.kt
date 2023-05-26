@@ -68,6 +68,7 @@ fun MannOverbord(
 
     if (state.lastKnownLocation != null && !locationObtained.value) {
         locationObtained.value = true
+        if (!mapViewModel.mapUpdateThread.isRunning)
         mapViewModel.circleCenter.value =
             LatLng(state.circle.coordinates.latitude, state.circle.coordinates.longitude)
     }
