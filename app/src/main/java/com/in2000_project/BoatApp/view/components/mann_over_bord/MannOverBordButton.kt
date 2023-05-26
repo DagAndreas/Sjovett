@@ -50,12 +50,7 @@ fun MannOverBordButton(
 
                 mapViewModel.viewModelScope.launch {
                     // Checks if the coordinate of the user is on land or not.
-                    var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-
-                    while (seaOrLandResponse == null) {
-                        delay(100)
-                        seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-                    }
+                    val seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
 
                     // Continues if the users coordinate returns true on water
                     if (seaOrLandResponse.water) {

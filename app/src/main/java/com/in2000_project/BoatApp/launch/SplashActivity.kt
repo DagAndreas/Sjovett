@@ -7,6 +7,7 @@ import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.Handler
+import android.os.Looper
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.in2000_project.BoatApp.MainActivity
@@ -30,7 +31,7 @@ class SplashActivity : AppCompatActivity() {
         setContentView(R.layout.activity_splash)
         val internet = CheckInternet(cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
         // Delay the start of MainActivity using a Handler
-        Handler().postDelayed({
+        Handler(Looper.getMainLooper()).postDelayed({
             val intent = if (!internet.checkNetwork()) {
                 Intent(this, NoNetworkActivity::class.java)
             } else if (!checkLocationPermission()) {
