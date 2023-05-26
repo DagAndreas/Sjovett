@@ -32,7 +32,7 @@ import kotlin.system.exitProcess
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
 
-    lateinit var locationProviderClient: FusedLocationProviderClient
+    private lateinit var locationProviderClient: FusedLocationProviderClient
     fun setClient(fusedLocationProviderClient: FusedLocationProviderClient) {
         locationProviderClient = fusedLocationProviderClient
     }
@@ -60,14 +60,14 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
 
     // These are for Mann-over-bord
-    val markersMapScreen = mutableListOf<LatLng>()
+    private val markersMapScreen = mutableListOf<LatLng>()
     val polyLinesMap = mutableListOf<PolylineOptions>()
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
     var circleRadius = mutableStateOf(25.0)
     var circleVisibility = mutableStateOf(false)
     var enabled = mutableStateOf(true)
     var timePassedInSeconds = mutableStateOf( 0 )
-    var manIsOverboard = mutableStateOf(false)
+    private var manIsOverboard = mutableStateOf(false)
     var buttonText = "Start søk"
 
     // PopUp
@@ -80,7 +80,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     var mapUpdateThread = MapUpdateThread(this)
     class MapUpdateThread(
-        val mapViewModel: MapViewModel
+        private val mapViewModel: MapViewModel
     ) : Thread() {
         var isRunning = false
         override fun run() {

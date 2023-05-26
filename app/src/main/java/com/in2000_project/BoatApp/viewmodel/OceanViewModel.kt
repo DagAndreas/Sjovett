@@ -14,7 +14,7 @@ class OceanViewModel(urlPath: String): ViewModel() {
     private val _dataSource = ApiDataSource()
     var path: String = urlPath
     var oceanForecastResponseObject: OceanForecastResponse = getOceanForecastResponse()
-    var amountOfTimesFetched = 0
+    private var amountOfTimesFetched = 0
 
     fun getOceanForecastResponse(): OceanForecastResponse{
         viewModelScope.launch {

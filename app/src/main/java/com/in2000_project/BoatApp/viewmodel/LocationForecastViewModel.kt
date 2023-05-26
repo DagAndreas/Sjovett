@@ -1,8 +1,6 @@
 package com.in2000_project.BoatApp.viewmodel
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.TemperatureUiState
 import com.in2000_project.BoatApp.launch.CheckInternet

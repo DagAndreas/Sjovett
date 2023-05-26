@@ -72,7 +72,7 @@ class ApiDataSource {
         Log.d("API_request", "attempting fetchOceanForecastData.launch")
         val response = try {
             client.get {
-                url(path)//path)
+                url(path)
                 headers {
                     append(
                         name = "X-Gravitee-Api-Key",
@@ -93,7 +93,7 @@ class ApiDataSource {
 
     /** Fetches the data from the given path and converts it into a list of cities */
     suspend fun fetchGeoCodeData(path: String): List<City> {
-        Log.i("API_request", "Fetching geodata from $path")
+        Log.i("API_request", "Fetching geo-data from $path")
         val response = try {
             client.get {
                 url(path)

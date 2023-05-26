@@ -14,10 +14,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.CameraPositionState
-import com.in2000_project.BoatApp.view.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
+import com.in2000_project.BoatApp.view.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
@@ -51,6 +51,7 @@ fun MannOverBordButton(
                 mapViewModel.viewModelScope.launch {
                     // Checks if the coordinate of the user is on land or not.
                     var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
+
                     while (seaOrLandResponse == null) {
                         delay(100)
                         seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()

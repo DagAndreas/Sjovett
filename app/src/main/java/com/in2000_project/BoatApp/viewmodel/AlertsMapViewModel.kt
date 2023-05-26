@@ -1,7 +1,6 @@
 package com.in2000_project.BoatApp.viewmodel
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,8 +8,9 @@ import androidx.lifecycle.ViewModel
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.PolygonOptions
-import com.in2000_project.BoatApp.maps.ZoneClusterItem
+import com.in2000_project.BoatApp.data.AlertsMapUiState
 import com.in2000_project.BoatApp.data.MapStateCluster
+import com.in2000_project.BoatApp.maps.ZoneClusterItem
 import com.in2000_project.BoatApp.maps.ZoneClusterManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -64,7 +64,6 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
             )
         }
     }
-
 
     /** Sets up a cluster manager */
     fun setupClusterManager(
