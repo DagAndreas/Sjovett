@@ -33,8 +33,7 @@ fun Sjovettreglene(
 ) {
 
     val imageList = listOf(
-        R.drawable.sjovettreglene_norsk,
-        R.drawable.sjovettreglene_engelsk
+        R.drawable.sjovettreglene_norsk, R.drawable.sjovettreglene_engelsk
     )
 
     ZoomableBox(
@@ -44,15 +43,11 @@ fun Sjovettreglene(
     ) {
 
         LazyColumn(
-            modifier = Modifier
-                .graphicsLayer(
-                    scaleX = scale,
-                    scaleY = scale,
-                    translationX = offsetX,
-                    translationY = offsetY
+            modifier = Modifier.graphicsLayer(
+                    scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY
                 )
         ) {
-            items (imageList) {image ->
+            items(imageList) { image ->
 
                 ElevatedCard(
                     modifier = Modifier
@@ -66,28 +61,24 @@ fun Sjovettreglene(
                     Image(
                         painter = painterResource(id = image),
                         contentDescription = stringResource(R.string.RulesOfTheSea),
-                        modifier = Modifier
-                            .size(LocalConfiguration.current.screenWidthDp.dp * 1.2f)
+                        modifier = Modifier.size(LocalConfiguration.current.screenWidthDp.dp * 1.2f)
                     )
                 }
             }
         }
 
         Box(
-            modifier = Modifier
-                .padding(10.dp)
+            modifier = Modifier.padding(10.dp)
         ) {
             MenuButton(
                 buttonIcon = Icons.Filled.Menu,
                 onButtonClicked = { openMenu() },
                 modifier = Modifier
                     .background(
-                        color = White,
-                        shape = CircleShape
+                        color = White, shape = CircleShape
                     )
                     .border(
-                        border = BorderStroke(1.dp, Black),
-                        shape = CircleShape
+                        border = BorderStroke(1.dp, Black), shape = CircleShape
                     )
                     .padding(10.dp)
                     .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)

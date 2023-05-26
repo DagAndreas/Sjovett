@@ -15,11 +15,12 @@ import io.ktor.serialization.gson.*
 import kotlin.system.exitProcess
 
 class ApiDataSource {
-    private val client = HttpClient{
+    private val client = HttpClient {
         install(ContentNegotiation) {
             gson()
         }
     }
+
 
     /** Fetches the data from the given path and converts it into a LocationForecastResponse object */
     suspend fun fetchLocationForecastData(path: String): LocationForecastResponse {
@@ -29,8 +30,7 @@ class ApiDataSource {
                 url(path)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",
-                        value = BuildConfig.MET_KEY
+                        name = "X-Gravitee-Api-Key", value = BuildConfig.MET_KEY
                     )
                 }
             }.body<LocationForecastResponse>()
@@ -52,8 +52,7 @@ class ApiDataSource {
                 url(path)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",
-                        value = BuildConfig.MET_KEY
+                        name = "X-Gravitee-Api-Key", value = BuildConfig.MET_KEY
                     )
                 }
             }.body<MetAlertsResponse>()
@@ -75,8 +74,7 @@ class ApiDataSource {
                 url(path)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",
-                        value = BuildConfig.MET_KEY
+                        name = "X-Gravitee-Api-Key", value = BuildConfig.MET_KEY
                     )
                 }
             }.body<OceanForecastResponse>()
@@ -99,8 +97,7 @@ class ApiDataSource {
                 url(path)
                 headers {
                     append(
-                        name = "X-Api-Key",
-                        value = BuildConfig.GEO_KEY
+                        name = "X-Api-Key", value = BuildConfig.GEO_KEY
                     )
                 }
             }.body<List<City>>()
@@ -120,8 +117,7 @@ class ApiDataSource {
         Log.i("Fetching SeaOrLand data", "fra $path")
         val response = try {
             client.get(path).body<SeaOrLandResponse>()
-        }
-        catch (e: Exception) {
+        } catch (e: Exception) {
             // General exception
             Log.e("API_request xxx", path)
             Log.e("API_request xxx", e.message.toString())

@@ -88,7 +88,11 @@ fun MannOverBordButton(
             delay(50)
             if (locationObtained.value) {
                 cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom),1500)
+                    CameraUpdateFactory.newLatLngZoom(
+                        locationToLatLng(state.lastKnownLocation),
+                        cameraZoom
+                    ), 1500
+                )
             }
         }
     }

@@ -76,8 +76,7 @@ fun Menu(
                 Icon(
                     imageVector = screen.value,
                     contentDescription = stringResource(R.string.Menu),
-                    modifier = Modifier
-                        .align(Alignment.CenterVertically)
+                    modifier = Modifier.align(Alignment.CenterVertically)
                 )
 
                 Text(

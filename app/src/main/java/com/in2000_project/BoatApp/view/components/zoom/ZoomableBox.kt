@@ -9,6 +9,7 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.unit.IntSize
+
 /** Represents a box that is zoomable */
 @Composable
 fun ZoomableBox(
@@ -22,22 +23,20 @@ fun ZoomableBox(
     var offsetY by remember { mutableStateOf(0f) }
     var size by remember { mutableStateOf(IntSize.Zero) }
 
-    Box(
-        modifier = modifier
-            .clip(RectangleShape)
-            .onSizeChanged { size = it }
-            .pointerInput(Unit) {
-                detectTransformGestures { _, pan, zoom, _ ->
-                    scale = maxOf(minScale, minOf(scale * zoom, maxScale))
-                    val maxX = (size.width * (scale - 1)) / 2
-                    val minX = -maxX
-                    offsetX = maxOf(minX, minOf(maxX, offsetX + pan.x))
-                    val maxY = (size.height * (scale - 1)) / 2
-                    val minY = -maxY
-                    offsetY = maxOf(minY, minOf(maxY, offsetY + pan.y))
-                }
+    Box(modifier = modifier
+        .clip(RectangleShape)
+        .onSizeChanged { size = it }
+        .pointerInput(Unit) {
+            detectTransformGestures { _, pan, zoom, _ ->
+                scale = maxOf(minScale, minOf(scale * zoom, maxScale))
+                val maxX = (size.width * (scale - 1)) / 2
+                val minX = -maxX
+                offsetX = maxOf(minX, minOf(maxX, offsetX + pan.x))
+                val maxY = (size.height * (scale - 1)) / 2
+                val minY = -maxY
+                offsetY = maxOf(minY, minOf(maxY, offsetY + pan.y))
             }
-    ) {
+        }) {
         val scope = ZoomableBoxScopeImpl(scale, offsetX, offsetY)
         scope.content()
     }
@@ -50,7 +49,5 @@ interface ZoomableBoxScope {
 }
 
 private data class ZoomableBoxScopeImpl(
-    override val scale: Float,
-    override val offsetX: Float,
-    override val offsetY: Float
+    override val scale: Float, override val offsetX: Float, override val offsetY: Float
 ) : ZoomableBoxScope

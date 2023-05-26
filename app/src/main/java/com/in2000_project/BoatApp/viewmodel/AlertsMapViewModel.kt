@@ -20,7 +20,7 @@ import javax.inject.Inject
 import kotlin.system.exitProcess
 
 @HiltViewModel
-class AlertsMapViewModel @Inject constructor(): ViewModel() {
+class AlertsMapViewModel @Inject constructor() : ViewModel() {
     private val listOfClusters = mutableListOf<ZoneClusterItem>()
 
     lateinit var locationProviderClient: FusedLocationProviderClient
@@ -30,8 +30,7 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
 
     private val _state = MutableStateFlow(
         MapStateCluster(
-            lastKnownLocation = null,
-            clusterItems = listOfClusters
+            lastKnownLocation = null, clusterItems = listOfClusters
         )
     )
     val state: StateFlow<MapStateCluster> = _state.asStateFlow()
@@ -42,11 +41,8 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
 
     /** Adds the clusters to _state */
     fun addCluster(
-        id: String,
-        title: String,
-        description: String,
-        polygonOptions: PolygonOptions
-    ){
+        id: String, title: String, description: String, polygonOptions: PolygonOptions
+    ) {
         listOfClusters.add(ZoneClusterItem(id, title, description, polygonOptions))
         _state.update {
             it.copy(
@@ -54,6 +50,7 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
             )
         }
     }
+
     /** Clears _state of clusters*/
     fun resetCluster() {
         listOfClusters.clear()

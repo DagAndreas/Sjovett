@@ -14,24 +14,21 @@ import com.in2000_project.BoatApp.R
 
 class NoUserLocation : AppCompatActivity() {
     private fun checkLocationPermission(): Boolean {
-        val fineLocationPermission =
-            ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
+        val fineLocationPermission = ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
         val coarseLocationPermission =
             ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)
-        return fineLocationPermission == PackageManager.PERMISSION_GRANTED &&
-                coarseLocationPermission == PackageManager.PERMISSION_GRANTED
+        return fineLocationPermission == PackageManager.PERMISSION_GRANTED && coarseLocationPermission == PackageManager.PERMISSION_GRANTED
     }
 
-    private val requestPermissionLauncher =
-        registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) {
+    private val requestPermissionLauncher = registerForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) {
 
-        }
+    }
+
     private fun askPermissions() = when (PackageManager.PERMISSION_GRANTED) {
         ContextCompat.checkSelfPermission(
-            this,
-            ACCESS_FINE_LOCATION
+            this, ACCESS_FINE_LOCATION
         ) -> {
 
         }
@@ -46,7 +43,7 @@ class NoUserLocation : AppCompatActivity() {
 
         askPermissions()
 
-        while (!checkLocationPermission()){
+        while (!checkLocationPermission()) {
             /* Waiting patiently */
         }
 

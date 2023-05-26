@@ -10,7 +10,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -29,12 +29,11 @@ import com.in2000_project.BoatApp.view.screens.TidsbrukScreen
 import com.in2000_project.BoatApp.viewmodel.*
 import com.plcoding.bottomnavwithbadges.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
-
     private val viewModel: MapViewModel by viewModels()
     private val alertsMapViewModel = AlertsMapViewModel()
 
@@ -54,7 +53,8 @@ class MainActivity : ComponentActivity() {
                 val temperatureViewModel = LocationForecastViewModel()
                 val context = LocalContext.current
                 val searchViewModel = SearchViewModel(context)
-                val internet = CheckInternet(cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
+                val internet =
+                    CheckInternet(cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
                 val internetPopupState = InternetPopupState()
 
                 Surface(color = MaterialTheme.colors.background) {
@@ -78,8 +78,7 @@ class MainActivity : ComponentActivity() {
                                     navController.navigate(route) {
                                         launchSingleTop = true
                                     }
-                                },
-                                navController = navController
+                                }, navController = navController
                             )
                         },
                         drawerShape = RoundedCornerShape(topEnd = 30.dp, bottomEnd = 30.dp)
@@ -114,36 +113,27 @@ class MainActivity : ComponentActivity() {
                                 )
                             }
                             composable(MenuScreens.TidsbrukScreen.route) {
-                                TidsbrukScreen(
-                                    viewModel = viewModel,
-                                    openMenu = {
-                                        openMenu()
-                                    }
-                                )
+                                TidsbrukScreen(viewModel = viewModel, openMenu = {
+                                    openMenu()
+                                })
                             }
 
                             composable(MenuScreens.Livredning.route) {
-                                Livredning(
-                                    openMenu = {
-                                        openMenu()
-                                    }
-                                )
+                                Livredning(openMenu = {
+                                    openMenu()
+                                })
                             }
 
                             composable(MenuScreens.Sjomerkesystemet.route) {
-                                Sjoemerkesystemet(
-                                    openMenu = {
-                                        openMenu()
-                                    }
-                                )
+                                Sjoemerkesystemet(openMenu = {
+                                    openMenu()
+                                })
                             }
 
                             composable(MenuScreens.Sjovettreglene.route) {
-                                Sjovettreglene(
-                                    openMenu = {
-                                        openMenu()
-                                    }
-                                )
+                                Sjovettreglene(openMenu = {
+                                    openMenu()
+                                })
                             }
                         }
                     }
@@ -157,7 +147,7 @@ class MainActivity : ComponentActivity() {
 sealed class MenuScreens(val title: String, val route: String) {
     object MannOverBord : MenuScreens("Mann over bord", "mannoverbord")
     object Stormvarsel : MenuScreens("Stormvarsel", "stormvarsel")
-    object TidsbrukScreen : MenuScreens( "Reiseplanlegger", "reiseplanlegger")
+    object TidsbrukScreen : MenuScreens("Reiseplanlegger", "reiseplanlegger")
     object Livredning : MenuScreens("Livredning", "livredning")
     object Sjomerkesystemet : MenuScreens("Sjømerkesystemet", "sjomerkesystemet")
     object Sjovettreglene : MenuScreens("Sjøvettreglene", "sjovettreglene")
