@@ -82,8 +82,8 @@ fun Stormvarsel(
      */
     val mapProperties = MapProperties(isMyLocationEnabled = true)
     val mapState by viewModelMap.state.collectAsState()
-    var userLat = mapState.lastKnownLocation?.latitude ?: 0.0
-    var userLng = mapState.lastKnownLocation?.longitude ?: 0.0
+    var userLat = mapState.lastKnownLocation?.latitude ?: 59.9139
+    var userLng = mapState.lastKnownLocation?.longitude ?: 10.7522
     val stormvarselUiState = viewModelAlerts.stormvarselUiState.collectAsState()
     val temperatureUiState = viewModelForecast.temperatureUiState.collectAsState()
     val geoCodeUiState = viewModelSearch.geoCodeUiState.collectAsState()

@@ -4,7 +4,7 @@ import com.in2000_project.BoatApp.model.oceanforecast.Details
 import com.in2000_project.BoatApp.model.oceanforecast.Instant
 import com.in2000_project.BoatApp.model.oceanforecast.Timeseries
 import com.in2000_project.BoatApp.viewmodel.calculateRadius
-import com.in2000_project.BoatApp.viewmodel.findClosestDataToTimestamp
+import com.in2000_project.BoatApp.viewmodel.findClosestDetailsToCurrentTime
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.text.SimpleDateFormat
@@ -54,7 +54,7 @@ class MannOverBordKtTest {
         )
 
         // TODO: Act
-        val closestData = findClosestDataToTimestamp(listOfTime)
+        val closestData = findClosestDetailsToCurrentTime(listOfTime)
 
         // TODO: Assert
         val expectedDetails = detailsB // Create the expected Details object
@@ -80,7 +80,7 @@ class MannOverBordKtTest {
         )
 
         // TODO: Act
-        val closestData = findClosestDataToTimestamp(listOfTime)
+        val closestData = findClosestDetailsToCurrentTime(listOfTime)
 
         // TODO: Assert
         val expectedDetails = detailsB // Create the expected Details object
@@ -107,7 +107,7 @@ class MannOverBordKtTest {
         )
 
         // TODO: Act
-        val closestData = findClosestDataToTimestamp(listOfTime)
+        val closestData = findClosestDetailsToCurrentTime(listOfTime)
 
         // TODO: Assert
         val expectedDetails = detailsC // Create the expected Details object

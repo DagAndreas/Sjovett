@@ -114,7 +114,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
     fun updateMap(waittime: Long) {
         timePassedInSeconds.value += waittime.toInt()
         circleCenter.value =
-            calculateNewPosition(circleCenter.value, oceanViewModel, waittime.toDouble() / 60.0)
+            calculateNewDriftedPosition(circleCenter.value, oceanViewModel, waittime.toDouble() / 60.0)
         circleRadius.value = calculateRadius(timePassedInSeconds.value / 60)
     }
 
@@ -265,8 +265,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
     /** Sets the new speed for the handle in Reiseplanlegger*/
     fun handleSpeedChange(value: Float) {
         speedNumber.value = value.roundToInt().toFloat()
-        lengthInMinutes.value =
-            calculateTimeInMinutes(distanceInMeters.value, speedNumber.value)
+        lengthInMinutes.value = calculateTimeInMinutes(distanceInMeters.value, speedNumber.value)
         updateDisplayedText()
         updateLocation()
     }
@@ -317,8 +316,11 @@ class MapViewModel @Inject constructor() : ViewModel() {
 }
 
 
-/** Calculates the new position of the center in projected search-area in Mann-over-bord  */
-fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng {
+/** Calculates the new position of the center in projected search-area in Mann-over-bord.
+ *  Also checks if the person also has drifted more than 400 meters in  N/S/E/W direction.
+ *      If that is the case, also update the oceanforecast to the new grid's measures.
+ * */
+fun calculateNewDriftedPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Double): LatLng {
     Log.i("MapScreen", "New Pos from $personCoordinate")
     val dataCoordinate = ovm.oceanForecastResponseObject.geometry.coordinates
     val dataLatLng = LatLng(dataCoordinate[1], dataCoordinate[0])
@@ -329,14 +331,9 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
     }
     //Finds the Timesery (object with oceandata) that is closest timestamp
     val forecastDetails =
-        findClosestDataToTimestamp(ovm.oceanForecastResponseObject.properties.timeseries)
+        findClosestDetailsToCurrentTime(ovm.oceanForecastResponseObject.properties.timeseries)
 
-    Log.i(
-        "MapScreen Wave",
-        "seawaterspeed: ${forecastDetails.sea_water_speed}, seawaterdirection: ${forecastDetails.sea_water_to_direction}, datapos: ${ovm.oceanForecastResponseObject.geometry.coordinates}"
-    )
-
-    return calculatePosition(
+    return calculateNewPositionFromWaveData(
         listOf(personCoordinate.latitude, personCoordinate.longitude),
         forecastDetails.sea_surface_wave_from_direction,
         forecastDetails.sea_water_speed,
@@ -346,7 +343,7 @@ fun calculateNewPosition(personCoordinate: LatLng, ovm: OceanViewModel, time: Do
 
 /** Fetches the list of wave data closest to the current time. */
 @SuppressLint("SimpleDateFormat")
-fun findClosestDataToTimestamp(listOfTime: List<Timeseries>): Details {
+fun findClosestDetailsToCurrentTime(listOfTime: List<Timeseries>): Details {
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'")
     val currentTime = Date()
     var i = 0
@@ -361,7 +358,7 @@ fun findClosestDataToTimestamp(listOfTime: List<Timeseries>): Details {
             continue
         }
 
-        val secondsBetween = getSecondsBetween(currentTime, checkTime)
+        val secondsBetween = getSecondsBetweenTwoDates(currentTime, checkTime)
         if (secondsBetween in 0 until smallestSecondsBetween) {
             smallestIndex = i
             smallestSecondsBetween = secondsBetween
@@ -372,7 +369,7 @@ fun findClosestDataToTimestamp(listOfTime: List<Timeseries>): Details {
     return listOfTime[smallestIndex].data.instant.details
 }
 
-fun getSecondsBetween(date1: Date, date2: Date): Long {
+fun getSecondsBetweenTwoDates(date1: Date, date2: Date): Long {
     val diffInMilliseconds = abs(date1.time - date2.time)
     return TimeUnit.MILLISECONDS.toSeconds(diffInMilliseconds)
 }
@@ -388,24 +385,24 @@ fun locationToLatLng(loc: Location?): LatLng {
 
 /** Returns a coordinate given a coordinate, how fast the water is moving at the coordinate, which way the water is moving and how long it has been since last iteration.
  * Uses trigonometrics to calculate the new coordinate */
-fun calculatePosition(
+fun calculateNewPositionFromWaveData(
     coordinatesStart: List<Double>,
     seaMovementDirection: Double,
     seaWaterSpeedInMeters: Double,
-    timeCheckingFor: Double
+    timeCheckingForInMinutes: Double
 ): LatLng {
 
-    // Convert degrees to radians
+    // Convert from degrees to radians
     val waveFromInRadians = Math.toRadians(seaMovementDirection)
     val earthRadiusInKm = 6371
     val startLatInRadians = Math.toRadians(coordinatesStart[0])
     val startLngInRadians = Math.toRadians(coordinatesStart[1])
 
-    // Convert meters per second to kilometers per hour
+    // m/s -> km/h
     val waterSpeedInKmPerHour = seaWaterSpeedInMeters * 3.6
 
     // Convert the time interval to hours
-    val timeIntervalInHours = timeCheckingFor / 60.0
+    val timeIntervalInHours = timeCheckingForInMinutes / 60.0
 
     // Calculate the distance traveled by the object in the given time interval
     val distanceInKm = waterSpeedInKmPerHour * timeIntervalInHours
@@ -421,7 +418,7 @@ fun calculatePosition(
         cos(distanceInKm / earthRadiusInKm) - sin(startLatInRadians) * sin(newLatInRadians)
     )
 
-    // Convert the new latitude and longitude back to degrees
+    // Convert back from radians to degrees
     val newLat = Math.toDegrees(newLatInRadians)
     val newLng = Math.toDegrees(newLngInRadians)
 
@@ -432,7 +429,7 @@ fun calculatePosition(
 /** Calculates the radius of the search-area */
 fun calculateRadius(minutes: Int): Double {
     val newRadius: Double = minutes * 5.0
-    return if (newRadius > 200.0) 200.0
+    return if (newRadius > 575.0) 575.0
     else if (newRadius < 25.0) 25.0
     else newRadius
 }
