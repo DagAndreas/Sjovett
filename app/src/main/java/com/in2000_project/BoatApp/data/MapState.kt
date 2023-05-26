@@ -4,6 +4,5 @@ import android.location.Location
 
 /** Holds the state of a map  */
 data class MapState(
-    val lastKnownLocation: Location?,
-    val circle: CircleState
+    val lastKnownLocation: Location?, val circle: CircleState
 )

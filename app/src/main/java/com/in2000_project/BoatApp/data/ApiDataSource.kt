@@ -5,7 +5,8 @@ import com.example.gruppe_16.model.locationforecast.LocationForecastResponse
 import com.example.gruppe_16.model.metalerts.MetAlertsResponse
 import com.in2000_project.BoatApp.BuildConfig
 import com.in2000_project.BoatApp.model.geoCode.City
-import com.in2000_project.BoatApp.model.oceanforecast.*
+import com.in2000_project.BoatApp.model.oceanforecast.OceanForecastResponse
+import com.in2000_project.BoatApp.model.oceanforecast.getEmptyOceanForecastResponse
 import com.in2000_project.BoatApp.model.seaOrLand.SeaOrLandResponse
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -36,8 +37,7 @@ class ApiDataSource {
             }.body<LocationForecastResponse>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             exitProcess(0)
         }
         Log.d("API_request", "fetchLocationForecastData.launch success, response: $response")
@@ -58,8 +58,7 @@ class ApiDataSource {
             }.body<MetAlertsResponse>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             exitProcess(0)
         }
         Log.d("API_request", "fetchMetAlertsData.launch success, response: $response")
@@ -68,7 +67,7 @@ class ApiDataSource {
 
     /** Fetches the data from the given path and converts it into a OceanForecastResponse object */
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
-        Log.d("API_request", "attempting fetchOceanForecastData.launch")
+        Log.d("API_request", "Ocean: $path")
         val response = try {
             client.get {
                 url(path)
@@ -80,8 +79,7 @@ class ApiDataSource {
             }.body<OceanForecastResponse>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             return getEmptyOceanForecastResponse()
         }
 
@@ -103,8 +101,7 @@ class ApiDataSource {
             }.body<List<City>>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             exitProcess(0)
         }
 
@@ -116,14 +113,25 @@ class ApiDataSource {
     suspend fun fetchSeaOrLandResponse(path: String): SeaOrLandResponse {
         Log.i("Fetching SeaOrLand data", "fra $path")
         val response = try {
-            client.get(path).body<SeaOrLandResponse>()
+            client.get {
+                url(path)
+                headers {
+                    append("X-RapidAPI-Key", BuildConfig.SEAORLAND_KEY)
+                    append("X-RapidAPI-Host", "isitwater-com.p.rapidapi.com")
+                }
+            }.body<SeaOrLandResponse>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             exitProcess(0)
         }
         Log.i("API_request", "ApiData_Source_SeaOrLand success, response: $response")
         return response
     }
+}
+
+
+fun logError(path: String, e: Exception) {
+    Log.e("API_request error:", path)
+    Log.e("API_request error:", e.message.toString())
 }
