@@ -17,7 +17,7 @@ class MapUpdateThread(
             mapViewModel.updateMap(sleepDelay)
             mapViewModel.updateMarkerAndPolyLines()
             // in milliseconds, this function waits 2 seconds between each update
-            sleep(sleepDelay * 100)
+            sleep(sleepDelay * 1000)
         }
         isRunning = false
     }

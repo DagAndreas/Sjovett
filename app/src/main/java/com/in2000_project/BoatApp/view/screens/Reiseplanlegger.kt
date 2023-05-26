@@ -44,7 +44,6 @@ import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.view.components.InfoPopup
 import com.in2000_project.BoatApp.view.components.navigation.MenuButton
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import com.plcoding.bottomnavwithbadges.ui.theme.*
 import kotlin.math.*
 
