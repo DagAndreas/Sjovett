@@ -29,14 +29,6 @@ import javax.inject.Inject
 import kotlin.math.*
 import kotlin.system.exitProcess
 
-
-/** Update this variable to test the tracking of "MannOverbord"
- * mannoverbordOppdatering = 1 means tracking 2 seconds every other second
- * mannoverbordOppdatering = 60 simulates 120 seconds of tracking every other second.
- * */
-const val mannOverbordOppdatering = 1
-
-
 @HiltViewModel
 class MapViewModel @Inject constructor() : ViewModel() {
 
@@ -47,8 +39,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
     private val _state = MutableStateFlow(
         MapState(
-            lastKnownLocation = null,
-            circle = CircleState(
+            lastKnownLocation = null, circle = CircleState(
                 coordinates = LatLng(59.0373, 10.5883), //default 59, 10.5. Oslofjorden.
                 radius = 25.0
             )
@@ -91,28 +82,6 @@ class MapViewModel @Inject constructor() : ViewModel() {
 
     var mapUpdateThread = MapUpdateThread(this)
 
-    class MapUpdateThread(
-        private val mapViewModel: MapViewModel
-    ) : Thread() {
-        var isRunning = false
-        override fun run() {
-            Log.i("thread start pos", "${mapViewModel.circleCenter.value}")
-            mapViewModel.oceanViewModel.setPath(mapViewModel.circleCenter.value)
-            mapViewModel.oceanViewModel.getOceanForecastResponse()
-            isRunning = true
-            sleep(800) // Sleeps to ensure that data has been collected from oceanforecastobject
-            val sleepDelay: Long = 2 // seconds
-            while (isRunning) {
-                // sleepDelay counts the seconds between updates, sleepDelay*30 will simulate 60 seconds every 2 seconds
-                mapViewModel.updateMap(sleepDelay * mannOverbordOppdatering)
-                mapViewModel.updateMarkerAndPolyLines()
-                // in milliseconds, this function waits 2 seconds between each update
-                sleep(sleepDelay * 1000)
-            }
-            isRunning = false
-        }
-    }
-
     /** Resets search-area data */
     fun restartButton() {
         mapUpdateThread.isRunning = false
@@ -128,16 +97,15 @@ class MapViewModel @Inject constructor() : ViewModel() {
     /** Starts the thread that updates the projected search-area */
     fun startButton(state: Location?, pos: LatLng) {
         circleCenter.value = locationToLatLng(state)
-        oceanViewModel.setPath(circleCenter.value)
-        oceanViewModel.getOceanForecastResponse()
         circleVisibility.value = true
         enabled.value = true
         manIsOverboard.value = true
+        oceanViewModel.setPath(circleCenter.value)
+        oceanViewModel.getOceanForecastResponse()
         markersMapScreen.add(pos)
         mapUpdateThread = MapUpdateThread(this)
         mapUpdateThread.start()
     }
-
 
     fun updateMap(waittime: Long) {
         timePassedInSeconds.value += waittime.toInt()
@@ -151,8 +119,7 @@ class MapViewModel @Inject constructor() : ViewModel() {
         markersMapScreen.add(circleCenter.value)
         if (markersMapScreen.size > 1) {
             val lastPosition = markersMapScreen[markersMapScreen.size - 2]
-            val options = PolylineOptions()
-                .add(lastPosition, markersMapScreen.last())
+            val options = PolylineOptions().add(lastPosition, markersMapScreen.last())
                 .color(android.graphics.Color.BLACK)
             polyLinesMap.add(options)
         }
@@ -321,13 +288,13 @@ fun locationToLatLng(loc: Location?): LatLng {
  * Uses trigonometrics to calculate the new coordinate */
 fun calculatePosition(
     coordinatesStart: List<Double>,
-    seaSurfaceWaveToDegrees: Double,
+    seaMovementDirection: Double,
     seaWaterSpeedInMeters: Double,
     timeCheckingFor: Double
 ): LatLng {
 
     // Convert degrees to radians
-    val waveFromInRadians = Math.toRadians(seaSurfaceWaveToDegrees)
+    val waveFromInRadians = Math.toRadians(seaMovementDirection)
     val earthRadiusInKm = 6371
     val startLatInRadians = Math.toRadians(coordinatesStart[0])
     val startLngInRadians = Math.toRadians(coordinatesStart[1])
@@ -356,6 +323,7 @@ fun calculatePosition(
     val newLat = Math.toDegrees(newLatInRadians)
     val newLng = Math.toDegrees(newLngInRadians)
 
+    Log.i("Calulated position", "${distanceInKm * 1000}m towards $seaMovementDirection")
     return LatLng(newLat, newLng)
 }
 

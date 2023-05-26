@@ -46,10 +46,11 @@ fun MannOverBordButton(
                 mapViewModel.updateLocation()
                 val pos = locationToLatLng(state.lastKnownLocation)
                 val seaOrLandViewModel =
-                    SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&")
+                    SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}")
 
                 mapViewModel.viewModelScope.launch {
                     // Checks if the coordinate of the user is on land or not.
+
                     val seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
 
                     // Continues if the users coordinate returns true on water
