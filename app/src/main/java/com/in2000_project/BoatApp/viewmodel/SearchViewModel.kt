@@ -7,14 +7,17 @@ import androidx.lifecycle.viewModelScope
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.GeoCodeUiState
-import com.in2000_project.BoatApp.model.geoCode.CityName
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
-import kotlinx.coroutines.*
+import com.in2000_project.BoatApp.model.geoCode.CityName
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.launch
 
 
-class SearchViewModel(context: Context): ViewModel() {
+class SearchViewModel(context: Context) : ViewModel() {
     private val _dataSource = ApiDataSource()
     private val _geoCodeUiState = MutableStateFlow(GeoCodeUiState())
     val geoCodeUiState = _geoCodeUiState.asStateFlow()
@@ -29,19 +32,19 @@ class SearchViewModel(context: Context): ViewModel() {
     private val _cities = MutableStateFlow(getAllCities(array.toList()))
 
     val cities = locationSearch
-        .onEach { _searchInProgress.update{true}}
-        .combine(_cities){ text, cities ->
-            if(text.isBlank()){
+        .onEach { _searchInProgress.update { true } }
+        .combine(_cities) { text, cities ->
+            if (text.isBlank()) {
                 // Shows the entire list if the user does not type anything
                 cities
-            }else{
+            } else {
                 delay(500L)
-                cities.filter{
+                cities.filter {
                     it.matchesSearch(text)
                 }
             }
         }
-        .onEach{_searchInProgress.update{false}}
+        .onEach { _searchInProgress.update { false } }
         .stateIn(
             viewModelScope,
             SharingStarted.WhileSubscribed(5000),
@@ -49,18 +52,22 @@ class SearchViewModel(context: Context): ViewModel() {
         )
 
 
-    fun onSearchChange(text: String){
+    fun onSearchChange(text: String) {
         _locationSearch.value = text.replace("\n", "")
     }
 
 
-    suspend fun fetchCityData(cityName: String, connection: CheckInternet, internetPopupState: InternetPopupState) {
+    suspend fun fetchCityData(
+        cityName: String,
+        connection: CheckInternet,
+        internetPopupState: InternetPopupState
+    ) {
         if (!connection.checkNetwork()) { // Stops the use of internet actions, if internet is not connected
             Log.e("Internet connection", "Not connected!")
             internetPopupState.checkInternetPopup.value = true
         } else {
             internetPopupState.checkInternetPopup.value = false
-            _locationSearch.update{
+            _locationSearch.update {
                 cityName
             }
             CoroutineScope(Dispatchers.IO).launch {
@@ -80,9 +87,9 @@ class SearchViewModel(context: Context): ViewModel() {
 }
 
 
-fun getAllCities(cities: List<String>): MutableList<CityName>{
+fun getAllCities(cities: List<String>): MutableList<CityName> {
     val listOfCities = emptyList<CityName>().toMutableList()
-    for(city in cities){
+    for (city in cities) {
         listOfCities.add(CityName(city, "Norway"))
     }
     return listOfCities

@@ -1,14 +1,28 @@
+
+Installasjonsguide:
+
+     1. Klon GitHub-prosjektet / Unzip prosjektmappen.
+     2. Åpne prosjektet i Android Studio.
+     3. Naviger deg til README.md.
+     4. Kopier de tre nøklene og lim dem inn nederst i local.properties.
+     5. Kopier dependencies og lim dem inn i build.gradle (Module: App). Du kan lime over andre dependencies som allerede ligger der.
+     6. Trykk på Sync Now i meldingen som kommer over kodeboksen.
+     7. Åpne Device Manager, trykk på Create device og velg Pixel 2 med API-level 28.
+     8. Start emulatoren, åpne Extended controls (tre prikker over hverandre)
+     9. Under Location dra kartet til Norge og trykk på et sted langs kysten. Trykk på SAVE POINT og deretter Set location.
+    10. Start appen med å trykke på den grønne pilen i menyen øverst.
+
 legg inn i local.properties:
 
-    GOOGLE_MAPS_API_KEY=AIzaSyCtUtAv6RFDzClFOc8LbxK5B5cRybtb1KI
-    MET_KEY=dc1732ae-a8a0-4dd5-8052-26094bfbca11
-    GEO_KEY="Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
+    GOOGLE_MAPS_API_KEY = AIzaSyCtUtAv6RFDzClFOc8LbxK5B5cRybtb1KI
+    MET_KEY = dc1732ae-a8a0-4dd5-8052-26094bfbca11
+    GEO_KEY = "Ef8bkbpLK+TeaAk43qgYqw==mZBU9A3ckObEAYY7"
+    SEAORLAND_KEY = "6e4ec9b570msh7ec67a9af607dbdp1fce72jsnddb99294423f"
 
 
 gradle.build:
 
     dependencies {
-
         implementation "androidx.core:core-ktx:1.9.0"
         implementation "androidx.core:core:1.9.0"
         implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
@@ -34,6 +48,8 @@ gradle.build:
 
         // Hilt
         implementation "com.google.dagger:hilt-android:2.42"
+        implementation 'junit:junit:4.12'
+        implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
         kapt "com.google.dagger:hilt-compiler:2.42"
 
         //Ikoner
@@ -63,9 +79,6 @@ gradle.build:
         implementation"androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
         implementation"androidx.compose.runtime:runtime-livedata:$compose_version"
 
-        //coil er for å laste ned bilder
-        implementation("io.coil-kt:coil:2.2.2")
-        implementation("io.coil-kt:coil-compose:2.2.2")
         implementation 'com.google.android.material:material:1.5.0'
         implementation "androidx.compose.material3:material3:1.1.0-alpha03" // Material 3
 
@@ -77,30 +90,7 @@ gradle.build:
         implementation"io.ktor:ktor-client-content-negotiation:$ktor_version"
         implementation"io.ktor:ktor-serialization-gson:$ktor_version"
         implementation "io.ktor:ktor-serialization-kotlinx-json:$ktor_version"
+
+        implementation "androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1"
+
     }
-
-
-# In2000-Prosjekt
-Lag og push alltid til en egen branch. Aldri til main. På den måten holder vi main-branchen fri for bugs.
-Det anbefales å bruke ssh-nøkkel: [Guide til ssh-nøkkel og github her](https://www.uio.no/tjenester/it/maskin/filer/versjonskontroll/github.html#ssh-nokler)
-
-
-Steg:
-1. git clone [repo](https://github.uio.no/dafolvel/In2000-Prosjekt.git)
-2. git branch [branch_navn] //uten anførselstegn
-3. git checkout [branch_navn]
-4. // TO DO: gjør koden
-5. git add .
-6. git commit -m "[kort beskrivelse av endringene]"
-7. git push --set-upstream origin [branch_navn]
-8. [Åpne Prosjektet](https://github.uio.no/dafolvel/In2000-Prosjekt)
-9. trykk på "Pull requests"
-10. "New Pull request"
-11. Base: main <- Compare: [branch_navn]
-12. Create pull request
-
-13. Skriv kommentar av endringene du gjorde
-14. Assign deg og de som gjorde enrdingene
-15. Reviewers for de som skal se gjennom og godkjenne
-16. Create pull request
-17. Ta en paus

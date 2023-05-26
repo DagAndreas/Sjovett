@@ -14,10 +14,10 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.CameraPositionState
-import com.in2000_project.BoatApp.view.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
+import com.in2000_project.BoatApp.view.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
@@ -46,15 +46,11 @@ fun MannOverBordButton(
                 mapViewModel.updateLocation()
                 val pos = locationToLatLng(state.lastKnownLocation)
                 val seaOrLandViewModel =
-                    SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
+                    SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&")
 
                 mapViewModel.viewModelScope.launch {
                     // Checks if the coordinate of the user is on land or not.
-                    var seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-                    while (seaOrLandResponse == null) {
-                        delay(100)
-                        seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-                    }
+                    val seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
 
                     // Continues if the users coordinate returns true on water
                     if (seaOrLandResponse.water) {
@@ -63,7 +59,7 @@ fun MannOverBordButton(
 
 
                         if (!mapViewModel.mapUpdateThread.isRunning) {
-                            mapViewModel.startButton(state.lastKnownLocation, pos, "")
+                            mapViewModel.startButton(state.lastKnownLocation, pos)
                             mapViewModel.buttonText = "Stopp søk"
                         } else {
                             mapViewModel.showDialog = true
@@ -92,7 +88,11 @@ fun MannOverBordButton(
             delay(50)
             if (locationObtained.value) {
                 cameraPositionState.animate(
-                    CameraUpdateFactory.newLatLngZoom(locationToLatLng(state.lastKnownLocation), cameraZoom),1500)
+                    CameraUpdateFactory.newLatLngZoom(
+                        locationToLatLng(state.lastKnownLocation),
+                        cameraZoom
+                    ), 1500
+                )
             }
         }
     }

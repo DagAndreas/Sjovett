@@ -15,29 +15,28 @@ import io.ktor.serialization.gson.*
 import kotlin.system.exitProcess
 
 class ApiDataSource {
-    private val client = HttpClient{
+    private val client = HttpClient {
         install(ContentNegotiation) {
             gson()
         }
     }
 
+
     /** Fetches the data from the given path and converts it into a LocationForecastResponse object */
     suspend fun fetchLocationForecastData(path: String): LocationForecastResponse {
-        Log.i("Fetching LocationData", "fra $path")
+        Log.i("Fetching LocationData", "from $path")
         val response = try {
             client.get {
                 url(path)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",
-                        value = BuildConfig.MET_KEY
+                        name = "X-Gravitee-Api-Key", value = BuildConfig.MET_KEY
                     )
                 }
             }.body<LocationForecastResponse>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             exitProcess(0)
         }
         Log.d("API_request", "fetchLocationForecastData.launch success, response: $response")
@@ -52,15 +51,13 @@ class ApiDataSource {
                 url(path)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",
-                        value = BuildConfig.MET_KEY
+                        name = "X-Gravitee-Api-Key", value = BuildConfig.MET_KEY
                     )
                 }
             }.body<MetAlertsResponse>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             exitProcess(0)
         }
         Log.d("API_request", "fetchMetAlertsData.launch success, response: $response")
@@ -69,21 +66,19 @@ class ApiDataSource {
 
     /** Fetches the data from the given path and converts it into a OceanForecastResponse object */
     suspend fun fetchOceanForecastData(path: String): OceanForecastResponse {
-        Log.d("API_request", "attempting fetchOceanForecastData.launch")
+        Log.d("API_request", "Ocean: $path")
         val response = try {
             client.get {
-                url(path)//path)
+                url(path)
                 headers {
                     append(
-                        name = "X-Gravitee-Api-Key",
-                        value = BuildConfig.MET_KEY
+                        name = "X-Gravitee-Api-Key", value = BuildConfig.MET_KEY
                     )
                 }
             }.body<OceanForecastResponse>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             return getEmptyOceanForecastResponse()
         }
 
@@ -93,21 +88,19 @@ class ApiDataSource {
 
     /** Fetches the data from the given path and converts it into a list of cities */
     suspend fun fetchGeoCodeData(path: String): List<City> {
-        Log.i("API_request", "Fetching geodata from $path")
+        Log.i("API_request", "Fetching geo-data from $path")
         val response = try {
             client.get {
                 url(path)
                 headers {
                     append(
-                        name = "X-Api-Key",
-                        value = BuildConfig.GEO_KEY
+                        name = "X-Api-Key", value = BuildConfig.GEO_KEY
                     )
                 }
             }.body<List<City>>()
         } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             exitProcess(0)
         }
 
@@ -119,15 +112,25 @@ class ApiDataSource {
     suspend fun fetchSeaOrLandResponse(path: String): SeaOrLandResponse {
         Log.i("Fetching SeaOrLand data", "fra $path")
         val response = try {
-            client.get(path).body<SeaOrLandResponse>()
-        }
-        catch (e: Exception) {
+            client.get {
+                url(path)
+                headers {
+                    append("X-RapidAPI-Key", BuildConfig.SEAORLAND_KEY)
+                    append("X-RapidAPI-Host", "isitwater-com.p.rapidapi.com")
+                }
+            }.body<SeaOrLandResponse>()
+        } catch (e: Exception) {
             // General exception
-            Log.e("API_request xxx", path)
-            Log.e("API_request xxx", e.message.toString())
+            logError(path, e)
             exitProcess(0)
         }
         Log.i("API_request", "ApiData_Source_SeaOrLand success, response: $response")
         return response
     }
+}
+
+
+fun logError(path: String, e: Exception){
+    Log.e("API_request error:", path)
+    Log.e("API_request error:", e.message.toString())
 }

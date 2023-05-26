@@ -7,7 +7,7 @@ data class CityName(
     /** Opens up for different formats of input-string*/
     fun matchesSearch(search: String): Boolean{ //de forskjellige gyldige søkene
         val combinations = listOf(
-            "$name",
+            name,
             "$name, $country",
             "$name,$country",
             "$name $country",

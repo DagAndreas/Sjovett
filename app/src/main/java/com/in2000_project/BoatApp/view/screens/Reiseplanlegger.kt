@@ -1,11 +1,11 @@
 package com.in2000_project.BoatApp.view.screens
 
 import InfoButton
-import com.in2000_project.BoatApp.view.components.navigation.MenuButton
 import android.R.attr.*
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
+import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -42,7 +42,9 @@ import com.google.maps.android.compose.*
 import com.in2000_project.BoatApp.R
 import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.view.components.InfoPopup
+import com.in2000_project.BoatApp.view.components.navigation.MenuButton
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
+import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import com.plcoding.bottomnavwithbadges.ui.theme.*
 import kotlin.math.*
 
@@ -50,8 +52,7 @@ import kotlin.math.*
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun TidsbrukScreen(
-    viewModel: MapViewModel = viewModel(),
-    openMenu: () -> Unit
+    viewModel: MapViewModel = viewModel(), openMenu: () -> Unit
 ) {
     viewModel.updateLocation()
 
@@ -62,11 +63,65 @@ fun TidsbrukScreen(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(65.0, 14.0), 4f)
     }
+
     val mapProperties = MapProperties(isMyLocationEnabled = true)
 
+    // Handles changes to the speed slider
+    val onSpeedChanged: (Float) -> Unit = { value ->
+        viewModel.speedNumber.value = value.roundToInt().toFloat()
+        viewModel.lengthInMinutes.value =
+            calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
+        viewModel.updateDisplayedText()
+        viewModel.updateLocation()
+    }
+
+    // Handles long presses on the map
+    val onLongPress: (LatLng) -> Unit = { position ->
+        if (!viewModel.lockMarkers.value) {
+            // Updates the current location
+            viewModel.updateLocation()
+            if (viewModel.markerPositions.isEmpty()) {
+                viewModel.markerPositions += position
+                viewModel.coordinatesToFindDistanceBetween.add(position)
+            } else {
+                // Updates the first marker position to the current location
+                if (viewModel.usingMyPositionTidsbruk.value) {
+                    viewModel.markerPositions[0] = locationToLatLng(state.lastKnownLocation!!)
+                    if (viewModel.polyLines.size >= 1) {
+                        val updatedFirstPolyLine = PolylineOptions().add(
+                                viewModel.markerPositions[0],
+                                viewModel.markerPositions[1]
+                            ).color(android.graphics.Color.RED)
+                        viewModel.polyLines[0] = updatedFirstPolyLine
+                    }
+                }
+                // Adds the new marker position and coordinate for calculating distance
+                viewModel.markerPositions.add(position)
+                viewModel.coordinatesToFindDistanceBetween.add(position)
+
+
+                // Adds a new polyline between the last two markers
+                val lastPosition = viewModel.markerPositions[viewModel.markerPositions.size - 2]
+                val options =
+                    PolylineOptions().add(lastPosition, position).color(android.graphics.Color.RED)
+
+                viewModel.polyLines.add(options)
+
+                if (viewModel.coordinatesToFindDistanceBetween.size > 1) {
+                    viewModel.distanceInMeters.value =
+                        calculateDistance(viewModel.coordinatesToFindDistanceBetween)
+                    viewModel.lengthInMinutes.value = calculateTimeInMinutes(
+                        viewModel.distanceInMeters.value,
+                        viewModel.speedNumber.value
+                    )
+                }
+            }
+            viewModel.updateDisplayedText()
+        }
+    }
+
     // The sheet that is on the bottom of the screen
-    BottomSheetScaffold(
-        sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
+    BottomSheetScaffold(sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
         sheetBackgroundColor = White,
         sheetContent = {
 
@@ -82,8 +137,7 @@ fun TidsbrukScreen(
                         .fillMaxWidth(0.2f)
                         .fillMaxHeight(0.01f)
                         .background(
-                            color = LightGrey,
-                            shape = RoundedCornerShape(5.dp)
+                            color = LightGrey, shape = RoundedCornerShape(5.dp)
                         )
                 )
                 Text(
@@ -96,8 +150,7 @@ fun TidsbrukScreen(
                 )
 
                 Row(
-                    modifier = Modifier
-                        .padding(top = 20.dp)
+                    modifier = Modifier.padding(top = 20.dp)
                 ) {
                     Text(
                         text = stringResource(R.string.SpeedInKnots) + viewModel.speedNumber.value.toInt(),
@@ -107,21 +160,21 @@ fun TidsbrukScreen(
                 }
 
                 Row(
-                    modifier = Modifier
-                        .height(50.dp)
+                    modifier = Modifier.height(50.dp)
                 ) {
                     Box(
                         modifier = Modifier
                             .height(30.dp)
                             .background(
-                                color = LightGrey,
-                                shape = RoundedCornerShape(40.dp))
+                                color = LightGrey, shape = RoundedCornerShape(40.dp)
+                            )
                             .align(Alignment.CenterVertically)
+
                     ) {
                         // choose knots
                         Slider(
                             value = viewModel.speedNumber.value,
-                            onValueChange = viewModel::onSpeedChanged,
+                            onValueChange = onSpeedChanged,
                             valueRange = 0f..50f,
                             modifier = Modifier
                                 .padding(5.dp)
@@ -142,13 +195,13 @@ fun TidsbrukScreen(
                     Checkbox(
                         checked = viewModel.usingMyPositionTidsbruk.value,
                         onCheckedChange = {
+
                             useOwnLocation(state, viewModel)
+
                         },
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically),
+                        modifier = Modifier.align(Alignment.CenterVertically),
                         colors = CheckboxDefaults.colors(
-                            uncheckedColor = LightGrey,
-                            checkedColor = Green
+                            uncheckedColor = LightGrey, checkedColor = Green
                         ),
                         enabled = !viewModel.lockMarkers.value
                     )
@@ -156,20 +209,19 @@ fun TidsbrukScreen(
                     Text(
                         text = stringResource(R.string.StartFromCurrentPosition),
                         fontSize = 13.sp,
-                        modifier = Modifier
-                            .align(Alignment.CenterVertically)
+                        modifier = Modifier.align(Alignment.CenterVertically)
                     )
                 }
                 Row(
-                    modifier = Modifier
-                        .padding(bottom = 20.dp)
+                    modifier = Modifier.padding(bottom = 20.dp)
                 ) {
 
-                    if(!viewModel.lockMarkers.value) {
+                    if (!viewModel.lockMarkers.value) {
                         Button(
-                            onClick = { viewModel.lockMarkers.value = !viewModel.lockMarkers.value },
-                            modifier = Modifier
-                                .width(LocalConfiguration.current.screenWidthDp.dp * 0.35f),
+                            onClick = {
+                                viewModel.lockMarkers.value = !viewModel.lockMarkers.value
+                            },
+                            modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp * 0.35f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = Green
                             )
@@ -178,28 +230,30 @@ fun TidsbrukScreen(
                         }
                         // remove marker
                         Button(
-                            onClick = { if(!viewModel.lockMarkers.value) { viewModel.removeLastMarker() } },
+                            onClick = {
+                                if (!viewModel.lockMarkers.value) {
+                                    viewModel.removeLastMarker()
+                                }
+                            },
                             enabled = !viewModel.markerPositions.isEmpty() && !(viewModel.usingMyPositionTidsbruk.value && viewModel.markerPositions.size == 1),
                             colors = ButtonDefaults.buttonColors(
-                                containerColor = LightRed,
-                                disabledContainerColor = LightGrey
+                                containerColor = LightRed, disabledContainerColor = LightGrey
                             ),
-                            modifier = Modifier
-                                .padding(start = 8.dp)
+                            modifier = Modifier.padding(start = 8.dp)
 
                         ) {
                             Text(
                                 text = stringResource(R.string.RemoveMarker),
-                                modifier = Modifier
-                                    .align(Alignment.CenterVertically)
+                                modifier = Modifier.align(Alignment.CenterVertically)
                             )
                         }
                     } else {
                         // lock or unlock route
                         Button(
-                            onClick = { viewModel.lockMarkers.value = !viewModel.lockMarkers.value },
-                            modifier = Modifier
-                                .width(LocalConfiguration.current.screenWidthDp.dp * 0.35f),
+                            onClick = {
+                                viewModel.lockMarkers.value = !viewModel.lockMarkers.value
+                            },
+                            modifier = Modifier.width(LocalConfiguration.current.screenWidthDp.dp * 0.35f),
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = LightRed
                             )
@@ -216,24 +270,24 @@ fun TidsbrukScreen(
                         )
 
                         Text(
-                            text = viewModel.travelTimeText.value,
+                            text = viewModel.displayedText.value,
                             textAlign = TextAlign.Center,
-                            modifier = Modifier
-                                .align(Alignment.CenterVertically)
+                            modifier = Modifier.align(Alignment.CenterVertically)
                         )
                     }
                 }
             }
-        }
-    ) {
+        }) {
         Box {
             GoogleMap(
-                modifier = Modifier
-                    .fillMaxSize(),
+                modifier = Modifier.fillMaxSize(),
                 properties = mapProperties,
-                contentPadding = PaddingValues(bottom = LocalConfiguration.current.screenHeightDp.dp * 0.08f, start = 0.dp), //flytter knappene
+                contentPadding = PaddingValues(
+                    bottom = LocalConfiguration.current.screenHeightDp.dp * 0.08f,
+                    start = 0.dp
+                ), //flytter knappene
                 cameraPositionState = cameraPositionState,
-                onMapLongClick = viewModel::onLongPress
+                onMapLongClick = onLongPress
             ) {
                 val context: ProvidableCompositionLocal<Context> = LocalContext
                 if (!viewModel.lockMarkers.value) {
@@ -243,14 +297,30 @@ fun TidsbrukScreen(
                         )
                     }
                 } else {
-                    if(viewModel.markerPositions.size>=2){
-                        val bitmapStart = BitmapFactory.decodeResource(context.current.resources, R.drawable.start_icon)
-                        val bitmapFinish = BitmapFactory.decodeResource(context.current.resources, R.drawable.finish_flag)
+                    if (viewModel.markerPositions.size >= 2) {
+                        val bitmapStart = BitmapFactory.decodeResource(
+                            context.current.resources,
+                            R.drawable.start_icon
+                        )
+                        val bitmapFinish = BitmapFactory.decodeResource(
+                            context.current.resources,
+                            R.drawable.finish_flag
+                        )
 
                         // Create a scaled bitmap with the desired dimensions
-                        val scaledBitmapStart = Bitmap.createScaledBitmap(bitmapStart, 64, 64, false) // Change 64 to the desired size of the icon
-                        val scaledBitmapFinish = Bitmap.createScaledBitmap(bitmapFinish, 64, 64, false) // Change 64 to the desired size of the icon
-                        
+                        val scaledBitmapStart = Bitmap.createScaledBitmap(
+                            bitmapStart,
+                            64,
+                            64,
+                            false
+                        ) // Change 64 to the desired size of the icon
+                        val scaledBitmapFinish = Bitmap.createScaledBitmap(
+                            bitmapFinish,
+                            64,
+                            64,
+                            false
+                        ) // Change 64 to the desired size of the icon
+
                         // Create a BitmapDescriptor from the scaled bitmap
                         val iconStartIcon = BitmapDescriptorFactory.fromBitmap(scaledBitmapStart)
                         val iconFinishFlag = BitmapDescriptorFactory.fromBitmap(scaledBitmapFinish)
@@ -265,41 +335,43 @@ fun TidsbrukScreen(
                             state = MarkerState(position = viewModel.markerPositions.last()),
                             icon = iconFinishFlag
                         )
+                    } else {
+                        viewModel.displayedText.value = stringResource(R.string.AddMarkers)
                     }
-                    else{
-                        viewModel.travelTimeText.value = stringResource(R.string.AddMarkers)
-                    }
+
                 }
+
                 viewModel.polyLines.forEach { options ->
                     val points = options.points
                     Polyline(points)
                 }
             }
+
             if (viewModel.reiseplanleggerInfoPopup) {
                 InfoPopup(
                     mapViewModel = viewModel,
                     screen = stringResource(R.string.ReiseplanleggerScreenName)
                 )
             }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth(0.16f)
                     .wrapContentWidth(CenterHorizontally)
                     .padding(top = 10.dp)
             ) {
+
                 MenuButton(
                     buttonIcon = Icons.Filled.Menu,
                     onButtonClicked = { openMenu() },
                     modifier = Modifier
                         .align(CenterHorizontally)
                         .background(
-                            color = White,
-                            shape = CircleShape
+                            color = White, shape = CircleShape
                         )
                         .padding(10.dp)
                         .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
                 )
-
                 Spacer(Modifier.height(10.dp))
 
                 InfoButton(
@@ -307,15 +379,52 @@ fun TidsbrukScreen(
                     screen = stringResource(R.string.ReiseplanleggerScreenName)
                 )
             }
+
         }
     }
 }
 
+// Calculate distance between coordinates
+fun calculateDistance(coordinates: List<LatLng>): Double {
+    var distance = 0.0
 
-fun useOwnLocation(state: MapState, viewModel: MapViewModel){
+    // iterates through the list
+    for (i in 0 until coordinates.lastIndex) {
+        val from = coordinates[i]
+        val to = coordinates[i + 1]
+        val results = FloatArray(1)
+        Location.distanceBetween(
+            from.latitude, from.longitude, to.latitude, to.longitude, results
+        )
+        distance += results[0]
+    }
+    return distance
+}
+
+fun useOwnLocation(state: MapState, viewModel: MapViewModel) {
     viewModel.updateLocation()
     viewModel.updateUseOfCurrentLocation(state)
 }
 
 
+// Calculate time in minutes based on distance and speed
+fun calculateTimeInMinutes(distanceInMeters: Double, speedInKnots: Float): Double {
+    val metersInNauticalMile = 1853
+    val minutesInHour = 60
+    return (distanceInMeters / (speedInKnots * metersInNauticalMile)) * minutesInHour
+}
 
+// Format time in minutes to display as text
+fun formatTime(timeInMinutes: Double): String {
+    return if (timeInMinutes < 1) {
+        "Under 1 minutt"
+    } else {
+        val hours = (timeInMinutes / 60).toInt()
+        val minutes = (timeInMinutes % 60).toInt()
+        if (hours == 0) {
+            "$minutes minutter"
+        } else {
+            "$hours timer og $minutes minutter"
+        }
+    }
+}

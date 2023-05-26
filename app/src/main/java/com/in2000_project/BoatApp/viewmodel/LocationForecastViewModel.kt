@@ -1,8 +1,6 @@
 package com.in2000_project.BoatApp.viewmodel
 
-import android.os.Build
 import android.util.Log
-import androidx.annotation.RequiresApi
 import com.in2000_project.BoatApp.data.ApiDataSource
 import com.in2000_project.BoatApp.data.TemperatureUiState
 import com.in2000_project.BoatApp.launch.CheckInternet
@@ -19,15 +17,17 @@ class LocationForecastViewModel {
     private val _temperatureUiState = MutableStateFlow(TemperatureUiState())
     val temperatureUiState = _temperatureUiState.asStateFlow()
 
-    init{
+    init {
         // sets the location to 0.0, 0.0 to avoid
         fetchLocationForecastData(0.0, 0.0)
     }
+
     private fun fetchLocationForecastData(lat: Double, lng: Double) {
         Log.d("Fetch", "LocationForecast")
         CoroutineScope(Dispatchers.IO).launch {
             // Link to the original API: https://api.met.no/weatherapi/locationforecast/2.0/complete?lat=59.9139&lon=10.7522
-            val url = "https://gw-uio.intark.uh-it.no/in2000/weatherapi/locationforecast/2.0/complete?lat=$lat&lon=$lng"
+            val url =
+                "https://gw-uio.intark.uh-it.no/in2000/weatherapi/locationforecast/2.0/complete?lat=$lat&lon=$lng"
             _temperatureUiState.update {
                 (it.copy(timeList = _dataSource.fetchLocationForecastData(url).properties.timeseries))
             }
@@ -35,8 +35,12 @@ class LocationForecastViewModel {
     }
 
     /** Collect new weatherData for the users coordinate */
-    @RequiresApi(Build.VERSION_CODES.M)
-    fun updateWeatherDataBasedOnCoordinate(lat: Double, lng: Double, connection: CheckInternet, internetPopupState: InternetPopupState){
+    fun updateWeatherDataBasedOnCoordinate(
+        lat: Double,
+        lng: Double,
+        connection: CheckInternet,
+        internetPopupState: InternetPopupState
+    ) {
         if (!connection.checkNetwork()) {
             Log.e("Internet connection", "Not connected!")
             internetPopupState.checkInternetPopup.value = true

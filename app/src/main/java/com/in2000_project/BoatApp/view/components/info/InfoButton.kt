@@ -19,17 +19,16 @@ import com.plcoding.bottomnavwithbadges.ui.theme.White
 /** Represents the information buttons in the top left corner of the screens */
 @Composable
 fun InfoButton(
-    mapViewModel: MapViewModel,
-    screen: String
+    mapViewModel: MapViewModel, screen: String
 ) {
     IconButton(
         onClick = {
             //
-            when(screen){
-                "Reiseplanlegger"->{
+            when (screen) {
+                "Reiseplanlegger" -> {
                     mapViewModel.reiseplanleggerInfoPopup = true
                 }
-                "Mann-over-bord"->{
+                "Mann-over-bord" -> {
                     mapViewModel.manIsOverboardInfoPopup = true
                 }
             }
@@ -37,8 +36,7 @@ fun InfoButton(
         modifier = Modifier
             .size(LocalConfiguration.current.screenWidthDp.dp * 0.115f)
             .background(
-                color = White,
-                shape = CircleShape
+                color = White, shape = CircleShape
             ),
     ) {
         Icon(
@@ -47,8 +45,7 @@ fun InfoButton(
             modifier = Modifier
                 .size(LocalConfiguration.current.screenWidthDp.dp * 0.07f)
                 .background(
-                    color = White,
-                    shape = CircleShape
+                    color = White, shape = CircleShape
                 ),
             tint = Black
         )
@@ -59,16 +56,13 @@ fun InfoButton(
 fun InfoButtonStorm(
     alertsMapViewModel: AlertsMapViewModel
 ) {
-    IconButton(
-        onClick = {
-            alertsMapViewModel.stormvarselInfoPopUp = true
-                  }
-    ) {
+    IconButton(onClick = {
+        alertsMapViewModel.stormvarselInfoPopUp = true
+    }) {
         Icon(
             Icons.Outlined.Info,
             contentDescription = stringResource(R.string.Information),
-            modifier = Modifier
-                .size(32.dp),
+            modifier = Modifier.size(32.dp),
             tint = Black
         )
     }
