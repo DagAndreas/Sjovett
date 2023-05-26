@@ -53,7 +53,7 @@ class MainActivity : ComponentActivity() {
                 val context = LocalContext.current
                 val searchViewModel = SearchViewModel(context)
                 val internet = CheckInternet(cm = getSystemService(CONNECTIVITY_SERVICE) as ConnectivityManager)
-                var internetPopupState = InternetPopupState()
+                val internetPopupState = InternetPopupState()
 
                 Surface(color = MaterialTheme.colors.background) {
                     val menuState = rememberDrawerState(DrawerValue.Closed)

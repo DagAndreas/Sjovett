@@ -30,7 +30,6 @@ fun InfoPopup(
         title = { Text("Informasjon") },
         text = { Text(
             if (screen == "Reiseplanlegger") {
-                // TODO: Sander T, ha en sjekk her for hvilken tekst som skal vises
                 infoTextReiseplanlegger
             }
             else if (screen == "Mann-over-bord") {

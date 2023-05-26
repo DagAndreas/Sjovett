@@ -32,7 +32,7 @@ import kotlin.system.exitProcess
 @HiltViewModel
 class MapViewModel @Inject constructor(): ViewModel() {
 
-    lateinit var locationProviderClient: FusedLocationProviderClient
+    private lateinit var locationProviderClient: FusedLocationProviderClient
     fun setClient(fusedLocationProviderClient: FusedLocationProviderClient) {
         locationProviderClient = fusedLocationProviderClient
     }
@@ -60,14 +60,14 @@ class MapViewModel @Inject constructor(): ViewModel() {
     var coordinatesToFindDistanceBetween = mutableStateListOf<LatLng>()
 
     // These are for Mann-over-bord
-    val markersMapScreen = mutableListOf<LatLng>()
+    private val markersMapScreen = mutableListOf<LatLng>()
     val polyLinesMap = mutableListOf<PolylineOptions>()
     var circleCenter = mutableStateOf(state.value.circle.coordinates)
     var circleRadius = mutableStateOf(25.0)
     var circleVisibility = mutableStateOf(false)
     var enabled = mutableStateOf(true)
     var timePassedInSeconds = mutableStateOf( 0 )
-    var manIsOverboard = mutableStateOf(false)
+    private var manIsOverboard = mutableStateOf(false)
     var buttonText = "Start søk"
 
     // PopUp
@@ -84,7 +84,7 @@ class MapViewModel @Inject constructor(): ViewModel() {
 
     var mapUpdateThread = MapUpdateThread(this)
     class MapUpdateThread(
-        val mapViewModel: MapViewModel
+        private val mapViewModel: MapViewModel
     ) : Thread() {
         var isRunning = false
         override fun run() {
@@ -161,33 +161,10 @@ class MapViewModel @Inject constructor(): ViewModel() {
                 }
             }
         } catch (e: SecurityException) {
-            exitProcess(-1)
             Log.e("updateLocation", e.toString())
+            exitProcess(-1)
         }
     }
-
-    @SuppressLint("MissingPermission")
-    fun getDeviceLocation(
-        fusedLocationProviderClient: FusedLocationProviderClient
-    ) {
-        /*
-         * Get the best and most recent location of the device, which may be null in rare
-         * cases when a location is not available.
-         */
-        try {
-            val locationResult = fusedLocationProviderClient.lastLocation
-            locationResult.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _state.value = state.value.copy(
-                        lastKnownLocation = task.result,
-                    )
-                }
-            }
-        } catch (e: SecurityException) {
-            Log.e("getDeviceLocation", e.toString())
-        }
-    }
-
     fun removeLastMarker() {
         if (markerPositions.size >= 2) {
             // Remove the last marker position

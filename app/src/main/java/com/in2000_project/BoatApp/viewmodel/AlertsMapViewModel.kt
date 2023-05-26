@@ -1,20 +1,16 @@
 package com.in2000_project.BoatApp.viewmodel
 
-import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
-import com.in2000_project.BoatApp.maps.*
-import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.model.PolygonOptions
-import com.in2000_project.BoatApp.maps.ZoneClusterItem
-import com.in2000_project.BoatApp.data.MapStateCluster
-import com.in2000_project.BoatApp.maps.ZoneClusterManager
 import com.in2000_project.BoatApp.data.AlertsMapUiState
+import com.in2000_project.BoatApp.data.MapStateCluster
+import com.in2000_project.BoatApp.maps.ZoneClusterItem
+import com.in2000_project.BoatApp.maps.ZoneClusterManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -39,7 +35,6 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
 
     //InfoCards
     var stormvarselInfoPopUp by mutableStateOf(true)
-    var infoTextStormvarsel by mutableStateOf("Skriv inn ønsket område i søkefeltet. Sveip til høyre for å se værvarsel for det neste døgnet.")
 
     val state: StateFlow<MapStateCluster> = _state.asStateFlow()
 
@@ -73,25 +68,6 @@ class AlertsMapViewModel @Inject constructor(): ViewModel() {
             )
         }
     }
-
-    @SuppressLint("MissingPermission")
-    fun getDeviceLocation(
-        fusedLocationProviderClient: FusedLocationProviderClient
-    ) {
-        try {
-            val locationResult = fusedLocationProviderClient.lastLocation
-            locationResult.addOnCompleteListener { task ->
-                if (task.isSuccessful) {
-                    _state.value = state.value.copy(
-                        lastKnownLocation = task.result,
-                    )
-                }
-            }
-        } catch (e: SecurityException) {
-            Log.e("SecurityException", e.toString())
-        }
-    }
-
     fun setupClusterManager(
         context: Context,
         map: GoogleMap,

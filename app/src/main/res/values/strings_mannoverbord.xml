@@ -12,5 +12,7 @@
 
     <string name="TextBoxMannOverBordOnLand">Vi kan ikke ta inn bølgedata når du er på land.</string>
     <string name="TextBoxMannOverBordDefault">Trykk på \'Start søk\' om noen faller over bord. Det estimerte søkeområdet vil da bli synlig.</string>
+    <string name="NoInternet">Ikke internett</string>
+    <string name="NoInternetMessage">Det ser ut som du ikke har internett. Koble til internett for å bruke denne funksjonen.</string>
 
 </resources>

@@ -6,7 +6,7 @@ import org.junit.Assert.*
 
 import org.junit.Test
 
-class ReiseplanleggerKtTest() {
+class ReiseplanleggerKtTest {
     @Test
     fun fromAtoB() {
         // TODO: Arrange
