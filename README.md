@@ -65,8 +65,6 @@ gradle.build:
         implementation"androidx.compose.runtime:runtime-livedata:$compose_version"
 
         //coil er for å laste ned bilder
-        implementation("io.coil-kt:coil:2.2.2")
-        implementation("io.coil-kt:coil-compose:2.2.2")
         implementation 'com.google.android.material:material:1.5.0'
         implementation "androidx.compose.material3:material3:1.1.0-alpha03" // Material 3
 
