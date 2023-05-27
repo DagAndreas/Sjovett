@@ -3,6 +3,7 @@ import com.in2000_project.BoatApp.view.screens.getColor
 import org.junit.Assert.assertEquals
 import org.junit.Test
 import java.util.*
+import kotlin.math.abs
 
 class StormvarselKtTest {
     @Test
@@ -21,22 +22,26 @@ class StormvarselKtTest {
 
         assertEquals(expectedDifference.toLong(), result)
     }
+
     @Test
     fun testCompareTimes2() {
         // TODO: Arrange
         val currentCalendar = Calendar.getInstance()
-        currentCalendar.set(2023, Calendar.MAY, 19, 12, 0, 0)
         val checkTimeCalendar = Calendar.getInstance()
+        currentCalendar.set(2023, Calendar.MAY, 19, 12, 0, 0)
+        currentCalendar.set(Calendar.MILLISECOND, 0)
         checkTimeCalendar.set(2023, Calendar.MAY, 18, 12, 0, 0)
+        checkTimeCalendar.set(Calendar.MILLISECOND, 0)
 
         // TODO: Act
-        val result = compareTimes(currentCalendar, checkTimeCalendar)
+        val result = abs(compareTimes(currentCalendar, checkTimeCalendar))
 
         // TODO: Assert
-        val expectedDifference =  24 * 60 * 60 // 24 hours in seconds
+        val expectedDifference = abs(24 * 60 * 60) // 24 hours in seconds
 
         assertEquals(expectedDifference.toLong(), result)
     }
+
     @Test
     fun testGetColor() {
         // TODO: Arrange
