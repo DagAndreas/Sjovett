@@ -44,7 +44,6 @@ import com.in2000_project.BoatApp.data.MapState
 import com.in2000_project.BoatApp.view.components.InfoPopup
 import com.in2000_project.BoatApp.view.components.navigation.MenuButton
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import com.plcoding.bottomnavwithbadges.ui.theme.*
 import kotlin.math.*
 
@@ -66,59 +65,6 @@ fun TidsbrukScreen(
 
     val mapProperties = MapProperties(isMyLocationEnabled = true)
 
-    // Handles changes to the speed slider
-    val onSpeedChanged: (Float) -> Unit = { value ->
-        viewModel.speedNumber.value = value.roundToInt().toFloat()
-        viewModel.lengthInMinutes.value =
-            calculateTimeInMinutes(viewModel.distanceInMeters.value, viewModel.speedNumber.value)
-        viewModel.updateDisplayedText()
-        viewModel.updateLocation()
-    }
-
-    // Handles long presses on the map
-    val onLongPress: (LatLng) -> Unit = { position ->
-        if (!viewModel.lockMarkers.value) {
-            // Updates the current location
-            viewModel.updateLocation()
-            if (viewModel.markerPositions.isEmpty()) {
-                viewModel.markerPositions += position
-                viewModel.coordinatesToFindDistanceBetween.add(position)
-            } else {
-                // Updates the first marker position to the current location
-                if (viewModel.usingMyPositionTidsbruk.value) {
-                    viewModel.markerPositions[0] = locationToLatLng(state.lastKnownLocation!!)
-                    if (viewModel.polyLines.size >= 1) {
-                        val updatedFirstPolyLine = PolylineOptions().add(
-                                viewModel.markerPositions[0],
-                                viewModel.markerPositions[1]
-                            ).color(android.graphics.Color.RED)
-                        viewModel.polyLines[0] = updatedFirstPolyLine
-                    }
-                }
-                // Adds the new marker position and coordinate for calculating distance
-                viewModel.markerPositions.add(position)
-                viewModel.coordinatesToFindDistanceBetween.add(position)
-
-
-                // Adds a new polyline between the last two markers
-                val lastPosition = viewModel.markerPositions[viewModel.markerPositions.size - 2]
-                val options =
-                    PolylineOptions().add(lastPosition, position).color(android.graphics.Color.RED)
-
-                viewModel.polyLines.add(options)
-
-                if (viewModel.coordinatesToFindDistanceBetween.size > 1) {
-                    viewModel.distanceInMeters.value =
-                        calculateDistance(viewModel.coordinatesToFindDistanceBetween)
-                    viewModel.lengthInMinutes.value = calculateTimeInMinutes(
-                        viewModel.distanceInMeters.value,
-                        viewModel.speedNumber.value
-                    )
-                }
-            }
-            viewModel.updateDisplayedText()
-        }
-    }
 
     // The sheet that is on the bottom of the screen
     BottomSheetScaffold(sheetShape = RoundedCornerShape(topStart = 20.dp, topEnd = 20.dp),
@@ -174,7 +120,7 @@ fun TidsbrukScreen(
                         // choose knots
                         Slider(
                             value = viewModel.speedNumber.value,
-                            onValueChange = onSpeedChanged,
+                            onValueChange = viewModel::onSpeedChange,
                             valueRange = 0f..50f,
                             modifier = Modifier
                                 .padding(5.dp)
@@ -287,7 +233,7 @@ fun TidsbrukScreen(
                     start = 0.dp
                 ), //flytter knappene
                 cameraPositionState = cameraPositionState,
-                onMapLongClick = onLongPress
+                onMapLongClick = { latLng -> viewModel.onLongPress(latLng, state) }
             ) {
                 val context: ProvidableCompositionLocal<Context> = LocalContext
                 if (!viewModel.lockMarkers.value) {

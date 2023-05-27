@@ -36,10 +36,7 @@ class LocationForecastViewModel {
 
     /** Collect new weatherData for the users coordinate */
     fun updateWeatherDataBasedOnCoordinate(
-        lat: Double,
-        lng: Double,
-        connection: CheckInternet,
-        internetPopupState: InternetPopupState
+        lat: Double, lng: Double, connection: CheckInternet, internetPopupState: InternetPopupState
     ) {
         if (!connection.checkNetwork()) {
             Log.e("Internet connection", "Not connected!")

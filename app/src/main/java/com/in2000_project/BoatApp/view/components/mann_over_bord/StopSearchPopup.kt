@@ -19,9 +19,10 @@ import com.in2000_project.BoatApp.viewmodel.MapViewModel
 import com.plcoding.bottomnavwithbadges.ui.theme.Black
 import com.plcoding.bottomnavwithbadges.ui.theme.White
 
+
 /** Represents the Popup that is displayed when the user tries to stop the search in Mann-over-bord */
 @Composable
-fun EndSearchPopup(
+fun StopSearchPopup(
     mapViewModel: MapViewModel
 ) {
     AlertDialog(onDismissRequest = { mapViewModel.showDialog = false },
@@ -48,11 +49,7 @@ fun EndSearchPopup(
 
                 Button(
                     onClick = {
-                        mapViewModel.showDialog = false
-
-                        //TODO: Skal denne ha text som parameter?
-                        mapViewModel.restartButton()
-                        mapViewModel.buttonText = buttonText
+                        mapViewModel.stopSearchPopupYes(buttonText)
                     },
                     modifier = Modifier.padding(start = 20.dp),
                     colors = ButtonDefaults.outlinedButtonColors(
@@ -66,3 +63,5 @@ fun EndSearchPopup(
             }
         })
 }
+
+

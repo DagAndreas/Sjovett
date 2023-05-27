@@ -44,8 +44,8 @@ fun Sjovettreglene(
 
         LazyColumn(
             modifier = Modifier.graphicsLayer(
-                    scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY
-                )
+                scaleX = scale, scaleY = scale, translationX = offsetX, translationY = offsetY
+            )
         ) {
             items(imageList) { image ->
 

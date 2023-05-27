@@ -1,6 +1,5 @@
 package com.in2000_project.BoatApp.viewmodel
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.model.LatLng
@@ -14,13 +13,10 @@ class OceanViewModel(urlPath: String) : ViewModel() {
     private val _dataSource = ApiDataSource()
     var path: String = urlPath
     var oceanForecastResponseObject: OceanForecastResponse = getOceanForecastResponse()
-    private var amountOfTimesFetched = 0
 
     fun getOceanForecastResponse(): OceanForecastResponse {
         viewModelScope.launch {
             oceanForecastResponseObject = _dataSource.fetchOceanForecastData(path)
-            amountOfTimesFetched++
-            Log.i("OceanViewModel", "Fetched ocean data $amountOfTimesFetched times")
         }
         return oceanForecastResponseObject
     }

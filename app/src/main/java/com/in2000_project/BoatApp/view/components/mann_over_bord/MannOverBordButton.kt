@@ -11,7 +11,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.viewModelScope
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.maps.android.compose.CameraPositionState
 import com.in2000_project.BoatApp.data.MapState
@@ -19,11 +18,9 @@ import com.in2000_project.BoatApp.launch.CheckInternet
 import com.in2000_project.BoatApp.launch.InternetPopupState
 import com.in2000_project.BoatApp.view.screens.seaOrLandUrl
 import com.in2000_project.BoatApp.viewmodel.MapViewModel
-import com.in2000_project.BoatApp.viewmodel.SeaOrLandViewModel
 import com.in2000_project.BoatApp.viewmodel.locationToLatLng
 import com.plcoding.bottomnavwithbadges.ui.theme.Red
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 /** Represents the Button in the bottom of the Mann-over-bord screen */
 @Composable
@@ -40,37 +37,12 @@ fun MannOverBordButton(
 
     Button(
         onClick = {
-            if (!connection.checkNetwork()) {
-                internetPopupState.checkInternetPopup.value = true
-            } else {
-                mapViewModel.updateLocation()
-                val pos = locationToLatLng(state.lastKnownLocation)
-                val seaOrLandViewModel =
-                    SeaOrLandViewModel("$seaOrLandUrl?latitude=${pos.latitude}&longitude=${pos.longitude}&rapidapi-key=fc0719ee46mshf31ac457f36a8a9p15e288jsn324fc84023ff")
-
-                mapViewModel.viewModelScope.launch {
-                    // Checks if the coordinate of the user is on land or not.
-                    val seaOrLandResponse = seaOrLandViewModel.getSeaOrLandResponse()
-
-                    // Continues if the users coordinate returns true on water
-                    if (seaOrLandResponse.water) {
-                        mapViewModel.oceanViewModel.setPath(pos)
-                        mapViewModel.oceanViewModel.getOceanForecastResponse()
-
-
-                        if (!mapViewModel.mapUpdateThread.isRunning) {
-                            mapViewModel.startButton(state.lastKnownLocation, pos)
-                            mapViewModel.buttonText = "Stopp søk"
-                        } else {
-                            mapViewModel.showDialog = true
-                        }
-
-                    } else {
-                        mapViewModel.manIsOverboardInfoPopup = true
-                    }
-                }
-            }
-
+            mapViewModel.mannOverBordButtonPress(
+                connection,
+                internetPopupState,
+                state,
+                seaOrLandUrl
+            )
         },
         modifier = modifier,
         shape = CircleShape,
@@ -89,8 +61,7 @@ fun MannOverBordButton(
             if (locationObtained.value) {
                 cameraPositionState.animate(
                     CameraUpdateFactory.newLatLngZoom(
-                        locationToLatLng(state.lastKnownLocation),
-                        cameraZoom
+                        locationToLatLng(state.lastKnownLocation), cameraZoom
                     ), 1500
                 )
             }

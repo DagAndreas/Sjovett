@@ -31,8 +31,7 @@ class SearchViewModel(context: Context) : ViewModel() {
     private val array: Array<String> = context.resources.getStringArray(R.array.city_list)
     private val _cities = MutableStateFlow(getAllCities(array.toList()))
 
-    val cities = locationSearch
-        .onEach { _searchInProgress.update { true } }
+    val cities = locationSearch.onEach { _searchInProgress.update { true } }
         .combine(_cities) { text, cities ->
             if (text.isBlank()) {
                 // Shows the entire list if the user does not type anything
@@ -43,12 +42,8 @@ class SearchViewModel(context: Context) : ViewModel() {
                     it.matchesSearch(text)
                 }
             }
-        }
-        .onEach { _searchInProgress.update { false } }
-        .stateIn(
-            viewModelScope,
-            SharingStarted.WhileSubscribed(5000),
-            _cities.value
+        }.onEach { _searchInProgress.update { false } }.stateIn(
+            viewModelScope, SharingStarted.WhileSubscribed(5000), _cities.value
         )
 
 
@@ -58,9 +53,7 @@ class SearchViewModel(context: Context) : ViewModel() {
 
 
     suspend fun fetchCityData(
-        cityName: String,
-        connection: CheckInternet,
-        internetPopupState: InternetPopupState
+        cityName: String, connection: CheckInternet, internetPopupState: InternetPopupState
     ) {
         if (!connection.checkNetwork()) { // Stops the use of internet actions, if internet is not connected
             Log.e("Internet connection", "Not connected!")
