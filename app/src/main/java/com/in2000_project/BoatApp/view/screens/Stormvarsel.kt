@@ -339,7 +339,7 @@ fun indexClosestTime(listOfTime: List<Timesery>): MutableMap<Int, Date> {
 /** Compares two Calendars and returns the difference between them in seconds */
 fun compareTimes(currentCalendar: Calendar, checkTimeCalendar: Calendar): Long {
     val diffMillis = checkTimeCalendar.timeInMillis - currentCalendar.timeInMillis
-    return diffMillis / (1000 * 60)
+    return diffMillis / 1000
 }
 
 /** Formats the awarnessLevel into the right color-code */
