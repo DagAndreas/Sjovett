@@ -335,7 +335,7 @@ fun calculateNewDriftedPositionAndCircleSize(
 
     return calculateNewPositionFromWaveData(
         listOf(personCoordinate.latitude, personCoordinate.longitude),
-        forecastDetails.sea_surface_wave_from_direction,
+        forecastDetails.sea_water_to_direction,
         forecastDetails.sea_water_speed,
         time
     )
